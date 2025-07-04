@@ -418,6 +418,41 @@
             background: rgba(0,0,0,0.3);
             z-index: 20;
         }
+        
+        /* 新增：Markdown代码块样式 */
+        .article-full-content pre {
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+        
+        .article-full-content code {
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        .article-full-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+        }
+        
+        /* 文章摘要中的代码样式 */
+        .article-content code {
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.2);
+            color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
     </style>
     
     <!-- 使用本地库 -->
@@ -554,6 +589,10 @@
                 if (typeof marked !== 'undefined') {
                     markedLoaded = true;
                     console.log('Marked.js loaded');
+                    
+                    // 配置Marked
+                    configureMarked();
+                    
                     if (pageInitialized) bindEvents();
                 } else {
                     markedRetryCount++;
@@ -586,6 +625,23 @@
             // 开始检查
             checkMarked();
             checkAxios();
+        }
+
+        // 配置Marked.js
+        function configureMarked() {
+            if (typeof marked === 'undefined') return;
+            
+            // 配置Marked选项
+            marked.setOptions({
+                gfm: true,          // 启用GitHub风格的Markdown
+                breaks: true,       // 将换行符转换为<br>
+                smartypants: true,  // 智能标点转换
+                langPrefix: 'language-', // 语言类名前缀
+                highlight: function(code, lang) {
+                    // 简单的高亮处理
+                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                }
+            });
         }
 
         // 初始化页面
