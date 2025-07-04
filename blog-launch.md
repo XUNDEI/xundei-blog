@@ -1,6 +1,6 @@
 今天，我的博客终于也是上线了  
 
-不过这个博客是deepseek生成的，因为我没学过前端，本来python做了个后端但是用不上，我没有服务器，所以打算用CloudflarePages，可惜CloudflarePages不能用动态，只能用静态，那后端就没用了  
+不过这个博客是deepseek生成的，因为鄙人只学过python，没有学过前端，但是又非常想要一个自定义的博客。我没有服务器，所以打算用CloudflarePages，可惜CloudflarePages不能用动态，只能用静态，那我学的python在这里就完全用不上了  
 
 这个博客打算记录一些我的感想，有时也会发些捣鼓技术的经验  
 
