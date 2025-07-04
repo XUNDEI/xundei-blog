@@ -6,6 +6,7 @@
     <title>迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 所有样式保持不变 */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
@@ -397,7 +398,31 @@
                 left: 5%;
             }
         }
+
+        /* 新增：修复关闭按钮样式 */
+        .article-modal .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.3);
+            z-index: 20;
+        }
     </style>
+    
+    <!-- 使用本地库 -->
+    <script src="axios.min.js" defer></script>
+    <script src="marked.min.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -461,10 +486,6 @@
     <!-- 提示框 -->
     <div class="toast" id="toast"></div>
     
-    <!-- 将外部脚本放在页面底部，并使用async defer -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" async defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" async defer></script>
-    
     <script>
         // ======================
         // 配置数据
@@ -477,13 +498,29 @@
         ];
         
         const articlesIndex = [
-            {
+        {
                 id: "something-1",
                 title: "博客上线！",
-                date: "2025-07-03",
+                date: "2025-07-04",
                 category: "something",
                 excerpt: "博客上线，简单谈谈...",
                 filename: "blog-launch.md"
+            },
+            {
+                id: "tech-1",
+                title: "测试",
+                date: "2025-07-03",
+                category: "technology",
+                excerpt: "仅测试",
+                filename: "tech-test.md"
+            },
+            {
+                id: "diary-1",
+                title: "测试",
+                date: "2025-07-03",
+                category: "diary",
+                excerpt: "仅测试",
+                filename: "diary-test.md"
             }
         ];
 
@@ -493,6 +530,11 @@
         let pageInitialized = false;
         let markedLoaded = false;
         let axiosLoaded = false;
+        
+        // 加载重试计数器
+        let markedRetryCount = 0;
+        let axiosRetryCount = 0;
+        const MAX_RETRY = 30; // 最大重试次数 (30 * 100ms = 3秒)
 
         // ======================
         // 初始化函数
@@ -508,38 +550,42 @@
         // 检查外部库加载状态
         function checkExternalLibraries() {
             // 检查marked是否已加载
-            if (typeof marked !== 'undefined') {
-                markedLoaded = true;
-            } else {
-                // 如果未加载，创建script标签
-                const markedScript = document.createElement('script');
-                markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-                markedScript.onload = () => {
+            const checkMarked = () => {
+                if (typeof marked !== 'undefined') {
                     markedLoaded = true;
                     console.log('Marked.js loaded');
-                    if (pageInitialized) {
-                        bindEvents();
+                    if (pageInitialized) bindEvents();
+                } else {
+                    markedRetryCount++;
+                    if (markedRetryCount > MAX_RETRY) {
+                        console.error('Marked.js failed to load');
+                        showToast('Markdown解析器加载失败，请刷新页面');
+                    } else {
+                        setTimeout(checkMarked, 100);
                     }
-                };
-                document.head.appendChild(markedScript);
-            }
-
+                }
+            };
+            
             // 检查axios是否已加载
-            if (typeof axios !== 'undefined') {
-                axiosLoaded = true;
-            } else {
-                // 如果未加载，创建script标签
-                const axiosScript = document.createElement('script');
-                axiosScript.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
-                axiosScript.onload = () => {
+            const checkAxios = () => {
+                if (typeof axios !== 'undefined') {
                     axiosLoaded = true;
                     console.log('Axios loaded');
-                    if (pageInitialized) {
-                        bindEvents();
+                    if (pageInitialized) bindEvents();
+                } else {
+                    axiosRetryCount++;
+                    if (axiosRetryCount > MAX_RETRY) {
+                        console.error('Axios failed to load');
+                        showToast('网络请求库加载失败，请刷新页面');
+                    } else {
+                        setTimeout(checkAxios, 100);
                     }
-                };
-                document.head.appendChild(axiosScript);
-            }
+                }
+            };
+            
+            // 开始检查
+            checkMarked();
+            checkAxios();
         }
 
         // 初始化页面
@@ -824,6 +870,7 @@
             
             const overlay = document.createElement('div');
             overlay.id = 'article-overlay-' + Date.now();
+            overlay.className = 'article-modal';
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -862,14 +909,16 @@
                 <div class="article-full-content" style="color: rgba(255,255,255,0.9); line-height: 1.8; font-size: 1.1rem; padding: 10px;">
                     ${htmlContent}
                 </div>
-                <button class="close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0,0,0,0.3);">×</button>
+                <button class="close-btn">×</button>
             `;
             
             overlay.appendChild(content);
             document.body.appendChild(overlay);
             
-            // 关闭按钮
-            content.querySelector('.close-btn').addEventListener('click', () => {
+            // 关闭按钮 - 修复需要多次点击的问题
+            const closeBtn = content.querySelector('.close-btn');
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡
                 if (document.getElementById(overlay.id)) {
                     document.body.removeChild(overlay);
                 }
