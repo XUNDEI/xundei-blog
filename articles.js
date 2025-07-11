@@ -1,0 +1,27 @@
+// articles.js
+window.blogArticles = [
+    {
+        id: "something-1",
+        title: "博客上线！",
+        date: "2025-07-04",
+        category: "something",
+        excerpt: "博客上线，简单谈谈...",
+        filename: "blog/something/blog-launch/blog-launch.md"
+    },
+    {
+        id: "tech-1",
+        title: "谈谈如何挑选杀毒软件",
+        date: "2025-07-09",
+        category: "technology",
+        excerpt: "在2025，如何挑选适合自己的杀软呢？",
+        filename: "blog/technology/ChooseAntiVirus/antivirus.md"
+    },
+    {
+        id: "diary-1",
+        title: "测试",
+        date: "2025-07-03",
+        category: "diary",
+        excerpt: "仅测试",
+        filename: "blog/diary/test/diary-test.md"
+    }
+];

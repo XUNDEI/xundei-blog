@@ -458,6 +458,36 @@
     <!-- 使用本地库 -->
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
+    <!-- 文章索引 -->
+    <script>
+        // articles.js
+        window.blogArticles = [
+            {
+                id: "something-1",
+                title: "博客上线！",
+                date: "2025-07-04",
+                category: "something",
+                excerpt: "博客上线，简单谈谈...",
+                filename: "blog/something/blog-launch/blog-launch.md"
+            },
+            {
+                id: "tech-1",
+                title: "谈谈如何挑选杀毒软件",
+                date: "2025-07-09",
+                category: "technology",
+                excerpt: "在2025，如何挑选适合自己的杀软呢？",
+                filename: "blog/technology/ChooseAntiVirus/antivirus.md"
+            },
+            {
+                id: "diary-1",
+                title: "测试",
+                date: "2025-07-03",
+                category: "diary",
+                excerpt: "仅测试",
+                filename: "blog/diary/test/diary-test.md"
+            }
+        ];
+    </script>
 </head>
 <body>
     <div class="container">
@@ -532,33 +562,6 @@
             "我生的太晚了，错过了大航海时代；我生的太早了，等不到人类探索群星璀璨时"
         ];
         
-        const articlesIndex = [
-        {
-                id: "something-1",
-                title: "博客上线！",
-                date: "2025-07-04",
-                category: "something",
-                excerpt: "博客上线，简单谈谈...",
-                filename: "blog-launch.md"
-            },
-            {
-                id: "tech-1",
-                title: "测试",
-                date: "2025-07-03",
-                category: "technology",
-                excerpt: "仅测试",
-                filename: "tech-test.md"
-            },
-            {
-                id: "diary-1",
-                title: "测试",
-                date: "2025-07-03",
-                category: "diary",
-                excerpt: "仅测试",
-                filename: "diary-test.md"
-            }
-        ];
-
         // ======================
         // 页面状态变量
         // ======================
@@ -715,7 +718,9 @@
         function loadArticles() {
             try {
                 // 使用内联索引
-                window.blogArticles = articlesIndex;
+                if (!window.blogArticles) {
+                    throw new Error('文章索引未加载');
+                }
                 
                 // 渲染文章
                 renderArticles('all');
@@ -773,7 +778,7 @@
                     <div class="article-content">
                         ${article.excerpt}
                     </div>
-                    <a href="#" class="read-more" data-id="${article.id}">阅读全文</a>
+                    <a href="article.html?id=${article.id}" class="read-more">阅读全文</a>
                 `;
                 grid.appendChild(card);
             });
@@ -820,22 +825,6 @@
                 });
             });
             
-            // 阅读全文
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('read-more')) {
-                    e.preventDefault();
-                    const articleId = e.target.dataset.id;
-                    
-                    // 检查库是否已加载
-                    if (!markedLoaded || !axiosLoaded) {
-                        showToast('功能正在加载，请稍候...');
-                        return;
-                    }
-                    
-                    showArticle(articleId);
-                }
-            });
-            
             // 点击其他地方关闭关于卡片
             document.addEventListener('click', (e) => {
                 const aboutCard = document.getElementById('about-card');
@@ -843,149 +832,6 @@
                     !e.target.closest('#about-card') && 
                     !e.target.closest('#about-btn')) {
                     aboutCard.style.display = 'none';
-                }
-            });
-        }
-
-        // 显示文章详情
-        async function showArticle(id) {
-            if (!window.blogArticles) return;
-            
-            const article = window.blogArticles.find(a => a.id === id);
-            if (!article) {
-                console.error('找不到文章:', id);
-                showToast('找不到文章');
-                return;
-            }
-
-            // 创建唯一ID的加载层
-            const overlayId = 'loading-overlay-' + Date.now();
-            const overlay = document.createElement('div');
-            overlay.id = overlayId;
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.7);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000;
-                backdrop-filter: blur(5px);
-                padding: 20px;
-            `;
-            
-            overlay.innerHTML = `
-                <div style="text-align: center; color: white;">
-                    <div class="loader" style="margin: 0 auto 20px;"></div>
-                    <p>正在加载文章...</p>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-            
-            try {
-                // 加载文章内容
-                const response = await axios.get(`./${article.filename}?t=${Date.now()}`, {
-                    responseType: 'text'
-                });
-                
-                // 移除加载层
-                if (document.getElementById(overlayId)) {
-                    document.body.removeChild(overlay);
-                }
-                
-                // 创建文章详情弹窗
-                showArticleContent(article, response.data);
-            } catch (error) {
-                console.error('加载文章内容失败:', error);
-                
-                // 移除加载层
-                if (document.getElementById(overlayId)) {
-                    document.body.removeChild(overlay);
-                }
-                
-                // 显示错误信息
-                showToast(`加载失败: ${error.message}`);
-            }
-        }
-
-        // 显示文章内容
-        function showArticleContent(article, markdownContent) {
-            // 确保marked已加载
-            if (typeof marked === 'undefined') {
-                showToast('Markdown解析器未加载，请刷新页面');
-                console.error('marked is not defined');
-                return;
-            }
-            
-            // 解析Markdown
-            const htmlContent = marked.parse(markdownContent);
-            
-            const overlay = document.createElement('div');
-            overlay.id = 'article-overlay-' + Date.now();
-            overlay.className = 'article-modal';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.7);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000;
-                backdrop-filter: blur(5px);
-                padding: 20px;
-                overflow-y: auto;
-            `;
-            
-            const content = document.createElement('div');
-            content.className = 'glass';
-            content.style.cssText = `
-                max-width: 800px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                padding: 30px;
-                position: relative;
-            `;
-            
-            content.innerHTML = `
-                <div style="position: sticky; top: 0; background: rgba(124, 77, 255, 0.8); padding: 15px; border-radius: 10px; margin-bottom: 20px; backdrop-filter: blur(10px); z-index: 10;">
-                    <h2 style="color: white; margin-bottom: 10px;">${article.title}</h2>
-                    <div style="display: flex; justify-content: space-between; color: rgba(255,255,255,0.8); font-size: 0.9rem;">
-                        <span>${article.date}</span>
-                        <span>${getCategoryName(article.category)}</span>
-                    </div>
-                </div>
-                <div class="article-full-content" style="color: rgba(255,255,255,0.9); line-height: 1.8; font-size: 1.1rem; padding: 10px;">
-                    ${htmlContent}
-                </div>
-                <button class="close-btn">×</button>
-            `;
-            
-            overlay.appendChild(content);
-            document.body.appendChild(overlay);
-            
-            // 关闭按钮 - 修复需要多次点击的问题
-            const closeBtn = content.querySelector('.close-btn');
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // 阻止事件冒泡
-                if (document.getElementById(overlay.id)) {
-                    document.body.removeChild(overlay);
-                }
-            });
-            
-            // 点击外部关闭
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    if (document.getElementById(overlay.id)) {
-                        document.body.removeChild(overlay);
-                    }
                 }
             });
         }
