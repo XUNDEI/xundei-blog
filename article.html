@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - 迅dei的赛博小家</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --primary-color: #7c4dff;
+            --text-color: #333;
+            --light-text: #fff;
+            --transition: all 0.3s ease;
+            --blur-amount: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: var(--text-color);
+            position: relative;
+            overflow-x: hidden;
+            background-attachment: fixed;
+            transition: background-image 1.5s ease-in-out;
+            background-color: #121212;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 磨砂玻璃效果 */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        /* 阅读时间样式 */
+        .reading-time {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            width: 100%;
+            gap: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 文章内容样式 */
+        .article-container {
+            max-width: 800px;
+            margin: 60px auto 40px;
+        }
+        
+        .article-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .article-title {
+            font-size: 2.2rem;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        
+        .article-full-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .article-full-content h2,
+        .article-full-content h3 {
+            margin: 30px 0 20px;
+            color: var(--light-text);
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .article-full-content h2::before,
+        .article-full-content h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .article-full-content p {
+            margin-bottom: 25px;
+        }
+        
+        .article-full-content pre {
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 25px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .article-full-content code {
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .article-full-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .article-full-content img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 25px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .article-full-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 20px;
+            margin: 25px 0;
+            background: rgba(124, 77, 255, 0.1);
+            border-radius: 0 8px 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* 图片灯箱效果 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(124, 77, 255, 0.5);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lightbox-close:hover {
+            color: var(--primary-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .article-title {
+                font-size: 1.8rem;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            :root {
+                --blur-amount: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-title {
+                font-size: 1.6rem;
+            }
+            
+            .article-meta {
+                font-size: 0.9rem;
+            }
+            
+            .article-full-content {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <script src="axios.min.js" defer></script>
+    <script src="marked.min.js" defer></script>
+    <!-- 共享文章索引 -->
+    <script>
+        // articles.js
+        window.blogArticles = [
+            {
+                id: "something-1",
+                title: "博客上线！",
+                date: "2025-07-04",
+                category: "something",
+                excerpt: "博客上线，简单谈谈...",
+                filename: "blog/something/blog-launch/blog-launch.md"
+            },
+            {
+                id: "tech-1",
+                title: "谈谈如何挑选杀毒软件",
+                date: "2025-07-09",
+                category: "technology",
+                excerpt: "在2025，如何挑选适合自己的杀软呢？",
+                filename: "blog/technology/ChooseAntiVirus/antivirus.md"
+            },
+            {
+                id: "diary-1",
+                title: "测试",
+                date: "2025-07-03",
+                category: "diary",
+                excerpt: "仅测试",
+                filename: "blog/diary/test/diary-test.md"
+            }
+        ];
+    </script>
+</head>
+<body>
+    <a href="index.html" class="back-btn glass">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img id="lightbox-img" alt="Lightbox">
+    </div>
+    
+    <div class="container">
+        <div class="article-container glass" id="article-container">
+            <div class="loading-container">
+                <div class="loader"></div>
+                <p>正在加载文章内容...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 壁纸（与主页一致）
+        const wallpapers = ["wallpaper1.jpg", "wallpaper2.jpg", "wallpaper3.jpg"];
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 设置随机壁纸
+            await setRandomWallpaper();
+            
+            // 加载文章内容
+            await loadArticle();
+            
+            // 设置图片点击事件
+            document.addEventListener('click', handleImageClick);
+        });
+        
+        // 设置随机壁纸
+        async function setRandomWallpaper() {
+            try {
+                if (wallpapers.length > 0) {
+                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                    const timestamp = new Date().getTime();
+                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
+                    
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = wallpaperPath;
+                    });
+                    
+                    document.body.style.backgroundImage = `url(${wallpaperPath})`;
+                }
+            } catch (error) {
+                console.error('设置壁纸失败:', error);
+            }
+        }
+        
+        // 加载文章
+        async function loadArticle() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            
+            if (!articleId || !window.blogArticles) {
+                showError('无效的文章ID');
+                return;
+            }
+            
+            const article = window.blogArticles.find(a => a.id === articleId);
+            if (!article) {
+                showError('找不到文章');
+                return;
+            }
+            
+            try {
+                // 设置页面标题
+                document.title = `${article.title} - 迅dei的赛博小家`;
+                
+                // 加载文章内容
+                const response = await axios.get(`./${article.filename}?t=${Date.now()}`, {
+                    responseType: 'text'
+                });
+                
+                // 计算阅读时间
+                const wordCount = response.data.replace(/\s+/g, '').length;
+                const readingTime = Math.ceil(wordCount / 300);
+                
+                // 获取文章所在目录
+                const articleDir = article.filename.substring(0, article.filename.lastIndexOf('/') + 1);
+                
+                // 转换图片路径
+                let markdownContent = response.data;
+                markdownContent = markdownContent.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, path) => {
+                    // 处理相对路径图片
+                    if (!path.startsWith('http') && !path.startsWith('/') && !path.startsWith('data:')) {
+                        return `![${alt}](${encodeURI('./' + articleDir + path)})`;
+                    }
+                    return match;
+                });
+                
+                // 解析Markdown
+                if (typeof marked === 'undefined') {
+                    throw new Error('Markdown解析器未加载');
+                }
+                
+                // 配置Marked
+                marked.setOptions({
+                    gfm: true,
+                    breaks: true,
+                    langPrefix: 'language-',
+                    highlight: function(code, lang) {
+                        return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                    }
+                });
+                
+                const htmlContent = marked.parse(markdownContent);
+                
+                // 渲染文章
+                const container = document.getElementById('article-container');
+                container.innerHTML = `
+                    <div class="article-header">
+                        <h1 class="article-title">${article.title}</h1>
+                        <div class="article-meta">
+                            <div>
+                                <span>${article.date}</span>
+                                <span>${getCategoryName(article.category)}</span>
+                            </div>
+                            <div class="reading-time">预计阅读时间: ${readingTime}分钟</div>
+                        </div>
+                    </div>
+                    <div class="article-full-content">
+                        ${htmlContent}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('加载文章失败:', error);
+                showError(`加载失败: ${error.message}`);
+            }
+        }
+        
+        // 图片点击处理
+        function handleImageClick(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.article-full-content')) {
+                const imgSrc = e.target.src;
+                const lightbox = document.getElementById('lightbox');
+                const lightboxImg = document.getElementById('lightbox-img');
+                
+                lightboxImg.src = imgSrc;
+                lightbox.style.display = 'flex';
+                
+                // 点击关闭灯箱
+                document.getElementById('lightbox-close').addEventListener('click', () => {
+                    lightbox.style.display = 'none';
+                });
+                
+                // 点击背景关闭
+                lightbox.addEventListener('click', (e) => {
+                    if (e.target === lightbox) {
+                        lightbox.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'technology': '技术',
+                'diary': '日记',
+                'something': '杂碎'
+            };
+            return names[category] || category;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const container = document.getElementById('article-container');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 50px 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff6b6b; margin-bottom: 20px;"></i>
+                    <h2 style="color: var(--light-text); margin-bottom: 15px;">加载失败</h2>
+                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 30px;">${message}</p>
+                    <a href="index.html" class="read-more" style="display: inline-block; padding: 10px 30px; background: var(--primary-color); border-radius: 30px; text-decoration: none; color: white;">返回首页</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
