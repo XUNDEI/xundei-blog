@@ -6,7 +6,6 @@
     <title>迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 所有样式保持不变 */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
@@ -147,6 +146,7 @@
             flex-direction: column;
             transition: var(--transition);
             overflow: hidden;
+            position: relative;
         }
         
         .article-card:hover {
@@ -480,11 +480,11 @@
             },
             {
                 id: "diary-1",
-                title: "测试",
-                date: "2025-07-03",
+                title: "星河随风而至，落日踏霞而归",
+                date: "2025-07-11",
                 category: "diary",
-                excerpt: "仅测试",
-                filename: "blog/diary/test/diary-test.md"
+                excerpt: "天是倒过来的海，云是卷起来的梦",
+                filename: "blog/diary/sunset/sunset.md"
             }
         ];
     </script>
@@ -722,6 +722,11 @@
                     throw new Error('文章索引未加载');
                 }
                 
+                // 对文章按日期倒序排序（最新在前）
+                window.blogArticles.sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+                
                 // 渲染文章
                 renderArticles('all');
             } catch (error) {
@@ -749,9 +754,14 @@
             const grid = document.getElementById('articles-grid');
             grid.innerHTML = '';
             
-            const filteredArticles = category === 'all' 
-                ? window.blogArticles 
+            let filteredArticles = category === 'all' 
+                ? [...window.blogArticles] 
                 : window.blogArticles.filter(article => article.category === category);
+            
+            // 按时间倒序排序（最新在前）
+            filteredArticles.sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
             
             if (filteredArticles.length === 0) {
                 grid.innerHTML = `
