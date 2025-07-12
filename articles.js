@@ -18,10 +18,10 @@ window.blogArticles = [
     },
     {
         id: "diary-1",
-        title: "测试",
-        date: "2025-07-03",
+        title: "星河随风而至，落日踏霞而归",
+        date: "2025-07-11",
         category: "diary",
-        excerpt: "仅测试",
-        filename: "blog/diary/test/diary-test.md"
+        excerpt: "天是倒过来的海，云是卷起来的梦",
+        filename: "blog/diary/sunset/sunset.md"
     }
 ];
