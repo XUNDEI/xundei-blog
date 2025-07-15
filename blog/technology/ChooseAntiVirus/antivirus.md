@@ -42,7 +42,7 @@
 
 * 不知道有没有主动防御，似乎交互上没体现出来
 
-## 360
+## 2.360
 
 [![360](antivirus-360.png)](https://www.360.cn/)
 
@@ -78,7 +78,7 @@
 
 * 启发貌似用处不大，更多的是依赖云md5病毒库，面对新威胁基本无能为力
 
-## 火绒
+## 3.火绒
 
 [![huorong](antivirus-huorong.png)](https://www.huorong.cn/)
 
@@ -112,7 +112,7 @@
 
 * 火绒始终不肯引入驱动级主防，虽然这么做也有道理，一定程度上降低了系统出现底层故障的风险（之前全球大规模蓝屏就是CrowdStrike驱动bug的锅），但是代价的防护的脆弱，这也导致了能强杀火绒的样本并不少
 
-## 腾讯电脑管家
+## 4.腾讯电脑管家
 
 [![TencentPCManager](antivirus-TencentPCManager.png)](https://guanjia.qq.com/)
 
@@ -130,5 +130,5 @@
 
 * 防护官方吹得再厉害也没用，实际上就是依托，无论是主防还是引擎全身上下凑不出一处能夸的
 
-## 金山毒霸
+## 5.金山毒霸
 [![KingsoftAntivirus](antivirus-KingsoftAntivirus.png)](https://www.duba.net/)

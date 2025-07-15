@@ -146,7 +146,6 @@
             flex-direction: column;
             transition: var(--transition);
             overflow: hidden;
-            position: relative;
         }
         
         .article-card:hover {
@@ -398,103 +397,19 @@
                 left: 5%;
             }
         }
-
-        /* 新增：修复关闭按钮样式 */
-        .article-modal .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.3);
-            z-index: 20;
-        }
-        
-        /* 新增：Markdown代码块样式 */
-        .article-full-content pre {
-            background: #1e1e1e;
-            color: #dcdcdc;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            line-height: 1.5;
-            margin: 15px 0;
-        }
-        
-        .article-full-content code {
-            font-family: 'Courier New', monospace;
-            background: rgba(255,255,255,0.1);
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-        
-        .article-full-content pre code {
-            background: none;
-            padding: 0;
-            border-radius: 0;
-        }
-        
-        /* 文章摘要中的代码样式 */
-        .article-content code {
-            font-family: 'Courier New', monospace;
-            background: rgba(0,0,0,0.2);
-            color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
     </style>
     
     <!-- 使用本地库 -->
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
-    <!-- 文章索引 -->
-    <script>
-        // articles.js
-        window.blogArticles = [
-            {
-                id: "something-1",
-                title: "博客上线！",
-                date: "2025-07-04",
-                category: "something",
-                excerpt: "博客上线，简单谈谈...",
-                filename: "blog/something/blog-launch/blog-launch.md"
-            },
-            {
-                id: "tech-1",
-                title: "谈谈如何挑选杀毒软件",
-                date: "2025-07-09",
-                category: "technology",
-                excerpt: "在2025，如何挑选适合自己的杀软呢？",
-                filename: "blog/technology/ChooseAntiVirus/antivirus.md"
-            },
-            {
-                id: "diary-1",
-                title: "星河随风而至，落日踏霞而归",
-                date: "2025-07-11",
-                category: "diary",
-                excerpt: "天是倒过来的海，云是卷起来的梦",
-                filename: "blog/diary/sunset/sunset.md"
-            }
-        ];
-    </script>
-    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- 外部文章索引 -->
+    <script src="articles.js" defer></script>
 </head>
 <body>
     <div class="container">
         <header class="glass">
             <h1 class="blog-title">迅dei的赛博小家</h1>
-            <div class="sentence" id="sentence">加载中...</div>
+            <div class="sentence" id="sentence">思想是灵魂与自己的对话</div>
             <div class="categories">
                 <button class="category-btn active" data-category="all">全部</button>
                 <button class="category-btn" data-category="technology">技术</button>
@@ -512,7 +427,7 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️
+            made by <strong>xundei</strong> with ❤️，xundei-blog V2.2
         </footer>
     </div>
     
@@ -569,10 +484,12 @@
         let pageInitialized = false;
         let markedLoaded = false;
         let axiosLoaded = false;
+        let articlesLoaded = false;
         
         // 加载重试计数器
         let markedRetryCount = 0;
         let axiosRetryCount = 0;
+        let articlesRetryCount = 0;
         const MAX_RETRY = 30; // 最大重试次数 (30 * 100ms = 3秒)
 
         // ======================
@@ -581,23 +498,35 @@
         document.addEventListener('DOMContentLoaded', () => {
             // 检查外部库是否已加载
             checkExternalLibraries();
-            
-            // 初始化页面
-            initializePage();
         });
 
         // 检查外部库加载状态
         function checkExternalLibraries() {
+            // 检查文章索引是否已加载
+            const checkArticles = () => {
+                if (typeof window.blogArticles !== 'undefined') {
+                    articlesLoaded = true;
+                    console.log('Articles loaded');
+                    if (pageInitialized) bindEvents();
+                    initializePage();
+                } else {
+                    articlesRetryCount++;
+                    if (articlesRetryCount > MAX_RETRY) {
+                        console.error('Articles failed to load');
+                        showToast('文章索引加载失败，请刷新页面');
+                    } else {
+                        setTimeout(checkArticles, 100);
+                    }
+                }
+            };
+            
             // 检查marked是否已加载
             const checkMarked = () => {
                 if (typeof marked !== 'undefined') {
                     markedLoaded = true;
                     console.log('Marked.js loaded');
-                    
-                    // 配置Marked
                     configureMarked();
-                    
-                    if (pageInitialized) bindEvents();
+                    if (articlesLoaded && pageInitialized) bindEvents();
                 } else {
                     markedRetryCount++;
                     if (markedRetryCount > MAX_RETRY) {
@@ -614,12 +543,12 @@
                 if (typeof axios !== 'undefined') {
                     axiosLoaded = true;
                     console.log('Axios loaded');
-                    if (pageInitialized) bindEvents();
+                    if (articlesLoaded && pageInitialized) bindEvents();
                 } else {
                     axiosRetryCount++;
                     if (axiosRetryCount > MAX_RETRY) {
                         console.error('Axios failed to load');
-                        showToast('网络请求库加载失败，请刷新页面');
+                        showToast('网络错误，请刷新页面');
                     } else {
                         setTimeout(checkAxios, 100);
                     }
@@ -627,6 +556,7 @@
             };
             
             // 开始检查
+            checkArticles();
             checkMarked();
             checkAxios();
         }
@@ -637,12 +567,11 @@
             
             // 配置Marked选项
             marked.setOptions({
-                gfm: true,          // 启用GitHub风格的Markdown
-                breaks: true,       // 将换行符转换为<br>
-                smartypants: true,  // 智能标点转换
-                langPrefix: 'language-', // 语言类名前缀
+                gfm: true,
+                breaks: true,
+                smartypants: true,
+                langPrefix: 'language-',
                 highlight: function(code, lang) {
-                    // 简单的高亮处理
                     return `<pre><code class="language-${lang}">${code}</code></pre>`;
                 }
             });
@@ -651,11 +580,15 @@
         // 初始化页面
         async function initializePage() {
             try {
+                if (!window.blogArticles) {
+                    throw new Error('文章索引未加载');
+                }
+                
                 // 设置随机壁纸
                 await setRandomWallpaper();
                 
                 // 设置随机美句
-                await setRandomSentence();
+                setRandomSentence();
                 
                 // 加载文章
                 loadArticles();
@@ -711,14 +644,13 @@
                 }
             } catch (error) {
                 console.error('设置美句失败:', error);
-                document.getElementById('sentence').textContent = "代码如诗，逻辑如歌";
+                document.getElementById('sentence').textContent = "加载中...";
             }
         }
 
         // 加载文章
         function loadArticles() {
             try {
-                // 使用内联索引
                 if (!window.blogArticles) {
                     throw new Error('文章索引未加载');
                 }
