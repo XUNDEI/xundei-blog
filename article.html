@@ -6,7 +6,6 @@
     <title>文章详情 - 迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 基础样式 */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
@@ -262,7 +261,95 @@
             color: var(--primary-color);
         }
         
+        /* 目录导航 */
+        .toc-container {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            max-width: 300px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 99;
+        }
+        
+        .toc-title {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .toc-list {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+        
+        .toc-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .toc-list a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: block;
+            padding: 3px 0;
+        }
+        
+        .toc-list a:hover {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        .toc-list .toc-h2 {
+            font-weight: 600;
+            padding-left: 0;
+        }
+        
+        .toc-list .toc-h3 {
+            font-weight: 400;
+            padding-left: 15px;
+            font-size: 0.95rem;
+        }
+        
+        /* 回到顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 98;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+        
         /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .toc-container {
+                display: none;
+            }
+        }
+        
         @media (max-width: 768px) {
             .article-title {
                 font-size: 1.8rem;
@@ -302,37 +389,8 @@
     </style>
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
-    <!-- 共享文章索引 -->
-    <script>
-        // articles.js
-        window.blogArticles = [
-            {
-                id: "something-1",
-                title: "博客上线！",
-                date: "2025-07-04",
-                category: "something",
-                excerpt: "博客上线，简单谈谈...",
-                filename: "blog/something/blog-launch/blog-launch.md"
-            },
-            {
-                id: "tech-1",
-                title: "谈谈如何挑选杀毒软件",
-                date: "2025-07-09",
-                category: "technology",
-                excerpt: "在2025，如何挑选适合自己的杀软呢？",
-                filename: "blog/technology/ChooseAntiVirus/antivirus.md"
-            },
-            {
-                id: "diary-1",
-                title: "星河随风而至，落日踏霞而归",
-                date: "2025-07-11",
-                category: "diary",
-                excerpt: "天是倒过来的海，云是卷起来的梦",
-                filename: "blog/diary/sunset/sunset.md"
-            }
-        ];
-    </script>
-    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- 外部文章索引 -->
+    <script src="articles.js" defer></script>
 </head>
 <body>
     <a href="index.html" class="back-btn glass">
@@ -342,6 +400,17 @@
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" id="lightbox-close">&times;</span>
         <img id="lightbox-img" alt="Lightbox">
+    </div>
+    
+    <!-- 目录导航 -->
+    <div class="toc-container glass" id="toc-container" style="display: none;">
+        <div class="toc-title">目录</div>
+        <ul class="toc-list" id="toc-list"></ul>
+    </div>
+    
+    <!-- 回到顶部按钮 -->
+    <div class="back-to-top glass" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
     </div>
     
     <div class="container">
@@ -367,6 +436,17 @@
             
             // 设置图片点击事件
             document.addEventListener('click', handleImageClick);
+            
+            // 监听滚动事件
+            window.addEventListener('scroll', handleScroll);
+            
+            // 绑定回到顶部按钮
+            document.getElementById('back-to-top').addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
         });
         
         // 设置随机壁纸
@@ -397,14 +477,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
             
-            if (!articleId || !window.blogArticles) {
-                showError('无效的文章ID');
+            if (!articleId || typeof window.blogArticles === 'undefined') {
+                showError('此文章不存在，可能已被删除或移动');
                 return;
             }
             
             const article = window.blogArticles.find(a => a.id === articleId);
             if (!article) {
-                showError('找不到文章');
+                showError('此文章不存在，可能已被删除或移动');
                 return;
             }
             
@@ -469,9 +549,16 @@
                     </div>
                 `;
                 
+                // 生成目录
+                generateTOC();
+                
             } catch (error) {
                 console.error('加载文章失败:', error);
-                showError(`加载失败: ${error.message}`);
+                if (error.response && error.response.status === 404) {
+                    showError('此文章不存在，可能已被删除或移动');
+                } else {
+                    showError(`网络错误，请刷新页面`);
+                }
             }
         }
         
@@ -507,6 +594,48 @@
                 'something': '杂碎'
             };
             return names[category] || category;
+        }
+        
+        // 生成目录
+        function generateTOC() {
+            const tocContainer = document.getElementById('toc-container');
+            const tocList = document.getElementById('toc-list');
+            const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+            
+            if (headings.length === 0) {
+                tocContainer.style.display = 'none';
+                return;
+            }
+            
+            tocContainer.style.display = 'block';
+            tocList.innerHTML = '';
+            
+            headings.forEach((heading, index) => {
+                // 为标题添加ID（如果还没有）
+                if (!heading.id) {
+                    heading.id = `heading-${index}`;
+                }
+                
+                const listItem = document.createElement('li');
+                listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
+                
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.textContent = heading.textContent;
+                
+                listItem.appendChild(link);
+                tocList.appendChild(listItem);
+            });
+        }
+        
+        // 处理滚动事件
+        function handleScroll() {
+            const backToTopBtn = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
         }
         
         // 显示错误信息
