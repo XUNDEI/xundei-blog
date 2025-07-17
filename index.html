@@ -965,12 +965,150 @@
                     return;
                 }
                 
+                // 心知天气API配置
+                const apiKey = 'PRgEsJD5sy5OuuLKZ';
+                const uid = '503275418';
+                
+                // 获取当前时间戳
+                const ts = Math.floor(Date.now() / 1000);
+                // 构造验证参数字符串
+                const str = `ts=${ts}&uid=${uid}`;
+                
+                // 签名生成方法（使用SHA1）
+                function generateSignature(str, key) {
+                    // 使用简单的SHA1实现
+                    function sha1(s) {
+                        function rotateLeft(n, s) {
+                            return (n << s) | (n >>> (32 - s));
+                        }
+                        function toHex(value) {
+                            let hex = '';
+                            for (let i = 7; i >= 0; i--) {
+                                hex += ((value >> (i * 4)) & 0xf).toString(16);
+                            }
+                            return hex;
+                        }
+                        
+                        const blocks = [];
+                        const len = s.length * 8;
+                        for (let i = 0; i < len; i += 8) {
+                            blocks[i >> 5] |= (s.charCodeAt(i / 8) & 0xff) << (24 - i % 32);
+                        }
+                        
+                        blocks[len >> 5] |= 0x80 << (24 - len % 32);
+                        blocks[((len + 64 >> 9) << 4) + 15] = len;
+                        
+                        const w = new Array(80);
+                        let a = 0x67452301;
+                        let b = 0xEFCDAB89;
+                        let c = 0x98BADCFE;
+                        let d = 0x10325476;
+                        let e = 0xC3D2E1F0;
+                        
+                        for (let i = 0; i < blocks.length; i += 16) {
+                            const olda = a;
+                            const oldb = b;
+                            const oldc = c;
+                            const oldd = d;
+                            const olde = e;
+                            
+                            for (let j = 0; j < 80; j++) {
+                                if (j < 16) w[j] = blocks[i + j] || 0;
+                                else w[j] = rotateLeft(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
+                                
+                                const t = (rotateLeft(a, 5) + e + w[j] + 
+                                          (j < 20 ? 0x5A827999 : 
+                                           j < 40 ? 0x6ED9EBA1 : 
+                                           j < 60 ? 0x8F1BBCDC : 0xCA62C1D6)) >>> 0;
+                                e = d;
+                                d = c;
+                                c = rotateLeft(b, 30) >>> 0;
+                                b = a;
+                                a = t;
+                            }
+                            
+                            a = (a + olda) >>> 0;
+                            b = (b + oldb) >>> 0;
+                            c = (c + oldc) >>> 0;
+                            d = (d + oldd) >>> 0;
+                            e = (e + olde) >>> 0;
+                        }
+                        
+                        return toHex(a) + toHex(b) + toHex(c) + toHex(d) + toHex(e);
+                    }
+                    
+                    // 使用HMAC-SHA1
+                    let keyBytes = key;
+                    if (keyBytes.length > 64) {
+                        keyBytes = sha1(keyBytes);
+                    }
+                    
+                    const ipad = Array(64).fill(0);
+                    const opad = Array(64).fill(0);
+                    
+                    for (let i = 0; i < keyBytes.length; i++) {
+                        ipad[i] = keyBytes.charCodeAt(i) ^ 0x36;
+                        opad[i] = keyBytes.charCodeAt(i) ^ 0x5C;
+                    }
+                    
+                    const innerHash = sha1(String.fromCharCode(...ipad) + str);
+                    const outerHash = sha1(String.fromCharCode(...opad) + innerHash);
+                    
+                    return btoa(outerHash).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                }
+                
+                // 生成签名
+                const sig = generateSignature(str, apiKey);
+                const params = `${str}&sig=${sig}`;
+                
                 // 获取位置信息
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const { latitude, longitude } = position.coords;
-                        // 使用JSONP方式获取天气
-                        fetchWeatherByJSONP(latitude, longitude);
+                        const location = `${latitude}:${longitude}`;
+                        
+                        // 构造JSONP请求URL
+                        const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&${params}`;
+                        
+                        // 创建唯一的回调函数名
+                        const callbackName = 'weatherCallback_' + Date.now();
+                        
+                        // 定义回调函数
+                        window[callbackName] = function(data) {
+                            // 清除script标签和回调函数
+                            document.body.removeChild(script);
+                            delete window[callbackName];
+                            
+                            if (data.results && data.results.length > 0) {
+                                const weatherData = data.results[0].now;
+                                const locationData = data.results[0].location;
+                                
+                                const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
+                                const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
+                                
+                                weatherElement.textContent = weatherText;
+                                iconElement.textContent = icon;
+                                
+                                // 缓存天气数据30分钟
+                                setCache('weather_data', { 
+                                    text: weatherText, 
+                                    icon: icon 
+                                }, 30);
+                            } else {
+                                weatherElement.textContent = '获取失败';
+                                iconElement.textContent = weatherIcons['default'];
+                            }
+                        };
+                        
+                        // 创建script标签
+                        const script = document.createElement('script');
+                        script.src = `${url}&callback=${callbackName}`;
+                        script.onerror = () => {
+                            console.error('天气请求失败');
+                            weatherElement.textContent = '无法获取';
+                            iconElement.textContent = weatherIcons['default'];
+                        };
+                        document.body.appendChild(script);
                     },
                     error => {
                         console.error('获取位置失败:', error);
@@ -981,10 +1119,9 @@
                         }
                         iconElement.textContent = weatherIcons['default'];
                         
-                        // 尝试使用默认位置
-                        fetchWeatherByJSONP(39.9042, 116.4074); // 北京经纬度
-                    },
-                    { timeout: 5000 } // 5秒超时
+                        // 尝试使用默认位置（北京）
+                        fetchWeatherWithDefaultLocation(apiKey, params);
+                    }
                 );
             } catch (error) {
                 console.error('获取天气失败:', error);
@@ -993,14 +1130,16 @@
             }
         }
 
-        // 使用JSONP获取天气
-        function fetchWeatherByJSONP(lat, lng) {
-            const API_KEY = 'PRgEsJD5sy5OuuLKZ';
-            const location = `${lat}:${lng}`;
-            const url = `https://api.seniverse.com/v3/weather/now.json?key=${API_KEY}&location=${location}&language=zh-Hans&unit=c`;
+        // 默认位置（北京）
+        function fetchWeatherWithDefaultLocation(apiKey, params) {
+            const weatherElement = document.getElementById('weather-text');
+            const iconElement = document.getElementById('weather-icon');
+            const location = 'beijing';
+            
+            const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&${params}`;
             
             // 创建唯一的回调函数名
-            const callbackName = 'weatherCallback_' + Date.now();
+            const callbackName = 'weatherCallbackDefault_' + Date.now();
             
             // 定义回调函数
             window[callbackName] = function(data) {
@@ -1015,8 +1154,8 @@
                     const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
                     const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
                     
-                    document.getElementById('weather-text').textContent = weatherText;
-                    document.getElementById('weather-icon').textContent = icon;
+                    weatherElement.textContent = weatherText;
+                    iconElement.textContent = icon;
                     
                     // 缓存天气数据30分钟
                     setCache('weather_data', { 
@@ -1024,8 +1163,8 @@
                         icon: icon 
                     }, 30);
                 } else {
-                    document.getElementById('weather-text').textContent = '获取失败';
-                    document.getElementById('weather-icon').textContent = weatherIcons['default'];
+                    weatherElement.textContent = '获取失败';
+                    iconElement.textContent = weatherIcons['default'];
                 }
             };
             
@@ -1034,8 +1173,8 @@
             script.src = `${url}&callback=${callbackName}`;
             script.onerror = () => {
                 console.error('天气请求失败');
-                document.getElementById('weather-text').textContent = '无法获取';
-                document.getElementById('weather-icon').textContent = weatherIcons['default'];
+                weatherElement.textContent = '无法获取';
+                iconElement.textContent = weatherIcons['default'];
             };
             document.body.appendChild(script);
         }
