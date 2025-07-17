@@ -104,6 +104,85 @@
             padding: 10px 20px;
         }
         
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 20px;
+            margin: 15px 0 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 10px;
+        }
+        
+        .status-item i {
+            margin-right: 8px;
+            color: var(--primary-color);
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .status-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .weather-info .source-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .weather-info:hover .source-tooltip {
+            opacity: 1;
+        }
+        
+        .weather-icon {
+            font-size: 1.4rem;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .history-event {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
         /* 分类导航 */
         .categories {
             display: flex;
@@ -372,6 +451,20 @@
                 right: 15px;
             }
             
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .status-item {
+                margin: 3px 0;
+            }
+            
+            .history-event {
+                max-width: 100%;
+            }
+            
             :root {
                 --blur-amount: 8px;
             }
@@ -396,6 +489,21 @@
                 right: 5%;
                 left: 5%;
             }
+            
+            .status-bar {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            
+            .status-label {
+                display: none;
+            }
+            
+            .history-event {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+            }
         }
     </style>
     
@@ -404,12 +512,48 @@
     <script src="marked.min.js" defer></script>
     <!-- 外部文章索引 -->
     <script src="articles.js" defer></script>
+    <!-- 访问量统计 -->
+    <script async src="https://finicounter.eu.org/finicounter.js"></script>
 </head>
 <body>
     <div class="container">
         <header class="glass">
             <h1 class="blog-title">迅dei的赛博小家</h1>
             <div class="sentence" id="sentence">加载中...</div>
+            
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <i class="fas fa-eye"></i>
+                    <div class="status-content">
+                        <div class="status-label">访问量</div>
+                        <div id="views-counter">
+                            <span id="finicount_views"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <i class="fas fa-cloud-sun"></i>
+                    <div class="status-content">
+                        <div class="status-label">天气</div>
+                        <div class="weather-info" id="weather-info">
+                            <div class="weather-icon" id="weather-icon">⛅</div>
+                            <div id="weather-text">获取中...</div>
+                            <div class="source-tooltip">数据来源：心知天气</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <i class="fas fa-history"></i>
+                    <div class="status-content">
+                        <div class="status-label">历史上的今天</div>
+                        <div class="history-event" id="history-event">加载中...</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="categories">
                 <button class="category-btn active" data-category="all">全部</button>
                 <button class="category-btn" data-category="technology">技术</button>
@@ -427,7 +571,7 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.2.3
+            made by <strong>xundei</strong> with ❤️| xundei-blog V2.3.0
         </footer>
     </div>
     
@@ -484,6 +628,23 @@
             "我们抬头望见的星光，穿越了亿万年的孤独，只为在这一刻落入你的眼睛",
             "如果银河是倒悬的海洋，那我愿与你乘一叶扁舟，在星辉里漂流至时光尽头。"
         ];
+        
+        // 天气图标映射
+        const weatherIcons = {
+            '晴': '☀️',
+            '多云': '⛅',
+            '阴': '☁️',
+            '小雨': '🌧️',
+            '中雨': '🌧️',
+            '大雨': '⛈️',
+            '雷阵雨': '⛈️',
+            '雪': '❄️',
+            '雾': '🌫️',
+            '风': '🌬️',
+            '沙尘': '🌪️',
+            '冰雹': '🌨️',
+            'default': '🌡️'
+        };
         
         // ======================
         // 页面状态变量
@@ -599,6 +760,9 @@
                 
                 // 加载文章
                 loadArticles();
+                
+                // 加载状态栏数据
+                loadStatusBar();
                 
                 // 标记页面已初始化
                 pageInitialized = true;
@@ -747,6 +911,80 @@
                 'something': '杂碎'
             };
             return names[category] || category;
+        }
+
+        // 加载状态栏数据
+        function loadStatusBar() {
+            // 访问量由第三方脚本自动处理
+            
+            // 获取天气
+            getWeather();
+            
+            // 获取历史事件
+            getHistoryEvent();
+        }
+
+        async function getWeather() {
+            try {
+                const weatherElement = document.getElementById('weather-text');
+                const iconElement = document.getElementById('weather-icon');
+                
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                
+                const { latitude, longitude } = position.coords;
+                
+                const apiKey = 'PRgEsJD5sy5OuuLKZ';
+                const location = `${latitude}:${longitude}`;
+                const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    const weatherData = data.results[0].now;
+                    const locationData = data.results[0].location;
+                    
+                    weatherElement.textContent = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
+                    
+                    // 设置天气图标
+                    const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
+                    iconElement.textContent = icon;
+                } else {
+                    weatherElement.textContent = '获取失败';
+                    iconElement.textContent = weatherIcons['default'];
+                }
+            } catch (error) {
+                console.error('获取天气失败:', error);
+                document.getElementById('weather-text').textContent = '无法获取';
+                document.getElementById('weather-icon').textContent = weatherIcons['default'];
+            }
+        }
+
+        async function getHistoryEvent() {
+            try {
+                const historyElement = document.getElementById('history-event');
+                const today = new Date();
+                const month = today.getMonth() + 1;
+                const day = today.getDate();
+
+                const apiUrl = `https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888&m=${month}&d=${day}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    historyElement.textContent = data.title;
+                    
+                    historyElement.title = data.title;
+                } else {
+                    historyElement.textContent = "暂无历史事件";
+                }
+            } catch (error) {
+                console.error('获取历史事件失败:', error);
+                document.getElementById('history-event').textContent = '加载失败';
+            }
         }
 
         // 绑定事件
