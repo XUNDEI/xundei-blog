@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迅dei的赛博小家</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 样式保持不变 */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --primary-color: #7c4dff;
+            --text-color: #333;
+            --light-text: #fff;
+            --transition: all 0.3s ease;
+            --blur-amount: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: var(--text-color);
+            position: relative;
+            overflow-x: hidden;
+            background-attachment: fixed;
+            transition: background-image 1.5s ease-in-out;
+            background-color: #121212;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 磨砂玻璃效果 */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        .glass:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center;
+            margin: 20px 0 40px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .blog-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #7c4dff, #00bcd4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sentence {
+            font-size: 1.4rem;
+            font-weight: 300;
+            font-style: italic;
+            color: var(--light-text);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 20px;
+            margin: 15px 0 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 10px;
+        }
+        
+        .status-item i {
+            margin-right: 8px;
+            color: var(--primary-color);
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .status-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .weather-info .source-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .weather-info:hover .source-tooltip {
+            opacity: 1;
+        }
+        
+        .weather-icon {
+            font-size: 1.4rem;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .history-event {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* 分类导航 */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 文章网格 */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .article-card {
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+        
+        .article-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--light-text);
+            line-height: 1.4;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .article-content {
+            padding: 15px;
+            flex-grow: 1;
+            overflow: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .read-more {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .read-more:hover {
+            background: var(--primary-color);
+        }
+        
+        /* 关于我 */
+        .about-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: var(--transition);
+        }
+        
+        .about-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .about-card {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 300px;
+            z-index: 100;
+            display: none;
+            animation: popIn 0.4s ease;
+        }
+        
+        .about-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid white;
+        }
+        
+        .about-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--light-text);
+        }
+        
+        .contacts {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .contact-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            margin: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .contact-btn:hover {
+            transform: translateY(-5px);
+            background: var(--primary-color);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* 提示框 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            width: 100%;
+        }
+        
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .blog-title {
+                font-size: 2.5rem;
+            }
+            
+            .sentence {
+                font-size: 1.1rem;
+            }
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-card {
+                width: 250px;
+                right: 15px;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .status-item {
+                margin: 3px 0;
+            }
+            
+            .history-event {
+                max-width: 100%;
+            }
+            
+            :root {
+                --blur-amount: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .blog-title {
+                font-size: 2rem;
+            }
+            
+            .sentence {
+                font-size: 1rem;
+            }
+            
+            .category-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .about-card {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+            
+            .status-bar {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            
+            .status-label {
+                display: none;
+            }
+            
+            .history-event {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+            }
+        }
+    </style>
+    
+    <!-- 使用本地库 -->
+    <script src="axios.min.js" defer></script>
+    <script src="marked.min.js" defer></script>
+    <!-- 外部文章索引 -->
+    <script src="articles.js" defer></script>
+    <!-- 访问量统计 -->
+    <script async src="https://finicounter.eu.org/finicounter.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="glass">
+            <h1 class="blog-title">迅dei的赛博小家</h1>
+            <div class="sentence" id="sentence">加载中...</div>
+            
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <i class="fas fa-eye"></i>
+                    <div class="status-content">
+                        <div class="status-label">访问量</div>
+                        <div id="views-counter">
+                            <span id="finicount_views"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <i class="fas fa-cloud-sun"></i>
+                    <div class="status-content">
+                        <div class="status-label">天气</div>
+                        <div class="weather-info" id="weather-info">
+                            <div class="weather-icon" id="weather-icon">⛅</div>
+                            <div id="weather-text">获取中...</div>
+                            <div class="source-tooltip">数据来源：心知天气</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <i class="fas fa-history"></i>
+                    <div class="status-content">
+                        <div class="status-label">历史上的今天</div>
+                        <div class="history-event" id="history-event">加载中...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="categories">
+                <button class="category-btn active" data-category="all">全部</button>
+                <button class="category-btn" data-category="technology">技术</button>
+                <button class="category-btn" data-category="diary">日记</button>
+                <button class="category-btn" data-category="something">杂碎</button>
+            </div>
+        </header>
+        
+        <main>
+            <div class="articles-grid" id="articles-grid">
+                <div class="loading-container">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="glass">
+            made by <strong>xundei</strong> with ❤️| xundei-blog V2.3.0
+        </footer>
+    </div>
+    
+    <!-- 关于我按钮 -->
+    <div class="about-btn" id="about-btn">
+        <i class="fas fa-user"></i>
+    </div>
+    
+    <!-- 关于我卡片 -->
+    <div class="about-card glass" id="about-card">
+        <div class="about-header">
+            <img src="./portrait.png" alt="Avatar" class="avatar">
+            <div class="about-name">迅dei</div>
+        </div>
+        <div class="contacts">
+            <div class="contact-btn" data-contact="github" data-value="https://github.com/XUNDEI">
+                <i class="fab fa-github"></i>
+            </div>
+            <div class="contact-btn" data-contact="qq" data-value="503275418">
+                <i class="fab fa-qq"></i>
+            </div>
+            <div class="contact-btn" data-contact="wechat" data-value="xie503275418">
+                <i class="fab fa-weixin"></i>
+            </div>
+            <div class="contact-btn" data-contact="bilibili" data-value="518218011">
+                <i class="fab fa-bilibili"></i>
+            </div>
+            <div class="contact-btn" data-contact="email" data-value="xundei_awa@outlook.com">
+                <i class="fas fa-envelope"></i>
+            </div>
+        </div>
+        <p style="text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 10px;">
+            点击图标复制联系方式
+        </p>
+    </div>
+    
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // ======================
+        // 配置数据
+        // ======================
+        const wallpapers = ["wallpaper1.jpg", "wallpaper2.png", "wallpaper3.jpg", "wallpaper4.png", "wallpaper5.png", "wallpaper6.png"];
+        const sentences = [
+            "地球是人类的摇篮，但人类不可能永远待在摇篮里",
+            "星汉灿烂，若出其里",
+            "我生的太晚了，错过了大航海时代；我生的太早了，等不到人类探索群星璀璨时",
+            "愿天上每一颗星星都为你闪耀天际",
+            "当两颗星星的轨道重合，人类称之为相遇；当它们永远同步旋转，天文学家叫它双星——而诗人说这是爱情",
+            "爱不是一定要拥有，就像爱星空不必拥有，在星空下享受星光，就是最大的幸福",
+            "每个深夜，我也只是在仰望着星空，回忆着过去，我不会再为曾经洒下一滴泪，但我的心却愈加的怀念着曾经",
+            "星空是宇宙写给人类的情书，每一颗星星都是未干的墨点",
+            "我们抬头望见的星光，穿越了亿万年的孤独，只为在这一刻落入你的眼睛",
+            "如果银河是倒悬的海洋，那我愿与你乘一叶扁舟，在星辉里漂流至时光尽头。"
+        ];
+        
+        // 天气图标映射
+        const weatherIcons = {
+            '晴': '☀️',
+            '多云': '⛅',
+            '阴': '☁️',
+            '小雨': '🌧️',
+            '中雨': '🌧️',
+            '大雨': '⛈️',
+            '雷阵雨': '⛈️',
+            '雪': '❄️',
+            '雾': '🌫️',
+            '风': '🌬️',
+            '沙尘': '🌪️',
+            '冰雹': '🌨️',
+            'default': '🌡️'
+        };
+        
+        // ======================
+        // 页面状态变量
+        // ======================
+        let pageInitialized = false;
+        let markedLoaded = false;
+        let axiosLoaded = false;
+        let articlesLoaded = false;
+        
+        // 加载重试计数器
+        let markedRetryCount = 0;
+        let axiosRetryCount = 0;
+        let articlesRetryCount = 0;
+        const MAX_RETRY = 30; // 最大重试次数 (30 * 100ms = 3秒)
+
+        // ======================
+        // 初始化函数
+        // ======================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查外部库是否已加载
+            checkExternalLibraries();
+        });
+
+        // 检查外部库加载状态
+        function checkExternalLibraries() {
+            // 检查文章索引是否已加载
+            const checkArticles = () => {
+                if (typeof window.blogArticles !== 'undefined') {
+                    articlesLoaded = true;
+                    console.log('Articles loaded');
+                    if (pageInitialized) bindEvents();
+                    initializePage();
+                } else {
+                    articlesRetryCount++;
+                    if (articlesRetryCount > MAX_RETRY) {
+                        console.error('Articles failed to load');
+                        showToast('文章索引加载失败，请刷新页面');
+                    } else {
+                        setTimeout(checkArticles, 100);
+                    }
+                }
+            };
+            
+            // 检查marked是否已加载
+            const checkMarked = () => {
+                if (typeof marked !== 'undefined') {
+                    markedLoaded = true;
+                    console.log('Marked.js loaded');
+                    configureMarked();
+                    if (articlesLoaded && pageInitialized) bindEvents();
+                } else {
+                    markedRetryCount++;
+                    if (markedRetryCount > MAX_RETRY) {
+                        console.error('Marked.js failed to load');
+                        showToast('Markdown解析器加载失败，请刷新页面');
+                    } else {
+                        setTimeout(checkMarked, 100);
+                    }
+                }
+            };
+            
+            // 检查axios是否已加载
+            const checkAxios = () => {
+                if (typeof axios !== 'undefined') {
+                    axiosLoaded = true;
+                    console.log('Axios loaded');
+                    if (articlesLoaded && pageInitialized) bindEvents();
+                } else {
+                    axiosRetryCount++;
+                    if (axiosRetryCount > MAX_RETRY) {
+                        console.error('Axios failed to load');
+                        showToast('网络错误，请刷新页面');
+                    } else {
+                        setTimeout(checkAxios, 100);
+                    }
+                }
+            };
+            
+            // 开始检查
+            checkArticles();
+            checkMarked();
+            checkAxios();
+        }
+
+        // 配置Marked.js
+        function configureMarked() {
+            if (typeof marked === 'undefined') return;
+            
+            // 配置Marked选项
+            marked.setOptions({
+                gfm: true,
+                breaks: true,
+                smartypants: true,
+                langPrefix: 'language-',
+                highlight: function(code, lang) {
+                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                }
+            });
+        }
+
+        // 初始化页面
+        async function initializePage() {
+            try {
+                if (!window.blogArticles) {
+                    throw new Error('文章索引未加载');
+                }
+                
+                // 设置随机壁纸
+                await setRandomWallpaper();
+                
+                // 设置随机美句
+                setRandomSentence();
+                
+                // 加载文章
+                loadArticles();
+                
+                // 加载状态栏数据
+                loadStatusBar();
+                
+                // 标记页面已初始化
+                pageInitialized = true;
+                
+                // 绑定事件
+                bindEvents();
+                
+                console.log('页面初始化完成');
+            } catch (error) {
+                console.error('初始化页面失败:', error);
+                showToast('初始化失败: ' + error.message);
+            }
+        }
+
+        // 设置随机壁纸
+        async function setRandomWallpaper() {
+            try {
+                if (wallpapers.length > 0) {
+                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                    const timestamp = new Date().getTime();
+                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
+                    
+                    // 预加载壁纸
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = wallpaperPath;
+                    });
+                    
+                    document.body.style.backgroundImage = `url(${wallpaperPath})`;
+                } else {
+                    // 默认壁纸
+                    const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+                    document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+                }
+            } catch (error) {
+                console.error('设置壁纸失败:', error);
+                const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+                document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+            }
+        }
+
+        // 设置随机美句
+        function setRandomSentence() {
+            try {
+                if (sentences.length > 0) {
+                    const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
+                    document.getElementById('sentence').textContent = randomSentence;
+                }
+            } catch (error) {
+                console.error('设置美句失败:', error);
+                document.getElementById('sentence').textContent = "加载中...";
+            }
+        }
+
+        // 加载文章
+        function loadArticles() {
+            try {
+                if (!window.blogArticles) {
+                    throw new Error('文章索引未加载');
+                }
+                
+                // 对文章按日期倒序排序（最新在前）
+                window.blogArticles.sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+                
+                // 渲染文章
+                renderArticles('all');
+            } catch (error) {
+                console.error('加载文章失败:', error);
+                
+                // 显示错误信息
+                const grid = document.getElementById('articles-grid');
+                grid.innerHTML = `
+                    <div class="glass" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <h3>无法加载文章索引</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 渲染文章
+        function renderArticles(category) {
+            if (!window.blogArticles) {
+                console.error('没有文章数据');
+                return;
+            }
+            
+            const grid = document.getElementById('articles-grid');
+            grid.innerHTML = '';
+            
+            let filteredArticles = category === 'all' 
+                ? [...window.blogArticles] 
+                : window.blogArticles.filter(article => article.category === category);
+            
+            // 按时间倒序排序（最新在前）
+            filteredArticles.sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            if (filteredArticles.length === 0) {
+                grid.innerHTML = `
+                    <div class="glass" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
+                        <i class="far fa-folder-open" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <h3>暂无文章</h3>
+                        <p>该分类下还没有文章</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredArticles.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'article-card glass';
+                card.innerHTML = `
+                    <div class="article-header">
+                        <h3 class="article-title">${article.title}</h3>
+                        <div class="article-meta">
+                            <span>${article.date}</span>
+                            <span>${getCategoryName(article.category)}</span>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        ${article.excerpt}
+                    </div>
+                    <a href="article.html?id=${article.id}" class="read-more">阅读全文</a>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // 更新激活的分类按钮
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'technology': '技术',
+                'diary': '日记',
+                'something': '杂碎'
+            };
+            return names[category] || category;
+        }
+
+        // 加载状态栏数据
+        function loadStatusBar() {
+            // 访问量由第三方脚本自动处理
+            
+            // 获取天气
+            getWeather();
+            
+            // 获取历史事件
+            getHistoryEvent();
+        }
+
+        // ======================
+        // 新增：缓存管理函数
+        // ======================
+        function setCache(key, data, minutes) {
+            const expiration = new Date().getTime() + minutes * 60 * 1000;
+            const cacheData = {
+                data: data,
+                expiration: expiration
+            };
+            localStorage.setItem(key, JSON.stringify(cacheData));
+        }
+
+        function getCache(key) {
+            const cacheItem = localStorage.getItem(key);
+            if (!cacheItem) return null;
+
+            const cacheData = JSON.parse(cacheItem);
+            if (new Date().getTime() > cacheData.expiration) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return cacheData.data;
+        }
+
+        // ======================
+        // 修改：使用JSONP获取天气
+        // ======================
+        function getWeather() {
+            try {
+                const weatherElement = document.getElementById('weather-text');
+                const iconElement = document.getElementById('weather-icon');
+                
+                // 检查是否有缓存的天气数据
+                const cachedWeather = getCache('weather_data');
+                if (cachedWeather) {
+                    weatherElement.textContent = cachedWeather.text;
+                    iconElement.textContent = cachedWeather.icon;
+                    return;
+                }
+                
+                // 获取位置信息
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const { latitude, longitude } = position.coords;
+                        const location = `${latitude}:${longitude}`;
+                        const apiKey = 'PRgEsJD5sy5OuuLKZ';
+                        
+                        // 构造JSONP请求URL
+                        const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
+                        
+                        // 创建唯一的回调函数名
+                        const callbackName = 'weatherCallback_' + Date.now();
+                        
+                        // 定义回调函数
+                        window[callbackName] = function(data) {
+                            // 清除script标签和回调函数
+                            document.body.removeChild(script);
+                            delete window[callbackName];
+                            
+                            if (data.results && data.results.length > 0) {
+                                const weatherData = data.results[0].now;
+                                const locationData = data.results[0].location;
+                                
+                                const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
+                                const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
+                                
+                                weatherElement.textContent = weatherText;
+                                iconElement.textContent = icon;
+                                
+                                // 缓存天气数据30分钟
+                                setCache('weather_data', { 
+                                    text: weatherText, 
+                                    icon: icon 
+                                }, 30);
+                            } else {
+                                weatherElement.textContent = '获取失败';
+                                iconElement.textContent = weatherIcons['default'];
+                            }
+                        };
+                        
+                        // 创建script标签
+                        const script = document.createElement('script');
+                        script.src = `${url}&callback=${callbackName}`;
+                        script.onerror = () => {
+                            console.error('天气请求失败');
+                            weatherElement.textContent = '无法获取';
+                            iconElement.textContent = weatherIcons['default'];
+                        };
+                        document.body.appendChild(script);
+                    },
+                    error => {
+                        console.error('获取位置失败:', error);
+                        weatherElement.textContent = '无法获取位置';
+                        iconElement.textContent = weatherIcons['default'];
+                        
+                        // 尝试使用默认位置
+                        fetchWeatherWithDefaultLocation();
+                    }
+                );
+            } catch (error) {
+                console.error('获取天气失败:', error);
+                document.getElementById('weather-text').textContent = '无法获取';
+                document.getElementById('weather-icon').textContent = weatherIcons['default'];
+            }
+        }
+
+        // 默认位置（北京）
+        function fetchWeatherWithDefaultLocation() {
+            const weatherElement = document.getElementById('weather-text');
+            const iconElement = document.getElementById('weather-icon');
+            const apiKey = 'PRgEsJD5sy5OuuLKZ';
+            const location = 'beijing';
+            
+            // 创建唯一的回调函数名
+            const callbackName = 'weatherCallbackDefault_' + Date.now();
+            
+            // 定义回调函数
+            window[callbackName] = function(data) {
+                // 清除script标签和回调函数
+                document.body.removeChild(script);
+                delete window[callbackName];
+                
+                if (data.results && data.results.length > 0) {
+                    const weatherData = data.results[0].now;
+                    const locationData = data.results[0].location;
+                    
+                    const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
+                    const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
+                    
+                    weatherElement.textContent = weatherText;
+                    iconElement.textContent = icon;
+                    
+                    // 缓存天气数据30分钟
+                    setCache('weather_data', { 
+                        text: weatherText, 
+                        icon: icon 
+                    }, 30);
+                } else {
+                    weatherElement.textContent = '获取失败';
+                    iconElement.textContent = weatherIcons['default'];
+                }
+            };
+            
+            // 创建script标签
+            const script = document.createElement('script');
+            script.src = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&callback=${callbackName}`;
+            script.onerror = () => {
+                console.error('天气请求失败');
+                weatherElement.textContent = '无法获取';
+                iconElement.textContent = weatherIcons['default'];
+            };
+            document.body.appendChild(script);
+        }
+
+        // ======================
+        // 修改：添加历史事件缓存
+        // ======================
+        async function getHistoryEvent() {
+            try {
+                const historyElement = document.getElementById('history-event');
+                
+                // 检查是否有缓存的历史事件
+                const cachedHistory = getCache('history_event');
+                if (cachedHistory) {
+                    historyElement.textContent = cachedHistory;
+                    return;
+                }
+                
+                const today = new Date();
+                const month = today.getMonth() + 1;
+                const day = today.getDate();
+
+                const apiUrl = `https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888&m=${month}&d=${day}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    historyElement.textContent = data.title;
+                    historyElement.title = data.title;
+                    
+                    // 缓存历史事件30分钟
+                    setCache('history_event', data.title, 30);
+                } else {
+                    historyElement.textContent = "获取失败";
+                }
+            } catch (error) {
+                console.error('获取失败:', error);
+                document.getElementById('history-event').textContent = '加载失败';
+            }
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 分类按钮
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    renderArticles(btn.dataset.category);
+                });
+            });
+            
+            // 关于按钮
+            document.getElementById('about-btn').addEventListener('click', () => {
+                const aboutCard = document.getElementById('about-card');
+                aboutCard.style.display = aboutCard.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // 联系方式按钮
+            document.querySelectorAll('.contact-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const contactType = btn.dataset.contact;
+                    const value = btn.dataset.value;
+                    
+                    copyToClipboard(value);
+                    showToast(`${contactType}已复制到剪贴板`);
+                });
+            });
+            
+            // 点击其他地方关闭关于卡片
+            document.addEventListener('click', (e) => {
+                const aboutCard = document.getElementById('about-card');
+                if (aboutCard.style.display === 'block' && 
+                    !e.target.closest('#about-card') && 
+                    !e.target.closest('#about-btn')) {
+                    aboutCard.style.display = 'none';
+                }
+            });
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.opacity = 1;
+            
+            setTimeout(() => {
+                toast.style.opacity = 0;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
