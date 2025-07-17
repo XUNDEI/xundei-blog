@@ -969,60 +969,22 @@
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const { latitude, longitude } = position.coords;
-                        const location = `${latitude}:${longitude}`;
-                        const apiKey = 'PRgEsJD5sy5OuuLKZ';
-                        
-                        // 构造JSONP请求URL
-                        const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
-                        
-                        // 创建唯一的回调函数名
-                        const callbackName = 'weatherCallback_' + Date.now();
-                        
-                        // 定义回调函数
-                        window[callbackName] = function(data) {
-                            // 清除script标签和回调函数
-                            document.body.removeChild(script);
-                            delete window[callbackName];
-                            
-                            if (data.results && data.results.length > 0) {
-                                const weatherData = data.results[0].now;
-                                const locationData = data.results[0].location;
-                                
-                                const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
-                                const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
-                                
-                                weatherElement.textContent = weatherText;
-                                iconElement.textContent = icon;
-                                
-                                // 缓存天气数据30分钟
-                                setCache('weather_data', { 
-                                    text: weatherText, 
-                                    icon: icon 
-                                }, 30);
-                            } else {
-                                weatherElement.textContent = '获取失败';
-                                iconElement.textContent = weatherIcons['default'];
-                            }
-                        };
-                        
-                        // 创建script标签
-                        const script = document.createElement('script');
-                        script.src = `${url}&callback=${callbackName}`;
-                        script.onerror = () => {
-                            console.error('天气请求失败');
-                            weatherElement.textContent = '无法获取';
-                            iconElement.textContent = weatherIcons['default'];
-                        };
-                        document.body.appendChild(script);
+                        // 使用JSONP方式获取天气
+                        fetchWeatherByJSONP(latitude, longitude);
                     },
                     error => {
                         console.error('获取位置失败:', error);
-                        weatherElement.textContent = '无法获取位置';
+                        if (error.code === error.PERMISSION_DENIED) {
+                            weatherElement.textContent = '用户已拒绝位置授权';
+                        } else {
+                            weatherElement.textContent = '无法获取位置';
+                        }
                         iconElement.textContent = weatherIcons['default'];
                         
                         // 尝试使用默认位置
-                        fetchWeatherWithDefaultLocation();
-                    }
+                        fetchWeatherByJSONP(39.9042, 116.4074); // 北京经纬度
+                    },
+                    { timeout: 5000 } // 5秒超时
                 );
             } catch (error) {
                 console.error('获取天气失败:', error);
@@ -1031,15 +993,14 @@
             }
         }
 
-        // 默认位置（北京）
-        function fetchWeatherWithDefaultLocation() {
-            const weatherElement = document.getElementById('weather-text');
-            const iconElement = document.getElementById('weather-icon');
-            const apiKey = 'PRgEsJD5sy5OuuLKZ';
-            const location = 'beijing';
+        // 使用JSONP获取天气
+        function fetchWeatherByJSONP(lat, lng) {
+            const API_KEY = 'PRgEsJD5sy5OuuLKZ';
+            const location = `${lat}:${lng}`;
+            const url = `https://api.seniverse.com/v3/weather/now.json?key=${API_KEY}&location=${location}&language=zh-Hans&unit=c`;
             
             // 创建唯一的回调函数名
-            const callbackName = 'weatherCallbackDefault_' + Date.now();
+            const callbackName = 'weatherCallback_' + Date.now();
             
             // 定义回调函数
             window[callbackName] = function(data) {
@@ -1054,8 +1015,8 @@
                     const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
                     const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
                     
-                    weatherElement.textContent = weatherText;
-                    iconElement.textContent = icon;
+                    document.getElementById('weather-text').textContent = weatherText;
+                    document.getElementById('weather-icon').textContent = icon;
                     
                     // 缓存天气数据30分钟
                     setCache('weather_data', { 
@@ -1063,18 +1024,18 @@
                         icon: icon 
                     }, 30);
                 } else {
-                    weatherElement.textContent = '获取失败';
-                    iconElement.textContent = weatherIcons['default'];
+                    document.getElementById('weather-text').textContent = '获取失败';
+                    document.getElementById('weather-icon').textContent = weatherIcons['default'];
                 }
             };
             
             // 创建script标签
             const script = document.createElement('script');
-            script.src = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&callback=${callbackName}`;
+            script.src = `${url}&callback=${callbackName}`;
             script.onerror = () => {
                 console.error('天气请求失败');
-                weatherElement.textContent = '无法获取';
-                iconElement.textContent = weatherIcons['default'];
+                document.getElementById('weather-text').textContent = '无法获取';
+                document.getElementById('weather-icon').textContent = weatherIcons['default'];
             };
             document.body.appendChild(script);
         }
