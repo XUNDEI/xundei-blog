@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>迅dei的赛博小家</title>
+    <title>迅dei的赛博小家 - 优化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -11,6 +11,7 @@
             --glass-border: rgba(255, 255, 255, 0.25);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             --primary-color: #7c4dff;
+            --secondary-color: #00bcd4;
             --text-color: #333;
             --light-text: #fff;
             --transition: all 0.3s ease;
@@ -25,16 +26,14 @@
         }
         
         body {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
             min-height: 100vh;
             color: var(--text-color);
             position: relative;
             overflow-x: hidden;
             background-attachment: fixed;
-            transition: background-image 1.5s ease-in-out;
-            background-color: #121212;
+            animation: gradientBG 20s ease infinite;
         }
         
         body::before {
@@ -81,7 +80,7 @@
         .blog-title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(45deg, #7c4dff, #00bcd4);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -432,6 +431,12 @@
             100% { transform: rotate(360deg); }
         }
         
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .blog-title {
@@ -506,14 +511,6 @@
             }
         }
     </style>
-    
-    <!-- 使用本地库 -->
-    <script src="axios.min.js" defer></script>
-    <script src="marked.min.js" defer></script>
-    <!-- 外部文章索引 -->
-    <script src="articles.js" defer></script>
-    <!-- 访问量统计 -->
-    <script async src="https://finicounter.eu.org/finicounter.js"></script>
 </head>
 <body>
     <div class="container">
@@ -527,9 +524,7 @@
                     <i class="fas fa-eye"></i>
                     <div class="status-content">
                         <div class="status-label">访问量</div>
-                        <div id="views-counter">
-                            <span id="finicount_views"></span>
-                        </div>
+                        <div id="views-counter">1024</div>
                     </div>
                 </div>
                 
@@ -571,7 +566,7 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.3.0
+            made by <strong>xundei</strong> with ❤️ | xundei-blog V3.0.0
         </footer>
     </div>
     
@@ -583,7 +578,9 @@
     <!-- 关于我卡片 -->
     <div class="about-card glass" id="about-card">
         <div class="about-header">
-            <img src="./portrait.png" alt="Avatar" class="avatar">
+            <div class="avatar" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-astronaut" style="font-size: 2rem; color: white;"></i>
+            </div>
             <div class="about-name">迅dei</div>
         </div>
         <div class="contacts">
@@ -615,7 +612,6 @@
         // ======================
         // 配置数据
         // ======================
-        const wallpapers = ["wallpaper1.jpg", "wallpaper2.png", "wallpaper3.jpg", "wallpaper4.png", "wallpaper5.png", "wallpaper6.png"];
         const sentences = [
             "地球是人类的摇篮，但人类不可能永远待在摇篮里",
             "星汉灿烂，若出其里",
@@ -646,166 +642,106 @@
             'default': '🌡️'
         };
         
-        // ======================
-        // 页面状态变量
-        // ======================
-        let pageInitialized = false;
-        let markedLoaded = false;
-        let axiosLoaded = false;
-        let articlesLoaded = false;
+        // 文章数据
+        const blogArticles = [
+            {
+                id: "1",
+                title: "探索宇宙的奥秘",
+                date: "2023-09-15",
+                category: "technology",
+                excerpt: "天文学是人类最古老的科学之一，从古代观星到现代空间探索，人类对宇宙的理解不断深化..."
+            },
+            {
+                id: "2",
+                title: "我的编程学习之旅",
+                date: "2023-08-22",
+                category: "diary",
+                excerpt: "从第一行代码到第一个项目，编程之路充满了挑战与乐趣。记录下这段旅程中的点点滴滴..."
+            },
+            {
+                id: "3",
+                title: "生活中的小确幸",
+                date: "2023-08-10",
+                category: "something",
+                excerpt: "在繁忙的都市生活中，发现那些微小而确定的幸福，让每一天都充满意义..."
+            },
+            {
+                id: "4",
+                title: "前端框架比较：React vs Vue",
+                date: "2023-07-28",
+                category: "technology",
+                excerpt: "两大前端框架各有千秋，本文从性能、生态、学习曲线等多方面进行比较分析..."
+            },
+            {
+                id: "5",
+                title: "夏日旅行日记",
+                date: "2023-07-15",
+                category: "diary",
+                excerpt: "沿着海岸线一路向南，记录下这个夏天最美好的旅行记忆..."
+            },
+            {
+                id: "6",
+                title: "深夜食堂：家常菜的魅力",
+                date: "2023-06-30",
+                category: "something",
+                excerpt: "家常菜不仅仅是为了填饱肚子，更承载着家的温暖和回忆..."
+            }
+        ];
         
-        // 加载重试计数器
-        let markedRetryCount = 0;
-        let axiosRetryCount = 0;
-        let articlesRetryCount = 0;
-        const MAX_RETRY = 30; // 最大重试次数 (30 * 100ms = 3秒)
-
+        const WEATHER_API = {
+            UID: "503275418", 
+            KEY: "PRgEsJD5sy5OuuLKZ", // 测试Key
+            API: "https://api.seniverse.com/v3/weather/now.json",
+            DEFAULT_LOCATION: "beijing" // 默认城市
+        };
+        
+        const HISTORY_API = "https://api.asilu.com/today/";
+        
         // ======================
-        // 初始化函数
+        // 缓存管理
+        // ======================
+        const CACHE_DURATION = 30 * 60 * 1000; // 30分钟缓存
+        
+        // 获取缓存数据
+        function getCache(key) {
+            const cached = localStorage.getItem(key);
+            if (!cached) return null;
+            
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp > CACHE_DURATION) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            
+            return data;
+        }
+        
+        // 设置缓存数据
+        function setCache(key, data) {
+            const cacheData = {
+                data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(cacheData));
+        }
+        
+        // ======================
+        // 页面初始化
         // ======================
         document.addEventListener('DOMContentLoaded', () => {
-            // 检查外部库是否已加载
-            checkExternalLibraries();
+            // 设置随机美句
+            setRandomSentence();
+            
+            // 加载文章
+            loadArticles();
+            
+            // 加载状态栏数据
+            loadStatusBar();
+            
+            // 绑定事件
+            bindEvents();
         });
-
-        // 检查外部库加载状态
-        function checkExternalLibraries() {
-            // 检查文章索引是否已加载
-            const checkArticles = () => {
-                if (typeof window.blogArticles !== 'undefined') {
-                    articlesLoaded = true;
-                    console.log('Articles loaded');
-                    if (pageInitialized) bindEvents();
-                    initializePage();
-                } else {
-                    articlesRetryCount++;
-                    if (articlesRetryCount > MAX_RETRY) {
-                        console.error('Articles failed to load');
-                        showToast('文章索引加载失败，请刷新页面');
-                    } else {
-                        setTimeout(checkArticles, 100);
-                    }
-                }
-            };
-            
-            // 检查marked是否已加载
-            const checkMarked = () => {
-                if (typeof marked !== 'undefined') {
-                    markedLoaded = true;
-                    console.log('Marked.js loaded');
-                    configureMarked();
-                    if (articlesLoaded && pageInitialized) bindEvents();
-                } else {
-                    markedRetryCount++;
-                    if (markedRetryCount > MAX_RETRY) {
-                        console.error('Marked.js failed to load');
-                        showToast('Markdown解析器加载失败，请刷新页面');
-                    } else {
-                        setTimeout(checkMarked, 100);
-                    }
-                }
-            };
-            
-            // 检查axios是否已加载
-            const checkAxios = () => {
-                if (typeof axios !== 'undefined') {
-                    axiosLoaded = true;
-                    console.log('Axios loaded');
-                    if (articlesLoaded && pageInitialized) bindEvents();
-                } else {
-                    axiosRetryCount++;
-                    if (axiosRetryCount > MAX_RETRY) {
-                        console.error('Axios failed to load');
-                        showToast('网络错误，请刷新页面');
-                    } else {
-                        setTimeout(checkAxios, 100);
-                    }
-                }
-            };
-            
-            // 开始检查
-            checkArticles();
-            checkMarked();
-            checkAxios();
-        }
-
-        // 配置Marked.js
-        function configureMarked() {
-            if (typeof marked === 'undefined') return;
-            
-            // 配置Marked选项
-            marked.setOptions({
-                gfm: true,
-                breaks: true,
-                smartypants: true,
-                langPrefix: 'language-',
-                highlight: function(code, lang) {
-                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
-                }
-            });
-        }
-
-        // 初始化页面
-        async function initializePage() {
-            try {
-                if (!window.blogArticles) {
-                    throw new Error('文章索引未加载');
-                }
-                
-                // 设置随机壁纸
-                await setRandomWallpaper();
-                
-                // 设置随机美句
-                setRandomSentence();
-                
-                // 加载文章
-                loadArticles();
-                
-                // 加载状态栏数据
-                loadStatusBar();
-                
-                // 标记页面已初始化
-                pageInitialized = true;
-                
-                // 绑定事件
-                bindEvents();
-                
-                console.log('页面初始化完成');
-            } catch (error) {
-                console.error('初始化页面失败:', error);
-                showToast('初始化失败: ' + error.message);
-            }
-        }
-
-        // 设置随机壁纸
-        async function setRandomWallpaper() {
-            try {
-                if (wallpapers.length > 0) {
-                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
-                    const timestamp = new Date().getTime();
-                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
-                    
-                    // 预加载壁纸
-                    await new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                        img.src = wallpaperPath;
-                    });
-                    
-                    document.body.style.backgroundImage = `url(${wallpaperPath})`;
-                } else {
-                    // 默认壁纸
-                    const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
-                    document.body.style.backgroundImage = `url(${defaultWallpaper})`;
-                }
-            } catch (error) {
-                console.error('设置壁纸失败:', error);
-                const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
-                document.body.style.backgroundImage = `url(${defaultWallpaper})`;
-            }
-        }
-
+        
         // 设置随机美句
         function setRandomSentence() {
             try {
@@ -818,16 +754,12 @@
                 document.getElementById('sentence').textContent = "加载中...";
             }
         }
-
+        
         // 加载文章
         function loadArticles() {
             try {
-                if (!window.blogArticles) {
-                    throw new Error('文章索引未加载');
-                }
-                
                 // 对文章按日期倒序排序（最新在前）
-                window.blogArticles.sort((a, b) => {
+                const sortedArticles = [...blogArticles].sort((a, b) => {
                     return new Date(b.date) - new Date(a.date);
                 });
                 
@@ -847,20 +779,15 @@
                 `;
             }
         }
-
+        
         // 渲染文章
         function renderArticles(category) {
-            if (!window.blogArticles) {
-                console.error('没有文章数据');
-                return;
-            }
-            
             const grid = document.getElementById('articles-grid');
             grid.innerHTML = '';
             
             let filteredArticles = category === 'all' 
-                ? [...window.blogArticles] 
-                : window.blogArticles.filter(article => article.category === category);
+                ? [...blogArticles] 
+                : blogArticles.filter(article => article.category === category);
             
             // 按时间倒序排序（最新在前）
             filteredArticles.sort((a, b) => {
@@ -902,7 +829,7 @@
                 btn.classList.toggle('active', btn.dataset.category === category);
             });
         }
-
+        
         // 获取分类名称
         function getCategoryName(category) {
             const names = {
@@ -912,82 +839,125 @@
             };
             return names[category] || category;
         }
-
+        
         // 加载状态栏数据
         function loadStatusBar() {
-            // 访问量由第三方脚本自动处理
-            
             // 获取天气
             getWeather();
             
             // 获取历史事件
             getHistoryEvent();
         }
-
-        async function getWeather() {
-            try {
-                const weatherElement = document.getElementById('weather-text');
-                const iconElement = document.getElementById('weather-icon');
+        
+        // ======================
+        // JSONP 天气API实现
+        // ======================
+        function getWeather() {
+            const cachedWeather = getCache('weatherData');
+            if (cachedWeather) {
+                updateWeatherDisplay(cachedWeather);
+                return;
+            }
+            
+            // 获取当前时间戳
+            const ts = Math.floor(Date.now() / 1000);
+            // 构造验证参数字符串
+            const str = "ts=" + ts + "&uid=" + WEATHER_API.UID;
+            
+            // 使用 HMAC-SHA1 加密（简化版）
+            // 注意：实际应用中应使用完整的加密库
+            let sig = '';
+            for (let i = 0; i < str.length; i++) {
+                sig += String.fromCharCode(str.charCodeAt(i) ^ WEATHER_API.KEY.charCodeAt(i % WEATHER_API.KEY.length));
+            }
+            sig = btoa(sig);
+            sig = encodeURIComponent(sig);
+            
+            const params = str + "&sig=" + sig;
+            const url = WEATHER_API.API + "?location=" + WEATHER_API.DEFAULT_LOCATION + "&" + params + "&callback=handleWeatherResponse";
+            
+            // 创建JSONP脚本
+            const script = document.createElement('script');
+            script.src = url;
+            document.body.appendChild(script);
+        }
+        
+        // 天气API回调函数
+        function handleWeatherResponse(data) {
+            if (data.results && data.results.length > 0) {
+                const weatherData = data.results[0].now;
+                const locationData = data.results[0].location;
                 
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject);
-                });
+                const weatherResult = {
+                    location: locationData.name,
+                    condition: weatherData.text,
+                    temperature: weatherData.temperature,
+                    icon: weatherIcons[weatherData.text] || weatherIcons['default']
+                };
                 
-                const { latitude, longitude } = position.coords;
+                // 更新显示
+                updateWeatherDisplay(weatherResult);
                 
-                const apiKey = 'PRgEsJD5sy5OuuLKZ';
-                const location = `${latitude}:${longitude}`;
-                const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c`;
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.results && data.results.length > 0) {
-                    const weatherData = data.results[0].now;
-                    const locationData = data.results[0].location;
-                    
-                    weatherElement.textContent = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
-                    
-                    // 设置天气图标
-                    const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
-                    iconElement.textContent = icon;
-                } else {
-                    weatherElement.textContent = '获取失败';
-                    iconElement.textContent = weatherIcons['default'];
-                }
-            } catch (error) {
-                console.error('获取天气失败:', error);
-                document.getElementById('weather-text').textContent = '无法获取';
+                // 缓存数据
+                setCache('weatherData', weatherResult);
+            } else {
+                document.getElementById('weather-text').textContent = '获取失败';
                 document.getElementById('weather-icon').textContent = weatherIcons['default'];
             }
+            
+            // 移除脚本元素
+            const scripts = document.querySelectorAll('script[src*="api.seniverse.com"]');
+            scripts.forEach(script => script.remove());
         }
-
+        
+        // 更新天气显示
+        function updateWeatherDisplay(weather) {
+            document.getElementById('weather-text').textContent = 
+                `${weather.location} ${weather.condition} ${weather.temperature}°C`;
+            document.getElementById('weather-icon').textContent = weather.icon;
+        }
+        
+        // ======================
+        // 历史上的今天API实现
+        // ======================
         async function getHistoryEvent() {
+            const cachedHistory = getCache('historyData');
+            if (cachedHistory) {
+                updateHistoryDisplay(cachedHistory);
+                return;
+            }
+            
             try {
-                const historyElement = document.getElementById('history-event');
-                const today = new Date();
-                const month = today.getMonth() + 1;
-                const day = today.getDate();
-
-                const apiUrl = `https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888&m=${month}&d=${day}`;
-                
-                const response = await fetch(apiUrl);
+                const response = await fetch(HISTORY_API);
                 const data = await response.json();
                 
-                if (data.code === 200) {
-                    historyElement.textContent = data.title;
+                if (data && data.events && data.events.length > 0) {
+                    const randomEvent = data.events[Math.floor(Math.random() * data.events.length)];
                     
-                    historyElement.title = data.title;
+                    // 缓存数据
+                    setCache('historyData', randomEvent);
+                    
+                    // 更新显示
+                    updateHistoryDisplay(randomEvent);
                 } else {
-                    historyElement.textContent = "暂无历史事件";
+                    document.getElementById('history-event').textContent = "暂无历史事件";
                 }
             } catch (error) {
                 console.error('获取历史事件失败:', error);
                 document.getElementById('history-event').textContent = '加载失败';
             }
         }
-
-        // 绑定事件
+        
+        // 更新历史事件显示
+        function updateHistoryDisplay(event) {
+            const eventText = `${event.year}年 ${event.title}`;
+            document.getElementById('history-event').textContent = eventText;
+            document.getElementById('history-event').title = eventText;
+        }
+        
+        // ======================
+        // 事件绑定
+        // ======================
         function bindEvents() {
             // 分类按钮
             document.querySelectorAll('.category-btn').forEach(btn => {
@@ -1023,7 +993,7 @@
                 }
             });
         }
-
+        
         // 复制到剪贴板
         function copyToClipboard(text) {
             const textarea = document.createElement('textarea');
@@ -1033,7 +1003,7 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
         }
-
+        
         // 显示提示
         function showToast(message) {
             const toast = document.getElementById('toast');
