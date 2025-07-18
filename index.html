@@ -957,7 +957,7 @@
         }
 
         // ======================
-        // 修改：使用JSONP获取天气（使用加密库）
+        // 修改：使用JSONP获取天气（严格按照官方要求）
         // ======================
         function getWeather() {
             try {
@@ -972,16 +972,18 @@
                     return;
                 }
                 
-                // 获取当前时间戳
-                const ts = Math.floor((new Date()).getTime() / 1000);
-                // 构造验证参数字符串
-                const str = "ts=" + ts + "&uid=" + WEATHER_UID;
+                // 获取当前时间戳（秒）
+                const ts = Math.floor(Date.now() / 1000);
+                // 设置TTL为1800秒（30分钟）
+                const ttl = 1800;
+                
+                // 构造验证参数字符串（按照键字典升序排列：ttl, ts, uid）
+                const str = `ts=${ts}&ttl=${ttl}&uid=${WEATHER_UID}`;
 
-                // 使用 HMAC-SHA1 方式，以 API 密钥（key）对上一步生成的参数字符串（raw）进行加密
-                // 并将加密结果用 base64 编码，并做一个 urlencode，得到签名 sig
+                // 使用 HMAC-SHA1 方式生成签名
                 const sig = CryptoJS.HmacSHA1(str, WEATHER_KEY).toString(CryptoJS.enc.Base64);
                 const encodedSig = encodeURIComponent(sig);
-                const params = str + "&sig=" + encodedSig;
+                const params = `${str}&sig=${encodedSig}`;
                 
                 // 获取位置信息
                 navigator.geolocation.getCurrentPosition(
