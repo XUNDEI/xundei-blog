@@ -330,7 +330,7 @@
         .info-card {
             position: fixed;
             bottom: 200px;
-            right: 30px;
+            right: 15px; /* 更靠近右侧 */
             width: 220px;
             z-index: 99;
             padding: 15px;
@@ -403,38 +403,16 @@
             color: rgba(255, 255, 255, 0.8);
         }
         
-        .history-title {
-            font-weight: 600;
-            margin-bottom: 3px;
-            font-size: 0.9rem;
-        }
-        
         .history-content {
             font-size: 0.85rem;
             line-height: 1.4;
         }
         
-        .refresh-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.8rem;
-        }
-        
-        .refresh-btn:hover {
-            background: var(--primary-color);
-            transform: rotate(90deg);
+        .counter {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #7c4dff;
+            text-shadow: 0 0 8px rgba(124, 77, 255, 0.5);
         }
         
         /* 动画 */
@@ -497,7 +475,7 @@
             
             .info-card {
                 width: 200px;
-                right: 15px;
+                right: 10px;
                 bottom: 180px;
             }
             
@@ -575,17 +553,15 @@
     
     <!-- 信息卡片 -->
     <div class="info-card glass" id="info-card">
-        <button class="refresh-btn" id="refresh-info">
-            <i class="fas fa-sync-alt"></i>
-        </button>
-        
         <div class="info-item">
             <div class="info-header">
                 <div class="info-icon"><i class="fas fa-eye"></i></div>
                 <div class="info-title">博客访问量</div>
             </div>
             <div class="info-content">
-                <div class="finicounter">0</div>
+                <div class="counter">
+                    <span class="finicounter">0</span> 次访问
+                </div>
             </div>
         </div>
         
@@ -796,15 +772,6 @@
             
             // 获取历史上的今天
             getHistoryToday();
-            
-            // 添加刷新按钮事件
-            document.getElementById('refresh-info').addEventListener('click', () => {
-                showToast('刷新信息中...');
-                localStorage.removeItem('weatherData');
-                localStorage.removeItem('historyData');
-                getWeather();
-                getHistoryToday();
-            });
         }
 
         // 获取天气信息
@@ -827,30 +794,50 @@
                 const locationResponse = await axios.get('https://api.52vmy.cn/api/query/itad?ip=');
                 const locationData = locationResponse.data;
                 
-                // 提取城市信息（根据API返回结构）
-                const city = locationData.data?.city || '未知城市';
-                
-                // 使用公共API获取天气
-                const weatherResponse = await axios.get(`https://cn.apihz.cn/api/tianqi/tqyb.php?id=88888888&key=88888888&sheng=${encodeURIComponent(city)}&place=${encodeURIComponent(city)}`);
-                const weatherData = weatherResponse.data;
-                
-                if (weatherData.code == 200) {
-                    // 更新UI
-                    updateWeatherUI(weatherData);
+                // 检查响应结构
+                if (locationData.code === 200 && locationData.data && locationData.data.home) {
+                    // 解析位置信息
+                    const homeParts = locationData.data.home.split(' ');
+                    let province = '', city = '';
                     
-                    // 缓存数据
-                    localStorage.setItem('weatherData', JSON.stringify({
-                        data: weatherData,
-                        timestamp: now
-                    }));
-                } else {
-                    // 使用备用天气API
-                    const backupWeather = await getBackupWeather(city);
-                    updateWeatherUI(backupWeather);
+                    if (homeParts.length >= 3) {
+                        // 格式: "中国 广西 玉林"
+                        province = homeParts[1];
+                        city = homeParts[2];
+                    } else if (homeParts.length === 2) {
+                        // 直辖市情况: "中国 北京"
+                        province = homeParts[1];
+                        city = homeParts[1];
+                    }
+                    
+                    if (province && city) {
+                        // 获取天气数据
+                        const weatherResponse = await axios.get(`https://cn.apihz.cn/api/tianqi/tqyb.php?id=88888888&key=88888888&sheng=${encodeURIComponent(province)}&place=${encodeURIComponent(city)}`);
+                        const weatherData = weatherResponse.data;
+                        
+                        if (weatherData.code == 200) {
+                            // 更新UI
+                            updateWeatherUI(weatherData);
+                            
+                            // 缓存数据
+                            localStorage.setItem('weatherData', JSON.stringify({
+                                data: weatherData,
+                                timestamp: now
+                            }));
+                            return;
+                        }
+                    }
                 }
+                
+                // 如果无法获取位置或天气，使用默认值
+                updateWeatherUI({
+                    place: "未知位置",
+                    temperature: "--",
+                    windScale: "未知风速",
+                    humidity: "--"
+                });
             } catch (error) {
                 console.error('获取天气失败:', error);
-                // 使用默认天气数据
                 updateWeatherUI({
                     place: "未知位置",
                     temperature: "--",
@@ -860,46 +847,17 @@
             }
         }
 
-        // 备用天气API
-        async function getBackupWeather(city) {
-            try {
-                const response = await axios.get(`https://api.weather.hao.360.cn/sed_api_weather.php?app=hao360&_jsonp=weather&code=${encodeURIComponent(city)}`);
-                const data = response.data;
-                
-                // 解析JSONP响应
-                const jsonStr = data.match(/weather\((.+)\)/)[1];
-                const weatherData = JSON.parse(jsonStr);
-                
-                if (weatherData && weatherData.result && weatherData.result.temp) {
-                    return {
-                        place: city,
-                        temperature: weatherData.result.temp,
-                        windScale: weatherData.result.wind,
-                        humidity: weatherData.result.humidity
-                    };
-                }
-                
-                return {
-                    place: city,
-                    temperature: "--",
-                    windScale: "未知风速",
-                    humidity: "--"
-                };
-            } catch (e) {
-                console.error('备用天气API失败:', e);
-                return {
-                    place: city,
-                    temperature: "--",
-                    windScale: "未知风速",
-                    humidity: "--"
-                };
-            }
-        }
-
         // 更新天气UI
         function updateWeatherUI(weatherData) {
             const temp = weatherData.temperature || '--';
-            const place = weatherData.place ? weatherData.place.split(', ')[2] || weatherData.place : '未知位置';
+            let place = "未知位置";
+            
+            // 解析地点信息
+            if (weatherData.place) {
+                const placeParts = weatherData.place.split(', ');
+                place = placeParts.length >= 3 ? placeParts[2] : weatherData.place;
+            }
+            
             const wind = weatherData.windScale || '未知风速';
             const humidity = weatherData.humidity || '--';
             
@@ -950,56 +908,21 @@
                         timestamp: now
                     }));
                 } else {
-                    // 使用备用历史API
-                    const backupHistory = await getBackupHistory();
-                    updateHistoryUI(backupHistory);
+                    updateHistoryUI({
+                        title: '历史上的今天数据获取失败',
+                        y: '----',
+                        m: '--',
+                        d: '--'
+                    });
                 }
             } catch (error) {
                 console.error('获取历史数据失败:', error);
-                // 使用默认历史数据
                 updateHistoryUI({
                     title: '历史上的今天数据获取失败',
                     y: '----',
                     m: '--',
                     d: '--'
                 });
-            }
-        }
-
-        // 备用历史API
-        async function getBackupHistory() {
-            try {
-                const today = new Date();
-                const month = today.getMonth() + 1;
-                const day = today.getDate();
-                
-                const response = await axios.get(`https://api.52vmy.cn/api/history/today?month=${month}&day=${day}`);
-                const historyData = response.data;
-                
-                if (historyData.code === 200 && historyData.data && historyData.data.length > 0) {
-                    const randomEvent = historyData.data[Math.floor(Math.random() * historyData.data.length)];
-                    return {
-                        title: randomEvent.title,
-                        y: randomEvent.year,
-                        m: month.toString().padStart(2, '0'),
-                        d: day.toString().padStart(2, '0')
-                    };
-                }
-                
-                return {
-                    title: '历史上的今天数据获取失败',
-                    y: '----',
-                    m: '--',
-                    d: '--'
-                };
-            } catch (e) {
-                console.error('备用历史API失败:', e);
-                return {
-                    title: '历史上的今天数据获取失败',
-                    y: '----',
-                    m: '--',
-                    d: '--'
-                };
             }
         }
 
