@@ -511,6 +511,8 @@
     <!-- 使用本地库 -->
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
+    <!-- 加密库 -->
+    <script src="scripts/hmac-sha1.js"></script>
     <!-- 外部文章索引 -->
     <script src="articles.js" defer></script>
     <!-- 访问量统计 -->
@@ -646,6 +648,11 @@
             '冰雹': '🌨️',
             'default': '🌡️'
         };
+        
+        // 心知天气API配置
+        const WEATHER_UID = "503275418";
+        const WEATHER_KEY = "PRgEsJD5sy5OuuLKZ";
+        const WEATHER_API = "https://api.seniverse.com/v3/weather/now.json";
         
         // ======================
         // 页面状态变量
@@ -950,7 +957,7 @@
         }
 
         // ======================
-        // 修改：使用JSONP获取天气
+        // 修改：使用JSONP获取天气（使用加密库）
         // ======================
         function getWeather() {
             try {
@@ -965,101 +972,16 @@
                     return;
                 }
                 
-                // 心知天气API配置
-                const apiKey = 'PRgEsJD5sy5OuuLKZ';
-                const uid = '503275418';
-                
                 // 获取当前时间戳
-                const ts = Math.floor(Date.now() / 1000);
+                const ts = Math.floor((new Date()).getTime() / 1000);
                 // 构造验证参数字符串
-                const str = `ts=${ts}&uid=${uid}`;
-                
-                // 签名生成方法（使用SHA1）
-                function generateSignature(str, key) {
-                    // 使用简单的SHA1实现
-                    function sha1(s) {
-                        function rotateLeft(n, s) {
-                            return (n << s) | (n >>> (32 - s));
-                        }
-                        function toHex(value) {
-                            let hex = '';
-                            for (let i = 7; i >= 0; i--) {
-                                hex += ((value >> (i * 4)) & 0xf).toString(16);
-                            }
-                            return hex;
-                        }
-                        
-                        const blocks = [];
-                        const len = s.length * 8;
-                        for (let i = 0; i < len; i += 8) {
-                            blocks[i >> 5] |= (s.charCodeAt(i / 8) & 0xff) << (24 - i % 32);
-                        }
-                        
-                        blocks[len >> 5] |= 0x80 << (24 - len % 32);
-                        blocks[((len + 64 >> 9) << 4) + 15] = len;
-                        
-                        const w = new Array(80);
-                        let a = 0x67452301;
-                        let b = 0xEFCDAB89;
-                        let c = 0x98BADCFE;
-                        let d = 0x10325476;
-                        let e = 0xC3D2E1F0;
-                        
-                        for (let i = 0; i < blocks.length; i += 16) {
-                            const olda = a;
-                            const oldb = b;
-                            const oldc = c;
-                            const oldd = d;
-                            const olde = e;
-                            
-                            for (let j = 0; j < 80; j++) {
-                                if (j < 16) w[j] = blocks[i + j] || 0;
-                                else w[j] = rotateLeft(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
-                                
-                                const t = (rotateLeft(a, 5) + e + w[j] + 
-                                          (j < 20 ? 0x5A827999 : 
-                                           j < 40 ? 0x6ED9EBA1 : 
-                                           j < 60 ? 0x8F1BBCDC : 0xCA62C1D6)) >>> 0;
-                                e = d;
-                                d = c;
-                                c = rotateLeft(b, 30) >>> 0;
-                                b = a;
-                                a = t;
-                            }
-                            
-                            a = (a + olda) >>> 0;
-                            b = (b + oldb) >>> 0;
-                            c = (c + oldc) >>> 0;
-                            d = (d + oldd) >>> 0;
-                            e = (e + olde) >>> 0;
-                        }
-                        
-                        return toHex(a) + toHex(b) + toHex(c) + toHex(d) + toHex(e);
-                    }
-                    
-                    // 使用HMAC-SHA1
-                    let keyBytes = key;
-                    if (keyBytes.length > 64) {
-                        keyBytes = sha1(keyBytes);
-                    }
-                    
-                    const ipad = Array(64).fill(0);
-                    const opad = Array(64).fill(0);
-                    
-                    for (let i = 0; i < keyBytes.length; i++) {
-                        ipad[i] = keyBytes.charCodeAt(i) ^ 0x36;
-                        opad[i] = keyBytes.charCodeAt(i) ^ 0x5C;
-                    }
-                    
-                    const innerHash = sha1(String.fromCharCode(...ipad) + str);
-                    const outerHash = sha1(String.fromCharCode(...opad) + innerHash);
-                    
-                    return btoa(outerHash).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-                }
-                
-                // 生成签名
-                const sig = generateSignature(str, apiKey);
-                const params = `${str}&sig=${sig}`;
+                const str = "ts=" + ts + "&uid=" + WEATHER_UID;
+
+                // 使用 HMAC-SHA1 方式，以 API 密钥（key）对上一步生成的参数字符串（raw）进行加密
+                // 并将加密结果用 base64 编码，并做一个 urlencode，得到签名 sig
+                const sig = CryptoJS.HmacSHA1(str, WEATHER_KEY).toString(CryptoJS.enc.Base64);
+                const encodedSig = encodeURIComponent(sig);
+                const params = str + "&sig=" + encodedSig;
                 
                 // 获取位置信息
                 navigator.geolocation.getCurrentPosition(
@@ -1068,7 +990,7 @@
                         const location = `${latitude}:${longitude}`;
                         
                         // 构造JSONP请求URL
-                        const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&${params}`;
+                        const url = `${WEATHER_API}?location=${location}&${params}&language=zh-Hans&unit=c`;
                         
                         // 创建唯一的回调函数名
                         const callbackName = 'weatherCallback_' + Date.now();
@@ -1120,7 +1042,7 @@
                         iconElement.textContent = weatherIcons['default'];
                         
                         // 尝试使用默认位置（北京）
-                        fetchWeatherWithDefaultLocation(apiKey, params);
+                        fetchWeatherWithDefaultLocation(params);
                     }
                 );
             } catch (error) {
@@ -1131,12 +1053,12 @@
         }
 
         // 默认位置（北京）
-        function fetchWeatherWithDefaultLocation(apiKey, params) {
+        function fetchWeatherWithDefaultLocation(params) {
             const weatherElement = document.getElementById('weather-text');
             const iconElement = document.getElementById('weather-icon');
             const location = 'beijing';
             
-            const url = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey}&location=${location}&language=zh-Hans&unit=c&${params}`;
+            const url = `${WEATHER_API}?location=${location}&${params}&language=zh-Hans&unit=c`;
             
             // 创建唯一的回调函数名
             const callbackName = 'weatherCallbackDefault_' + Date.now();
