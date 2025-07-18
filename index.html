@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script async src="//finicounter.eu.org/finicounter.js"></script>
     <style>
-        /* 样式保持不变 */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
@@ -103,85 +103,6 @@
             align-items: center;
             justify-content: center;
             padding: 10px 20px;
-        }
-        
-        /* 状态栏 */
-        .status-bar {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 12px 20px;
-            margin: 15px 0 25px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-            flex-wrap: wrap;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 10px;
-        }
-        
-        .status-item i {
-            margin-right: 8px;
-            color: var(--primary-color);
-            min-width: 20px;
-            text-align: center;
-        }
-        
-        .status-content {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .status-label {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            margin-bottom: 2px;
-        }
-        
-        .weather-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .weather-info .source-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        
-        .weather-info:hover .source-tooltip {
-            opacity: 1;
-        }
-        
-        .weather-icon {
-            font-size: 1.4rem;
-            width: 30px;
-            text-align: center;
-        }
-        
-        .history-event {
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         /* 分类导航 */
@@ -405,6 +326,117 @@
             width: 100%;
         }
         
+        /* 信息卡片样式 */
+        .info-card {
+            position: fixed;
+            bottom: 200px;
+            right: 30px;
+            width: 220px;
+            z-index: 99;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: var(--transition);
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .info-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .info-icon {
+            margin-right: 8px;
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .info-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .weather-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .weather-icon {
+            font-size: 1.6rem;
+            width: 36px;
+            text-align: center;
+        }
+        
+        .weather-temp {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .weather-extra {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+        
+        .history-content {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .refresh-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--primary-color);
+            transform: rotate(90deg);
+        }
+        
         /* 动画 */
         @keyframes fadeInDown {
             from {
@@ -433,6 +465,17 @@
             100% { transform: rotate(360deg); }
         }
         
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .blog-title {
@@ -452,18 +495,10 @@
                 right: 15px;
             }
             
-            .status-bar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .status-item {
-                margin: 3px 0;
-            }
-            
-            .history-event {
-                max-width: 100%;
+            .info-card {
+                width: 200px;
+                right: 15px;
+                bottom: 180px;
             }
             
             :root {
@@ -491,19 +526,17 @@
                 left: 5%;
             }
             
-            .status-bar {
-                padding: 10px;
-                font-size: 0.85rem;
+            .info-card {
+                width: 85%;
+                right: 5%;
+                left: 5%;
+                bottom: 170px;
             }
-            
-            .status-label {
-                display: none;
-            }
-            
-            .history-event {
-                white-space: normal;
-                overflow: visible;
-                text-overflow: clip;
+        }
+        
+        @media (max-height: 700px) {
+            .info-card {
+                bottom: 160px;
             }
         }
     </style>
@@ -511,52 +544,14 @@
     <!-- 使用本地库 -->
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
-    <!-- 加密库 -->
-    <script src="scripts/hmac-sha1.js"></script>
     <!-- 外部文章索引 -->
     <script src="articles.js" defer></script>
-    <!-- 访问量统计 -->
-    <script async src="https://finicounter.eu.org/finicounter.js"></script>
 </head>
 <body>
     <div class="container">
         <header class="glass">
             <h1 class="blog-title">迅dei的赛博小家</h1>
             <div class="sentence" id="sentence">加载中...</div>
-            
-            <!-- 状态栏 -->
-            <div class="status-bar">
-                <div class="status-item">
-                    <i class="fas fa-eye"></i>
-                    <div class="status-content">
-                        <div class="status-label">访问量</div>
-                        <div id="views-counter">
-                            <span id="finicount_views"></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="status-item">
-                    <i class="fas fa-cloud-sun"></i>
-                    <div class="status-content">
-                        <div class="status-label">天气</div>
-                        <div class="weather-info" id="weather-info">
-                            <div class="weather-icon" id="weather-icon">⛅</div>
-                            <div id="weather-text">获取中...</div>
-                            <div class="source-tooltip">数据来源：心知天气</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="status-item">
-                    <i class="fas fa-history"></i>
-                    <div class="status-content">
-                        <div class="status-label">历史上的今天</div>
-                        <div class="history-event" id="history-event">加载中...</div>
-                    </div>
-                </div>
-            </div>
-            
             <div class="categories">
                 <button class="category-btn active" data-category="all">全部</button>
                 <button class="category-btn" data-category="technology">技术</button>
@@ -574,8 +569,52 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.3.0
+            made by <strong>xundei</strong> with ❤️| xundei-blog V2.2.3
         </footer>
+    </div>
+    
+    <!-- 信息卡片 -->
+    <div class="info-card glass" id="info-card">
+        <button class="refresh-btn" id="refresh-info">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        
+        <div class="info-item">
+            <div class="info-header">
+                <div class="info-icon"><i class="fas fa-eye"></i></div>
+                <div class="info-title">博客访问量</div>
+            </div>
+            <div class="info-content">
+                <div class="finicounter">0</div>
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-header">
+                <div class="info-icon"><i class="fas fa-cloud-sun"></i></div>
+                <div class="info-title">当地天气</div>
+            </div>
+            <div class="info-content">
+                <div class="weather-details">
+                    <div class="weather-icon" id="weather-icon">🌤️</div>
+                    <div class="weather-temp" id="weather-temp">--℃</div>
+                    <div class="weather-extra">
+                        <div id="weather-place">加载中...</div>
+                        <div id="weather-desc">正在获取</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-header">
+                <div class="info-icon"><i class="fas fa-history"></i></div>
+                <div class="info-title">历史上的今天</div>
+            </div>
+            <div class="info-content">
+                <div class="history-content" id="history-content">加载中...</div>
+            </div>
+        </div>
     </div>
     
     <!-- 关于我按钮 -->
@@ -640,19 +679,13 @@
             '小雨': '🌧️',
             '中雨': '🌧️',
             '大雨': '⛈️',
+            '暴雨': '⛈️',
             '雷阵雨': '⛈️',
             '雪': '❄️',
             '雾': '🌫️',
             '风': '🌬️',
-            '沙尘': '🌪️',
-            '冰雹': '🌨️',
-            'default': '🌡️'
+            '沙尘': '🌪️'
         };
-        
-        // 心知天气API配置
-        const WEATHER_UID = "503275418";
-        const WEATHER_KEY = "PRgEsJD5sy5OuuLKZ";
-        const WEATHER_API = "https://api.seniverse.com/v3/weather/now.json";
         
         // ======================
         // 页面状态变量
@@ -674,6 +707,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             // 检查外部库是否已加载
             checkExternalLibraries();
+            
+            // 初始化信息卡片
+            initInfoCard();
         });
 
         // 检查外部库加载状态
@@ -753,6 +789,230 @@
             });
         }
 
+        // 初始化信息卡片
+        function initInfoCard() {
+            // 获取天气信息
+            getWeather();
+            
+            // 获取历史上的今天
+            getHistoryToday();
+            
+            // 添加刷新按钮事件
+            document.getElementById('refresh-info').addEventListener('click', () => {
+                showToast('刷新信息中...');
+                localStorage.removeItem('weatherData');
+                localStorage.removeItem('historyData');
+                getWeather();
+                getHistoryToday();
+            });
+        }
+
+        // 获取天气信息
+        async function getWeather() {
+            try {
+                // 从localStorage中获取缓存的天气数据
+                const cachedWeather = localStorage.getItem('weatherData');
+                const now = new Date().getTime();
+                
+                if (cachedWeather) {
+                    const { data, timestamp } = JSON.parse(cachedWeather);
+                    // 30分钟缓存 (30 * 60 * 1000 = 1800000)
+                    if (now - timestamp < 1800000) {
+                        updateWeatherUI(data);
+                        return;
+                    }
+                }
+                
+                // 获取用户位置信息
+                const locationResponse = await axios.get('https://api.52vmy.cn/api/query/itad?ip=');
+                const locationData = locationResponse.data;
+                
+                // 提取城市信息（根据API返回结构）
+                const city = locationData.data?.city || '未知城市';
+                
+                // 使用公共API获取天气
+                const weatherResponse = await axios.get(`https://cn.apihz.cn/api/tianqi/tqyb.php?id=88888888&key=88888888&sheng=${encodeURIComponent(city)}&place=${encodeURIComponent(city)}`);
+                const weatherData = weatherResponse.data;
+                
+                if (weatherData.code == 200) {
+                    // 更新UI
+                    updateWeatherUI(weatherData);
+                    
+                    // 缓存数据
+                    localStorage.setItem('weatherData', JSON.stringify({
+                        data: weatherData,
+                        timestamp: now
+                    }));
+                } else {
+                    // 使用备用天气API
+                    const backupWeather = await getBackupWeather(city);
+                    updateWeatherUI(backupWeather);
+                }
+            } catch (error) {
+                console.error('获取天气失败:', error);
+                // 使用默认天气数据
+                updateWeatherUI({
+                    place: "未知位置",
+                    temperature: "--",
+                    windScale: "未知风速",
+                    humidity: "--"
+                });
+            }
+        }
+
+        // 备用天气API
+        async function getBackupWeather(city) {
+            try {
+                const response = await axios.get(`https://api.weather.hao.360.cn/sed_api_weather.php?app=hao360&_jsonp=weather&code=${encodeURIComponent(city)}`);
+                const data = response.data;
+                
+                // 解析JSONP响应
+                const jsonStr = data.match(/weather\((.+)\)/)[1];
+                const weatherData = JSON.parse(jsonStr);
+                
+                if (weatherData && weatherData.result && weatherData.result.temp) {
+                    return {
+                        place: city,
+                        temperature: weatherData.result.temp,
+                        windScale: weatherData.result.wind,
+                        humidity: weatherData.result.humidity
+                    };
+                }
+                
+                return {
+                    place: city,
+                    temperature: "--",
+                    windScale: "未知风速",
+                    humidity: "--"
+                };
+            } catch (e) {
+                console.error('备用天气API失败:', e);
+                return {
+                    place: city,
+                    temperature: "--",
+                    windScale: "未知风速",
+                    humidity: "--"
+                };
+            }
+        }
+
+        // 更新天气UI
+        function updateWeatherUI(weatherData) {
+            const temp = weatherData.temperature || '--';
+            const place = weatherData.place ? weatherData.place.split(', ')[2] || weatherData.place : '未知位置';
+            const wind = weatherData.windScale || '未知风速';
+            const humidity = weatherData.humidity || '--';
+            
+            document.getElementById('weather-temp').textContent = `${temp}℃`;
+            document.getElementById('weather-place').textContent = place;
+            document.getElementById('weather-desc').textContent = `${wind} | 湿度${humidity}%`;
+            
+            // 根据天气描述设置图标
+            let weatherIcon = '🌤️';
+            if (wind) {
+                for (const [key, value] of Object.entries(weatherIcons)) {
+                    if (wind.includes(key)) {
+                        weatherIcon = value;
+                        break;
+                    }
+                }
+            }
+            document.getElementById('weather-icon').textContent = weatherIcon;
+        }
+
+        // 获取历史上的今天
+        async function getHistoryToday() {
+            try {
+                // 从localStorage中获取缓存的历史数据
+                const cachedHistory = localStorage.getItem('historyData');
+                const now = new Date().getTime();
+                
+                if (cachedHistory) {
+                    const { data, timestamp } = JSON.parse(cachedHistory);
+                    // 30分钟缓存 (30 * 60 * 1000 = 1800000)
+                    if (now - timestamp < 1800000) {
+                        updateHistoryUI(data);
+                        return;
+                    }
+                }
+                
+                // 获取历史数据
+                const historyResponse = await axios.get('https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888');
+                const historyData = historyResponse.data;
+                
+                if (historyData.code == 200) {
+                    // 更新UI
+                    updateHistoryUI(historyData);
+                    
+                    // 缓存数据
+                    localStorage.setItem('historyData', JSON.stringify({
+                        data: historyData,
+                        timestamp: now
+                    }));
+                } else {
+                    // 使用备用历史API
+                    const backupHistory = await getBackupHistory();
+                    updateHistoryUI(backupHistory);
+                }
+            } catch (error) {
+                console.error('获取历史数据失败:', error);
+                // 使用默认历史数据
+                updateHistoryUI({
+                    title: '历史上的今天数据获取失败',
+                    y: '----',
+                    m: '--',
+                    d: '--'
+                });
+            }
+        }
+
+        // 备用历史API
+        async function getBackupHistory() {
+            try {
+                const today = new Date();
+                const month = today.getMonth() + 1;
+                const day = today.getDate();
+                
+                const response = await axios.get(`https://api.52vmy.cn/api/history/today?month=${month}&day=${day}`);
+                const historyData = response.data;
+                
+                if (historyData.code === 200 && historyData.data && historyData.data.length > 0) {
+                    const randomEvent = historyData.data[Math.floor(Math.random() * historyData.data.length)];
+                    return {
+                        title: randomEvent.title,
+                        y: randomEvent.year,
+                        m: month.toString().padStart(2, '0'),
+                        d: day.toString().padStart(2, '0')
+                    };
+                }
+                
+                return {
+                    title: '历史上的今天数据获取失败',
+                    y: '----',
+                    m: '--',
+                    d: '--'
+                };
+            } catch (e) {
+                console.error('备用历史API失败:', e);
+                return {
+                    title: '历史上的今天数据获取失败',
+                    y: '----',
+                    m: '--',
+                    d: '--'
+                };
+            }
+        }
+
+        // 更新历史UI
+        function updateHistoryUI(historyData) {
+            const title = historyData.title || '未知事件';
+            const year = historyData.y || '----';
+            const month = historyData.m || '--';
+            const day = historyData.d || '--';
+            
+            document.getElementById('history-content').textContent = `${year}年${month}月${day}日：${title}`;
+        }
+
         // 初始化页面
         async function initializePage() {
             try {
@@ -768,9 +1028,6 @@
                 
                 // 加载文章
                 loadArticles();
-                
-                // 加载状态栏数据
-                loadStatusBar();
                 
                 // 标记页面已初始化
                 pageInitialized = true;
@@ -919,226 +1176,6 @@
                 'something': '杂碎'
             };
             return names[category] || category;
-        }
-
-        // 加载状态栏数据
-        function loadStatusBar() {
-            // 访问量由第三方脚本自动处理
-            
-            // 获取天气
-            getWeather();
-            
-            // 获取历史事件
-            getHistoryEvent();
-        }
-
-        // ======================
-        // 新增：缓存管理函数
-        // ======================
-        function setCache(key, data, minutes) {
-            const expiration = new Date().getTime() + minutes * 60 * 1000;
-            const cacheData = {
-                data: data,
-                expiration: expiration
-            };
-            localStorage.setItem(key, JSON.stringify(cacheData));
-        }
-
-        function getCache(key) {
-            const cacheItem = localStorage.getItem(key);
-            if (!cacheItem) return null;
-
-            const cacheData = JSON.parse(cacheItem);
-            if (new Date().getTime() > cacheData.expiration) {
-                localStorage.removeItem(key);
-                return null;
-            }
-            return cacheData.data;
-        }
-
-        // ======================
-        // 修改：使用JSONP获取天气（严格按照官方要求）
-        // ======================
-        function getWeather() {
-            try {
-                const weatherElement = document.getElementById('weather-text');
-                const iconElement = document.getElementById('weather-icon');
-                
-                // 检查是否有缓存的天气数据
-                const cachedWeather = getCache('weather_data');
-                if (cachedWeather) {
-                    weatherElement.textContent = cachedWeather.text;
-                    iconElement.textContent = cachedWeather.icon;
-                    return;
-                }
-                
-                // 获取当前时间戳（秒）
-                const ts = Math.floor(Date.now() / 1000);
-                // 设置TTL为1800秒（30分钟）
-                const ttl = 1800;
-                
-                // 构造验证参数字符串（按照键字典升序排列：ttl, ts, uid）
-                const str = `ts=${ts}&ttl=${ttl}&uid=${WEATHER_UID}`;
-
-                // 使用 HMAC-SHA1 方式生成签名
-                const sig = CryptoJS.HmacSHA1(str, WEATHER_KEY).toString(CryptoJS.enc.Base64);
-                const encodedSig = encodeURIComponent(sig);
-                const params = `${str}&sig=${encodedSig}`;
-                
-                // 获取位置信息
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const { latitude, longitude } = position.coords;
-                        const location = `${latitude}:${longitude}`;
-                        
-                        // 构造JSONP请求URL
-                        const url = `${WEATHER_API}?location=${location}&${params}&language=zh-Hans&unit=c`;
-                        
-                        // 创建唯一的回调函数名
-                        const callbackName = 'weatherCallback_' + Date.now();
-                        
-                        // 定义回调函数
-                        window[callbackName] = function(data) {
-                            // 清除script标签和回调函数
-                            document.body.removeChild(script);
-                            delete window[callbackName];
-                            
-                            if (data.results && data.results.length > 0) {
-                                const weatherData = data.results[0].now;
-                                const locationData = data.results[0].location;
-                                
-                                const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
-                                const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
-                                
-                                weatherElement.textContent = weatherText;
-                                iconElement.textContent = icon;
-                                
-                                // 缓存天气数据30分钟
-                                setCache('weather_data', { 
-                                    text: weatherText, 
-                                    icon: icon 
-                                }, 30);
-                            } else {
-                                weatherElement.textContent = '获取失败';
-                                iconElement.textContent = weatherIcons['default'];
-                            }
-                        };
-                        
-                        // 创建script标签
-                        const script = document.createElement('script');
-                        script.src = `${url}&callback=${callbackName}`;
-                        script.onerror = () => {
-                            console.error('天气请求失败');
-                            weatherElement.textContent = '无法获取';
-                            iconElement.textContent = weatherIcons['default'];
-                        };
-                        document.body.appendChild(script);
-                    },
-                    error => {
-                        console.error('获取位置失败:', error);
-                        if (error.code === error.PERMISSION_DENIED) {
-                            weatherElement.textContent = '用户已拒绝位置授权';
-                        } else {
-                            weatherElement.textContent = '无法获取位置';
-                        }
-                        iconElement.textContent = weatherIcons['default'];
-                        
-                        // 尝试使用默认位置（北京）
-                        fetchWeatherWithDefaultLocation(params);
-                    }
-                );
-            } catch (error) {
-                console.error('获取天气失败:', error);
-                document.getElementById('weather-text').textContent = '无法获取';
-                document.getElementById('weather-icon').textContent = weatherIcons['default'];
-            }
-        }
-
-        // 默认位置（北京）
-        function fetchWeatherWithDefaultLocation(params) {
-            const weatherElement = document.getElementById('weather-text');
-            const iconElement = document.getElementById('weather-icon');
-            const location = 'beijing';
-            
-            const url = `${WEATHER_API}?location=${location}&${params}&language=zh-Hans&unit=c`;
-            
-            // 创建唯一的回调函数名
-            const callbackName = 'weatherCallbackDefault_' + Date.now();
-            
-            // 定义回调函数
-            window[callbackName] = function(data) {
-                // 清除script标签和回调函数
-                document.body.removeChild(script);
-                delete window[callbackName];
-                
-                if (data.results && data.results.length > 0) {
-                    const weatherData = data.results[0].now;
-                    const locationData = data.results[0].location;
-                    
-                    const weatherText = `${locationData.name} ${weatherData.text} ${weatherData.temperature}°C`;
-                    const icon = weatherIcons[weatherData.text] || weatherIcons['default'];
-                    
-                    weatherElement.textContent = weatherText;
-                    iconElement.textContent = icon;
-                    
-                    // 缓存天气数据30分钟
-                    setCache('weather_data', { 
-                        text: weatherText, 
-                        icon: icon 
-                    }, 30);
-                } else {
-                    weatherElement.textContent = '获取失败';
-                    iconElement.textContent = weatherIcons['default'];
-                }
-            };
-            
-            // 创建script标签
-            const script = document.createElement('script');
-            script.src = `${url}&callback=${callbackName}`;
-            script.onerror = () => {
-                console.error('天气请求失败');
-                weatherElement.textContent = '无法获取';
-                iconElement.textContent = weatherIcons['default'];
-            };
-            document.body.appendChild(script);
-        }
-
-        // ======================
-        // 修改：添加历史事件缓存
-        // ======================
-        async function getHistoryEvent() {
-            try {
-                const historyElement = document.getElementById('history-event');
-                
-                // 检查是否有缓存的历史事件
-                const cachedHistory = getCache('history_event');
-                if (cachedHistory) {
-                    historyElement.textContent = cachedHistory;
-                    return;
-                }
-                
-                const today = new Date();
-                const month = today.getMonth() + 1;
-                const day = today.getDate();
-
-                const apiUrl = `https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888&m=${month}&d=${day}`;
-                
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                if (data.code === 200) {
-                    historyElement.textContent = data.title;
-                    historyElement.title = data.title;
-                    
-                    // 缓存历史事件30分钟
-                    setCache('history_event', data.title, 30);
-                } else {
-                    historyElement.textContent = "获取失败";
-                }
-            } catch (error) {
-                console.error('获取失败:', error);
-                document.getElementById('history-event').textContent = '加载失败';
-            }
         }
 
         // 绑定事件
