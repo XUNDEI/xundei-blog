@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script async src="//finicounter.eu.org/finicounter.js"></script>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
@@ -16,6 +16,7 @@
             --light-text: #fff;
             --transition: all 0.3s ease;
             --blur-amount: 12px;
+            --glow-color: rgba(124, 77, 255, 0.8);
         }
         
         * {
@@ -69,7 +70,7 @@
         
         .glass:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow-color);
         }
         
         /* 头部样式 */
@@ -130,7 +131,7 @@
         .category-btn:hover, .category-btn.active {
             background: var(--primary-color);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 15px var(--glow-color);
         }
         
         /* 文章网格 */
@@ -151,6 +152,7 @@
         
         .article-card:hover {
             transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 20px var(--glow-color);
         }
         
         .article-header {
@@ -200,6 +202,7 @@
         
         .read-more:hover {
             background: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color);
         }
         
         /* 关于我 */
@@ -223,6 +226,7 @@
         
         .about-btn:hover {
             transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 20px var(--glow-color);
         }
         
         .about-card {
@@ -281,6 +285,7 @@
         .contact-btn:hover {
             transform: translateY(-5px);
             background: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color);
         }
         
         /* 页脚 */
@@ -326,93 +331,160 @@
             width: 100%;
         }
         
-        /* 信息卡片样式 */
-        .info-card {
+        /* ====================== */
+        /* 左下角功能小窗 */
+        /* ====================== */
+        .func-btn {
             position: fixed;
-            bottom: 200px;
-            right: 15px; /* 更靠近右侧 */
-            width: 220px;
-            z-index: 99;
-            padding: 15px;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
             transition: var(--transition);
-            animation: slideInUp 0.5s ease-out;
         }
         
-        .info-item {
+        .func-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .func-card {
+            position: fixed;
+            bottom: 100px;
+            left: 30px;
+            width: 280px;
+            z-index: 100;
+            display: none;
+            animation: popIn 0.4s ease;
+            padding: 15px;
+        }
+        
+        .func-card-header {
             display: flex;
-            flex-direction: column;
-            padding-bottom: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .info-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        
-        .info-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.85);
-        }
-        
-        .info-icon {
-            margin-right: 8px;
-            font-size: 1rem;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .info-title {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-        
-        .info-content {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-        
-        .weather-details {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        
-        .weather-icon {
-            font-size: 1.6rem;
-            width: 36px;
-            text-align: center;
-        }
-        
-        .weather-temp {
+        .func-card-title {
             font-size: 1.2rem;
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--light-text);
         }
         
-        .weather-extra {
+        .close-btn {
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
             display: flex;
-            flex-direction: column;
-            font-size: 0.8rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .func-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+        
+        .func-section:hover {
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .func-section h4 {
+            color: var(--light-text);
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .func-section h4 i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .counter-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #7c4dff;
+            text-shadow: 0 0 10px rgba(124, 77, 255, 0.5);
+            margin: 5px 0;
+        }
+        
+        .luck-btn {
+            background: rgba(124, 77, 255, 0.3);
+            border: none;
+            border-radius: 30px;
+            padding: 8px 15px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .luck-btn:hover {
+            background: var(--primary-color);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .luck-result {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: var(--light-text);
+            text-shadow: 0 0 15px var(--primary-color);
+            transition: all 0.5s ease;
+        }
+        
+        .luck-message {
+            text-align: center;
+            font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
+            min-height: 40px;
         }
         
         .history-content {
-            font-size: 0.85rem;
-            line-height: 1.4;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
         }
         
-        .counter {
-            font-size: 1.1rem;
+        .history-date {
             font-weight: bold;
-            color: #7c4dff;
-            text-shadow: 0 0 8px rgba(124, 77, 255, 0.5);
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .history-loading {
+            text-align: center;
+            padding: 10px;
+            color: rgba(255, 255, 255, 0.6);
         }
         
         /* 动画 */
@@ -443,17 +515,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .blog-title {
@@ -473,10 +534,9 @@
                 right: 15px;
             }
             
-            .info-card {
-                width: 200px;
-                right: 10px;
-                bottom: 180px;
+            .func-card {
+                width: 260px;
+                left: 15px;
             }
             
             :root {
@@ -504,17 +564,14 @@
                 left: 5%;
             }
             
-            .info-card {
-                width: 85%;
-                right: 5%;
+            .func-card {
+                width: 90%;
                 left: 5%;
-                bottom: 170px;
             }
-        }
-        
-        @media (max-height: 700px) {
-            .info-card {
-                bottom: 160px;
+            
+            .func-btn {
+                left: 15px;
+                bottom: 15px;
             }
         }
     </style>
@@ -547,50 +604,8 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.2.3
+            made by <strong>xundei</strong> with ❤️| xundei-blog V2.4.0
         </footer>
-    </div>
-    
-    <!-- 信息卡片 -->
-    <div class="info-card glass" id="info-card">
-        <div class="info-item">
-            <div class="info-header">
-                <div class="info-icon"><i class="fas fa-eye"></i></div>
-                <div class="info-title">博客访问量</div>
-            </div>
-            <div class="info-content">
-                <div class="counter">
-                    <span class="finicounter">0</span> 次访问
-                </div>
-            </div>
-        </div>
-        
-        <div class="info-item">
-            <div class="info-header">
-                <div class="info-icon"><i class="fas fa-cloud-sun"></i></div>
-                <div class="info-title">当地天气</div>
-            </div>
-            <div class="info-content">
-                <div class="weather-details">
-                    <div class="weather-icon" id="weather-icon">🌤️</div>
-                    <div class="weather-temp" id="weather-temp">--℃</div>
-                    <div class="weather-extra">
-                        <div id="weather-place">加载中...</div>
-                        <div id="weather-desc">正在获取</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="info-item">
-            <div class="info-header">
-                <div class="info-icon"><i class="fas fa-history"></i></div>
-                <div class="info-title">历史上的今天</div>
-            </div>
-            <div class="info-content">
-                <div class="history-content" id="history-content">加载中...</div>
-            </div>
-        </div>
     </div>
     
     <!-- 关于我按钮 -->
@@ -626,6 +641,45 @@
         </p>
     </div>
     
+    <!-- 功能按钮（左下角） -->
+    <div class="func-btn" id="func-btn">
+        <i class="fas fa-star"></i>
+    </div>
+    
+    <!-- 功能卡片 -->
+    <div class="func-card glass" id="func-card">
+        <div class="func-card-header">
+            <div class="func-card-title">功能小窗</div>
+            <div class="close-btn" id="close-func-card">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="func-section">
+            <h4><i class="fas fa-eye"></i> 博客访问量</h4>
+            <div class="counter-value">
+                <span id="busuanzi_value_site_pv">加载中...</span>
+            </div>
+            <p>感谢您的访问！</p>
+        </div>
+
+        
+        <div class="func-section">
+            <h4><i class="fas fa-dice"></i> 测测手气</h4>
+            <button class="luck-btn" id="luck-btn">试试手气</button>
+            <div class="luck-result" id="luck-result">?</div>
+            <div class="luck-message" id="luck-message">结果仅供参考，切勿迷信</div>
+        </div>
+        
+        <div class="func-section">
+            <h4><i class="fas fa-history"></i> 历史上的今天</h4>
+            <div class="history-content" id="history-content">
+                <div class="history-loading">
+                    <i class="fas fa-spinner fa-spin"></i> 加载中...
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- 提示框 -->
     <div class="toast" id="toast"></div>
     
@@ -647,20 +701,17 @@
             "如果银河是倒悬的海洋，那我愿与你乘一叶扁舟，在星辉里漂流至时光尽头。"
         ];
         
-        // 天气图标映射
-        const weatherIcons = {
-            '晴': '☀️',
-            '多云': '⛅',
-            '阴': '☁️',
-            '小雨': '🌧️',
-            '中雨': '🌧️',
-            '大雨': '⛈️',
-            '暴雨': '⛈️',
-            '雷阵雨': '⛈️',
-            '雪': '❄️',
-            '雾': '🌫️',
-            '风': '🌬️',
-            '沙尘': '🌪️'
+        const luckMessages = {
+            0: "运气很差欸Σヽ(ﾟД ﾟ; )ﾉ，万事都要小心！",
+            100: "欧皇就是你辣(≧∀≦)ゞ",
+            range: [
+                {min: 1, max: 10, message: "运气不是很好呢(´･_･`)"},
+                {min: 11, max: 30, message: "运气略差一点( ¯•ω•¯ )"},
+                {min: 31, max: 49, message: "普普通通呢(´･ω･`)"},
+                {min: 50, max: 69, message: "相信小幸运必来到你身上(,,・ω・,,)"},
+                {min: 70, max: 89, message: "运气不错呢(๑•̀ㅂ•́)و✧"},
+                {min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )"}
+            ]
         };
         
         // ======================
@@ -684,9 +735,153 @@
             // 检查外部库是否已加载
             checkExternalLibraries();
             
-            // 初始化信息卡片
-            initInfoCard();
+            // 初始化功能小窗
+            initFuncPanel();
         });
+
+        // 初始化手气结果
+        function initLuckResult() {
+            const today = new Date().toDateString();
+            const storedLuck = localStorage.getItem('dailyLuck');
+            
+            if (storedLuck) {
+                const luckData = JSON.parse(storedLuck);
+                if (luckData.date === today) {
+                    // 显示存储的结果
+                    displayLuckResult(luckData.value);
+                    return;
+                }
+            }
+            
+            // 没有当天的结果，显示初始状态
+            document.getElementById('luck-result').textContent = "?";
+        }
+        
+        // 获取每日手气
+        function getDailyLuck() {
+            const today = new Date().toDateString();
+            const storedLuck = localStorage.getItem('dailyLuck');
+            
+            // 如果已有当天的结果，直接显示
+            if (storedLuck) {
+                const luckData = JSON.parse(storedLuck);
+                if (luckData.date === today) {
+                    displayLuckResult(luckData.value);
+                    return;
+                }
+            }
+            
+            // 生成随机数 (0-100)
+            const luckValue = Math.floor(Math.random() * 101);
+            
+            // 存储结果
+            const luckData = {
+                date: today,
+                value: luckValue
+            };
+            localStorage.setItem('dailyLuck', JSON.stringify(luckData));
+            
+            // 显示结果
+            displayLuckResult(luckValue);
+        }
+        
+        // 显示手气结果
+        function displayLuckResult(value) {
+            const resultEl = document.getElementById('luck-result');
+            const messageEl = document.getElementById('luck-message');
+            
+            // 更新数字
+            resultEl.textContent = value;
+            
+            // 添加动画效果
+            resultEl.style.transition = 'all 0.5s ease';
+            resultEl.style.transform = 'scale(1.5)';
+            setTimeout(() => {
+                resultEl.style.transform = 'scale(1)';
+            }, 500);
+            
+            // 更新消息
+            if (value === 0) {
+                messageEl.textContent = luckMessages[0];
+            } else if (value === 100) {
+                messageEl.textContent = luckMessages[100];
+            } else {
+                for (const range of luckMessages.range) {
+                    if (value >= range.min && value <= range.max) {
+                        messageEl.textContent = range.message;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 初始化功能小窗
+        function initFuncPanel() {
+            // 功能按钮点击事件
+            document.getElementById('func-btn').addEventListener('click', () => {
+                const funcCard = document.getElementById('func-card');
+                funcCard.style.display = funcCard.style.display === 'block' ? 'none' : 'block';
+                
+                if (funcCard.style.display === 'block' && !window.historyLoaded) {
+                    loadHistoryToday();
+                }
+            });
+            
+            // 关闭按钮
+            document.getElementById('close-func-card').addEventListener('click', () => {
+                document.getElementById('func-card').style.display = 'none';
+            });
+
+            initLuckResult();
+
+        }
+        async function loadHistoryToday() {
+            const contentEl = document.getElementById('history-content');
+            
+            try {
+                contentEl.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+                
+                const apiUrl = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
+                
+                // 尝试使用axios，如果不可用则使用fetch
+                let response;
+                let responseData;
+                if (typeof axios !== 'undefined') {
+                    response = await axios.get(apiUrl);
+                    responseData = response.data;
+                } else {
+                    response = await fetch(apiUrl);
+                    if (!response.ok) throw new Error('网络响应异常');
+                    responseData = await response.json();
+                }
+                
+                // 检查API返回的数据是否包含广告
+                const responseString = JSON.stringify(responseData).toLowerCase();
+                if (responseString.includes('www.apihz.cn') || responseString.includes('ad') || responseString.includes('广告')) {
+                    throw new Error('API负载过高，请稍后再试');
+                }
+                
+                // 检查是否包含广告
+                if (responseData.title && responseData.title.includes('www.apihz.cn')) {
+                    throw new Error('API负载过高，请稍后再');
+                }
+                
+                if (responseData.code == 200) {
+                    contentEl.innerHTML = `
+                        <div class="history-date">${responseData.y}年${responseData.m}月${responseData.d}日</div>
+                        <div class="history-event">${responseData.title}</div>
+                    `;
+                } else {
+                    contentEl.innerHTML = `<div class="history-error">加载失败: ${responseData.msg || '未知错误'}</div>`;
+                }
+                
+                // 标记已加载
+                window.historyLoaded = true;
+            } catch (error) {
+                console.error('加载历史上的今天失败:', error);
+                contentEl.innerHTML = `<div class="history-error">加载失败: ${error.message}</div>`;
+            }
+        }
 
         // 检查外部库加载状态
         function checkExternalLibraries() {
@@ -763,177 +958,6 @@
                     return `<pre><code class="language-${lang}">${code}</code></pre>`;
                 }
             });
-        }
-
-        // 初始化信息卡片
-        function initInfoCard() {
-            // 获取天气信息
-            getWeather();
-            
-            // 获取历史上的今天
-            getHistoryToday();
-        }
-
-        // 获取天气信息
-        async function getWeather() {
-            try {
-                // 从localStorage中获取缓存的天气数据
-                const cachedWeather = localStorage.getItem('weatherData');
-                const now = new Date().getTime();
-                
-                if (cachedWeather) {
-                    const { data, timestamp } = JSON.parse(cachedWeather);
-                    // 30分钟缓存 (30 * 60 * 1000 = 1800000)
-                    if (now - timestamp < 1800000) {
-                        updateWeatherUI(data);
-                        return;
-                    }
-                }
-                
-                // 获取用户位置信息
-                const locationResponse = await axios.get('https://api.52vmy.cn/api/query/itad?ip=');
-                const locationData = locationResponse.data;
-                
-                // 检查响应结构
-                if (locationData.code === 200 && locationData.data && locationData.data.home) {
-                    // 解析位置信息
-                    const homeParts = locationData.data.home.split(' ');
-                    let province = '', city = '';
-                    
-                    if (homeParts.length >= 3) {
-                        // 格式: "中国 广西 玉林"
-                        province = homeParts[1];
-                        city = homeParts[2];
-                    } else if (homeParts.length === 2) {
-                        // 直辖市情况: "中国 北京"
-                        province = homeParts[1];
-                        city = homeParts[1];
-                    }
-                    
-                    if (province && city) {
-                        // 获取天气数据
-                        const weatherResponse = await axios.get(`https://cn.apihz.cn/api/tianqi/tqyb.php?id=88888888&key=88888888&sheng=${encodeURIComponent(province)}&place=${encodeURIComponent(city)}`);
-                        const weatherData = weatherResponse.data;
-                        
-                        if (weatherData.code == 200) {
-                            // 更新UI
-                            updateWeatherUI(weatherData);
-                            
-                            // 缓存数据
-                            localStorage.setItem('weatherData', JSON.stringify({
-                                data: weatherData,
-                                timestamp: now
-                            }));
-                            return;
-                        }
-                    }
-                }
-                
-                // 如果无法获取位置或天气，使用默认值
-                updateWeatherUI({
-                    place: "未知位置",
-                    temperature: "--",
-                    windScale: "未知风速",
-                    humidity: "--"
-                });
-            } catch (error) {
-                console.error('获取天气失败:', error);
-                updateWeatherUI({
-                    place: "未知位置",
-                    temperature: "--",
-                    windScale: "未知风速",
-                    humidity: "--"
-                });
-            }
-        }
-
-        // 更新天气UI
-        function updateWeatherUI(weatherData) {
-            const temp = weatherData.temperature || '--';
-            let place = "未知位置";
-            
-            // 解析地点信息
-            if (weatherData.place) {
-                const placeParts = weatherData.place.split(', ');
-                place = placeParts.length >= 3 ? placeParts[2] : weatherData.place;
-            }
-            
-            const wind = weatherData.windScale || '未知风速';
-            const humidity = weatherData.humidity || '--';
-            
-            document.getElementById('weather-temp').textContent = `${temp}℃`;
-            document.getElementById('weather-place').textContent = place;
-            document.getElementById('weather-desc').textContent = `${wind} | 湿度${humidity}%`;
-            
-            // 根据天气描述设置图标
-            let weatherIcon = '🌤️';
-            if (wind) {
-                for (const [key, value] of Object.entries(weatherIcons)) {
-                    if (wind.includes(key)) {
-                        weatherIcon = value;
-                        break;
-                    }
-                }
-            }
-            document.getElementById('weather-icon').textContent = weatherIcon;
-        }
-
-        // 获取历史上的今天
-        async function getHistoryToday() {
-            try {
-                // 从localStorage中获取缓存的历史数据
-                const cachedHistory = localStorage.getItem('historyData');
-                const now = new Date().getTime();
-                
-                if (cachedHistory) {
-                    const { data, timestamp } = JSON.parse(cachedHistory);
-                    // 30分钟缓存 (30 * 60 * 1000 = 1800000)
-                    if (now - timestamp < 1800000) {
-                        updateHistoryUI(data);
-                        return;
-                    }
-                }
-                
-                // 获取历史数据
-                const historyResponse = await axios.get('https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888');
-                const historyData = historyResponse.data;
-                
-                if (historyData.code == 200) {
-                    // 更新UI
-                    updateHistoryUI(historyData);
-                    
-                    // 缓存数据
-                    localStorage.setItem('historyData', JSON.stringify({
-                        data: historyData,
-                        timestamp: now
-                    }));
-                } else {
-                    updateHistoryUI({
-                        title: '历史上的今天数据获取失败',
-                        y: '----',
-                        m: '--',
-                        d: '--'
-                    });
-                }
-            } catch (error) {
-                console.error('获取历史数据失败:', error);
-                updateHistoryUI({
-                    title: '历史上的今天数据获取失败',
-                    y: '----',
-                    m: '--',
-                    d: '--'
-                });
-            }
-        }
-
-        // 更新历史UI
-        function updateHistoryUI(historyData) {
-            const title = historyData.title || '未知事件';
-            const year = historyData.y || '----';
-            const month = historyData.m || '--';
-            const day = historyData.d || '--';
-            
-            document.getElementById('history-content').textContent = `${year}年${month}月${day}日：${title}`;
         }
 
         // 初始化页面
@@ -1135,7 +1159,21 @@
                     !e.target.closest('#about-btn')) {
                     aboutCard.style.display = 'none';
                 }
+                
+                // 点击其他地方关闭功能卡片
+                const funcCard = document.getElementById('func-card');
+                if (funcCard.style.display === 'block' && 
+                    !e.target.closest('#func-card') && 
+                    !e.target.closest('#func-btn')) {
+                    funcCard.style.display = 'none';
+                }
             });
+            
+            // 修复：为"试试手气"按钮添加事件监听
+            const luckBtn = document.getElementById('luck-btn');
+            if (luckBtn) {
+                luckBtn.addEventListener('click', getDailyLuck);
+            }
         }
 
         // 复制到剪贴板
