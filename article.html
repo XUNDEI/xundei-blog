@@ -894,7 +894,7 @@
             `;
         }
         
-        // ========== 新增的音乐播放器功能 ==========
+        // ========== 修复后的音乐播放器功能 ==========
         function initMusicPlayer() {
             const musicBtn = document.getElementById('music-player-btn');
             const musicPanel = document.getElementById('music-player-panel');
@@ -914,7 +914,6 @@
             let isPlaying = false;
             let tracks = [];
             let isSeeking = false;
-            let seekOnLoad = false;
             
             // 切换播放器面板
             musicBtn.addEventListener('click', () => {
@@ -975,7 +974,6 @@
                 progressBar.value = 0;
                 currentTimeEl.textContent = '0:00';
                 totalTimeEl.textContent = '0:00';
-                seekOnLoad = false;
                 
                 // 更新播放器状态
                 audio.src = `./Music/${encodeURIComponent(track.file)}`;
@@ -1026,22 +1024,17 @@
                 playTrack(newIndex);
             });
             
-            // 进度条控制 - 修复的核心部分
-            progressBar.addEventListener('input', () => {
+            // 进度条控制 - 修复核心部分
+            progressBar.addEventListener('input', function() {
                 isSeeking = true;
+                if (audio.duration) {
+                    const seekPercent = this.value;
+                    const seekTime = (seekPercent / 100) * audio.duration;
+                    audio.currentTime = seekTime;
+                }
             });
             
-            progressBar.addEventListener('change', (e) => {
-                if (audio.duration) {
-                    const seekPercent = e.target.value;
-                    const seekTime = (seekPercent / 100) * audio.duration;
-                    
-                    if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
-                        audio.currentTime = seekTime;
-                    } else {
-                        seekOnLoad = seekTime;
-                    }
-                }
+            progressBar.addEventListener('change', function() {
                 isSeeking = false;
             });
             
@@ -1064,15 +1057,17 @@
             // 当音频加载完成时更新总时间
             audio.addEventListener('loadedmetadata', () => {
                 totalTimeEl.textContent = formatTime(audio.duration);
-                if (seekOnLoad) {
-                    audio.currentTime = seekOnLoad;
-                    seekOnLoad = false;
-                }
             });
             
             // 当音乐结束时自动播放下一首
             audio.addEventListener('ended', () => {
                 nextBtn.click();
+            });
+            
+            // 音量控制
+            audio.volume = volumeControl.value;
+            volumeControl.addEventListener('input', function() {
+                audio.volume = this.value;
             });
             
             // 格式化时间 (秒 -> mm:ss)
