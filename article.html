@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章详情 - 迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 添加highlight.js样式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.15);
@@ -15,6 +17,11 @@
             --light-text: #fff;
             --transition: all 0.3s ease;
             --blur-amount: 12px;
+            --code-bg: #1e1e1e;
+            --code-copy-bg: rgba(255, 255, 255, 0.1);
+            --code-copy-hover: rgba(255, 255, 255, 0.2);
+            --success-color: #4CAF50;
+            --error-color: #f44336;
         }
         
         * {
@@ -194,19 +201,22 @@
             margin-bottom: 10px;
         }
         
+        /* ========== 代码块样式优化 ========== */
         .article-full-content pre {
-            background: #1e1e1e;
+            position: relative;
+            background: var(--code-bg);
             color: #dcdcdc;
-            padding: 20px;
+            padding: 50px 20px 20px;
             border-radius: 10px;
             overflow-x: auto;
             margin: 25px 0;
             font-size: 0.95rem;
             line-height: 1.6;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
         
         .article-full-content code {
-            font-family: 'Courier New', monospace;
+            font-family: 'Fira Code', 'Courier New', monospace;
             background: rgba(255,255,255,0.1);
             padding: 2px 6px;
             border-radius: 4px;
@@ -216,6 +226,54 @@
         .article-full-content pre code {
             background: none;
             padding: 0;
+            display: block;
+            overflow-x: auto;
+        }
+        
+        /* 代码语言标签 */
+        .code-language {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* 复制按钮 */
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--code-copy-bg);
+            border: none;
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+        
+        .copy-btn:hover {
+            background: var(--code-copy-hover);
+            color: white;
+        }
+        
+        .copy-btn.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .copy-btn.error {
+            background: var(--error-color);
+            color: white;
         }
         
         .article-full-content img {
@@ -395,6 +453,16 @@
             
             .article-full-content {
                 font-size: 1rem;
+            }
+            
+            .code-language {
+                font-size: 0.7rem;
+                right: 45px;
+            }
+            
+            .copy-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
             }
         }
         
@@ -655,6 +723,15 @@
         </div>
     </div>
 
+    <!-- 添加highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
     <!-- 外部文章索引 -->
@@ -779,7 +856,14 @@
                     breaks: true,
                     langPrefix: 'language-',
                     highlight: function(code, lang) {
-                        return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (e) {
+                                console.error('代码高亮错误:', e);
+                            }
+                        }
+                        return hljs.highlightAuto(code).value;
                     }
                 });
                 
@@ -803,6 +887,14 @@
                     </div>
                 `;
                 
+                // 添加复制按钮到代码块
+                addCopyButtonsToCodeBlocks();
+                
+                // 高亮所有代码块
+                document.querySelectorAll('pre code').forEach((el) => {
+                    hljs.highlightElement(el);
+                });
+                
                 // 生成目录
                 generateTOC();
                 
@@ -814,6 +906,53 @@
                     showError(`网络错误，请刷新页面`);
                 }
             }
+        }
+        
+        // 添加复制按钮到所有代码块
+        function addCopyButtonsToCodeBlocks() {
+            const codeBlocks = document.querySelectorAll('.article-full-content pre');
+            
+            codeBlocks.forEach((pre) => {
+                // 创建复制按钮
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-btn';
+                copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                
+                // 添加语言标签
+                const code = pre.querySelector('code');
+                const language = code.className.replace('language-', '') || 'code';
+                const langLabel = document.createElement('span');
+                langLabel.className = 'code-language';
+                langLabel.textContent = language;
+                pre.appendChild(langLabel);
+                
+                // 添加按钮事件
+                copyButton.addEventListener('click', () => {
+                    const textToCopy = code.innerText;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 复制成功反馈
+                        copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                        copyButton.classList.add('success');
+                        
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                            copyButton.classList.remove('success');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                        copyButton.innerHTML = '<i class="fas fa-times"></i> 失败';
+                        copyButton.classList.add('error');
+                        
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                            copyButton.classList.remove('error');
+                        }, 2000);
+                    });
+                });
+                
+                pre.appendChild(copyButton);
+            });
         }
         
         // 图片点击处理
