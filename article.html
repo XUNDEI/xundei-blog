@@ -22,6 +22,7 @@
             --code-copy-hover: rgba(255, 255, 255, 0.2);
             --success-color: #4CAF50;
             --error-color: #f44336;
+            --scrollbar-width: 8px;
         }
         
         * {
@@ -412,6 +413,102 @@
             transform: translateY(-5px);
         }
         
+        /* ========== 现代化滚动条样式 ========== */
+        /* 整个页面的滚动条 */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-width);
+            height: var(--scrollbar-width);
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 77, 255, 0.4);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 77, 255, 0.6);
+        }
+        
+        /* 目录导航的滚动条 */
+        .toc-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .toc-container::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+        }
+        
+        .toc-container::-webkit-scrollbar-thumb {
+            background: rgba(124, 77, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .toc-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 77, 255, 0.5);
+        }
+        
+        /* 音乐播放器列表的滚动条 */
+        .music-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-thumb {
+            background: rgba(124, 77, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 77, 255, 0.5);
+        }
+        
+        /* 代码块的横向滚动条 */
+        .article-full-content pre::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-thumb {
+            background: rgba(124, 77, 255, 0.4);
+            border-radius: 3px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 77, 255, 0.6);
+        }
+        
+        /* Firefox滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 77, 255, 0.4) rgba(0, 0, 0, 0.1);
+        }
+        
+        .toc-container, .music-list-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 77, 255, 0.3) transparent;
+        }
+        
+        .article-full-content pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 77, 255, 0.4) rgba(0, 0, 0, 0.2);
+        }
+        
         /* 响应式设计 */
         @media (max-width: 1024px) {
             .toc-container {
@@ -439,6 +536,7 @@
             
             :root {
                 --blur-amount: 8px;
+                --scrollbar-width: 6px;
             }
         }
         
