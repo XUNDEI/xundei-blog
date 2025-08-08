@@ -8,15 +8,16 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.3);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --primary-color: #7c4dff;
+            --primary-color: #4285F4; /* 蓝色主题 */
             --text-color: #333;
             --light-text: #fff;
             --transition: all 0.3s ease;
             --blur-amount: 12px;
-            --glow-color: rgba(124, 77, 255, 0.8);
+            --glow-color: rgba(66, 133, 244, 0.7); /* 发光效果 */
+            --scrollbar-width: 10px; /* 加宽滚动条 */
         }
         
         * {
@@ -83,7 +84,7 @@
         .blog-title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(45deg, #7c4dff, #00bcd4);
+            background: linear-gradient(45deg, #4285F4, #34A853);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -244,6 +245,7 @@
             align-items: center;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
         }
         
         .avatar {
@@ -285,6 +287,23 @@
         .contact-btn:hover {
             transform: translateY(-5px);
             background: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .close-about-btn {
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-about-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
             box-shadow: 0 0 10px var(--glow-color);
         }
         
@@ -428,13 +447,13 @@
         .counter-value {
             font-size: 1.4rem;
             font-weight: bold;
-            color: #7c4dff;
-            text-shadow: 0 0 10px rgba(124, 77, 255, 0.5);
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
             margin: 5px 0;
         }
         
         .luck-btn {
-            background: rgba(124, 77, 255, 0.3);
+            background: rgba(66, 133, 244, 0.3);
             border: none;
             border-radius: 30px;
             padding: 8px 15px;
@@ -515,6 +534,34 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* ========== 滚动条样式 ========== */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-width);
+            height: var(--scrollbar-width);
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(66, 133, 244, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(66, 133, 244, 0.7);
+        }
+        
+        /* Firefox滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .blog-title {
@@ -541,6 +588,7 @@
             
             :root {
                 --blur-amount: 8px;
+                --scrollbar-width: 8px;
             }
         }
         
@@ -604,7 +652,7 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.5.1
+            made by <strong>xundei</strong> with ❤️| xundei-blog V2.6.0
         </footer>
     </div>
     
@@ -616,8 +664,13 @@
     <!-- 关于我卡片 -->
     <div class="about-card glass" id="about-card">
         <div class="about-header">
-            <img src="./portrait.png" alt="Avatar" class="avatar">
-            <div class="about-name">迅dei</div>
+            <div style="display: flex; align-items: center;">
+                <img src="./portrait.png" alt="Avatar" class="avatar">
+                <div class="about-name">迅dei</div>
+            </div>
+            <div class="close-about-btn" id="close-about-btn">
+                <i class="fas fa-times"></i>
+            </div>
         </div>
         <div class="contacts">
             <div class="contact-btn" data-contact="github" data-value="https://github.com/XUNDEI">
@@ -831,6 +884,11 @@
             // 关闭按钮
             document.getElementById('close-func-card').addEventListener('click', () => {
                 document.getElementById('func-card').style.display = 'none';
+            });
+
+            // 关闭关于按钮
+            document.getElementById('close-about-btn').addEventListener('click', () => {
+                document.getElementById('about-card').style.display = 'none';
             });
 
             initLuckResult();
