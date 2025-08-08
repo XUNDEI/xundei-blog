@@ -464,6 +464,7 @@
             box-shadow: 0 0 20px var(--glow-color);
         }
         
+        /* 图片链接确认弹窗 */
         .link-confirm {
             position: fixed;
             bottom: 30px;
@@ -476,14 +477,14 @@
             z-index: 1001;
             max-width: 350px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: translateY(0);
-            opacity: 1;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
             display: none;
-            transition: opacity 0.3s ease;
         }
         
         .link-confirm.show {
-            display: block;
+            transform: translateY(0);
             opacity: 1;
         }
         
@@ -972,6 +973,7 @@
         </div>
     </div>
     
+    <!-- 图片链接确认弹窗 -->
     <div class="link-confirm glass" id="link-confirm">
         <p>您即将离开本站，是否继续？</p>
         <a id="link-url" href="#" target="_blank"></a>
@@ -1265,7 +1267,16 @@
         function handleImageClick(e) {
             const target = e.target;
             
-            // 处理图片灯箱
+            // 处理带链接的图片（优先处理）
+            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
+                e.preventDefault();
+                e.stopPropagation(); // 阻止事件冒泡
+                const link = target.closest('a');
+                showLinkConfirm(link.href);
+                return;
+            }
+            
+            // 处理普通图片灯箱
             if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
                 // 关闭可能存在的链接确认框
                 hideLinkConfirm();
@@ -1289,15 +1300,9 @@
                     }
                 });
             }
-            
-            // 处理带链接的图片
-            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
-                e.preventDefault();
-                const link = target.closest('a');
-                showLinkConfirm(link.href);
-            }
         }
         
+        // 显示链接确认弹窗
         function showLinkConfirm(url) {
             // 检查是否设置了不再提醒
             if (sessionStorage.getItem('dontAskForImageLinks') === 'true') {
@@ -1338,7 +1343,7 @@
             confirmEl.classList.remove('show');
             setTimeout(() => {
                 confirmEl.style.display = 'none';
-            }, 300);
+            }, 400);
         }
         
         // 获取分类名称
