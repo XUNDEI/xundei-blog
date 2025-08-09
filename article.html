@@ -306,8 +306,8 @@
             color: rgba(255, 255, 255, 0.9);
         }
         
-        /* 超链接样式 - 仅对文本链接生效 */
-        .article-full-content a.text-link {
+        /* 超链接样式 - 只应用于不包含图片的链接 */
+        .article-full-content a:not(:has(img)) {
             color: #a3c8ff;
             text-decoration: none;
             background: linear-gradient(to right, transparent 50%, rgba(66, 133, 244, 0.2) 50%);
@@ -319,13 +319,13 @@
             position: relative;
         }
         
-        .article-full-content a.text-link:hover {
+        .article-full-content a:not(:has(img)):hover {
             color: #ffffff;
             background-position: left bottom;
             text-shadow: 0 0 8px rgba(163, 200, 255, 0.8);
         }
         
-        .article-full-content a.text-link::after {
+        .article-full-content a:not(:has(img))::after {
             content: "";
             position: absolute;
             bottom: -2px;
@@ -338,7 +338,7 @@
             transition: transform 0.3s ease;
         }
         
-        .article-full-content a.text-link:hover::after {
+        .article-full-content a:not(:has(img)):hover::after {
             transform: scaleX(1);
             transform-origin: left;
         }
@@ -534,19 +534,6 @@
         
         .link-confirm-btn.cancel:hover {
             background: rgba(255, 255, 255, 0.2);
-        }
-        
-        /* 不再提醒选项 */
-        .remember-option {
-            display: flex;
-            align-items: center;
-            margin: 10px 0 15px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-        }
-        
-        .remember-option input {
-            margin-right: 8px;
         }
         
         /* ========== 现代化滚动条样式 ========== */
@@ -977,10 +964,6 @@
     <div class="link-confirm glass" id="link-confirm">
         <p>您即将离开本站，是否继续？</p>
         <a id="link-url" href="#" target="_blank"></a>
-        <div class="remember-option">
-            <input type="checkbox" id="dont-ask-again">
-            <label for="dont-ask-again">此次阅读不再提醒我</label>
-        </div>
         <div class="link-confirm-buttons">
             <button class="link-confirm-btn cancel" id="link-cancel">取消</button>
             <button class="link-confirm-btn confirm" id="link-confirm-btn">继续</button>
@@ -1189,9 +1172,6 @@
                     hljs.highlightElement(el);
                 });
                 
-                // 区分文本链接和图片链接
-                addTextLinkClass();
-                
                 // 生成目录
                 generateTOC();
                 
@@ -1203,17 +1183,6 @@
                     showError(`网络错误，请刷新页面`);
                 }
             }
-        }
-        
-        // 为文本链接添加特定类名
-        function addTextLinkClass() {
-            const links = document.querySelectorAll('.article-full-content a');
-            links.forEach(link => {
-                // 如果链接内部没有img标签，则添加text-link类
-                if (!link.querySelector('img')) {
-                    link.classList.add('text-link');
-                }
-            });
         }
         
         // 添加复制按钮到所有代码块
@@ -1267,20 +1236,8 @@
         function handleImageClick(e) {
             const target = e.target;
             
-            // 处理带链接的图片（优先处理）
-            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
-                e.preventDefault();
-                e.stopPropagation(); // 阻止事件冒泡
-                const link = target.closest('a');
-                showLinkConfirm(link.href);
-                return;
-            }
-            
-            // 处理普通图片灯箱
+            // 处理图片灯箱
             if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
-                // 关闭可能存在的链接确认框
-                hideLinkConfirm();
-                
                 const imgSrc = target.src;
                 const lightbox = document.getElementById('lightbox');
                 const lightboxImg = document.getElementById('lightbox-img');
@@ -1289,33 +1246,36 @@
                 lightbox.style.display = 'flex';
                 
                 // 点击关闭灯箱
-                document.getElementById('lightbox-close').addEventListener('click', () => {
-                    lightbox.style.display = 'none';
-                });
+                document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
                 
                 // 点击背景关闭
                 lightbox.addEventListener('click', (e) => {
                     if (e.target === lightbox) {
-                        lightbox.style.display = 'none';
+                        closeLightbox();
                     }
                 });
             }
+            
+            // 处理带链接的图片
+            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
+                e.preventDefault();
+                const link = target.closest('a');
+                showLinkConfirm(link.href);
+            }
+        }
+        
+        // 关闭灯箱
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.style.display = 'none';
+            // 关闭灯箱时也关闭跳转提示弹窗
+            hideLinkConfirm();
         }
         
         // 显示链接确认弹窗
         function showLinkConfirm(url) {
-            // 检查是否设置了不再提醒
-            if (sessionStorage.getItem('dontAskForImageLinks') === 'true') {
-                window.open(url, '_blank');
-                return;
-            }
-            
             const confirmEl = document.getElementById('link-confirm');
             const linkUrlEl = document.getElementById('link-url');
-            const dontAskAgain = document.getElementById('dont-ask-again');
-            
-            // 重置复选框状态
-            dontAskAgain.checked = false;
             
             linkUrlEl.textContent = url;
             linkUrlEl.href = url;
@@ -1327,11 +1287,6 @@
             
             // 绑定确认按钮事件
             document.getElementById('link-confirm-btn').onclick = function() {
-                // 检查是否勾选了"不再提醒"
-                if (dontAskAgain.checked) {
-                    sessionStorage.setItem('dontAskForImageLinks', 'true');
-                }
-                
                 hideLinkConfirm();
                 window.open(url, '_blank');
             };
