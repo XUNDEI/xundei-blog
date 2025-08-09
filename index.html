@@ -7,6 +7,95 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
+
+            a {
+        text-decoration: none;
+        position: relative;
+        color: #a1c4fd;
+        transition: all 0.3s ease;
+        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        background-size: 200% 100%;
+        background-position: 100% 0;
+    }
+
+    a:hover {
+        background-position: 0 0;
+        color: transparent; /* 确保悬停时保持透明 */
+    }
+
+    a::before {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    a:hover::before {
+        opacity: 1;
+    }
+
+    a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    a:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+
+    /* 页脚链接特殊处理 */
+    footer a {
+        display: inline-block;
+        padding: 0 3px;
+        margin: 0 2px;
+        border-radius: 4px;
+    }
+
+    footer a:hover {
+        background: rgba(162, 196, 253, 0.15);
+        box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
+    }
+
+    /* 阅读全文按钮保持原样 */
+    .read-more {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: var(--light-text) !important;
+        background-image: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        position: static !important;
+    }
+
+    .read-more:hover {
+        background: var(--primary-color) !important;
+        box-shadow: 0 0 10px var(--glow-color) !important;
+    }
+
+    .read-more::after,
+    .read-more::before {
+        content: none !important;
+    }
+
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
@@ -652,7 +741,7 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| xundei-blog V2.6.2
+            made by <strong>xundei</strong> with ❤️| <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.6.2">xundei-blog V2.6.3</a>
         </footer>
     </div>
     
