@@ -8,105 +8,105 @@
     <!-- 添加highlight.js样式 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
-
+        /* 所有原有样式保持不变 */
         .article-full-content a:not(:has(img)) {
-    text-decoration: none;
-    position: relative;
-    color: #a1c4fd;
-    transition: all 0.3s ease;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    background-size: 200% 100%;
-    background-position: 100% 0;
-    padding: 0 2px;
-    border-radius: 2px;
-}
+            text-decoration: none;
+            position: relative;
+            color: #a1c4fd;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
 
-.article-full-content a:not(:has(img)):hover {
-    background-position: 0 0;
-    color: transparent;
-}
+        .article-full-content a:not(:has(img)):hover {
+            background-position: 0 0;
+            color: transparent;
+        }
 
-.article-full-content a:not(:has(img))::before {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+        .article-full-content a:not(:has(img))::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-.article-full-content a:not(:has(img)):hover::before {
-    opacity: 1;
-}
+        .article-full-content a:not(:has(img)):hover::before {
+            opacity: 1;
+        }
 
-.article-full-content a:not(:has(img))::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
+        .article-full-content a:not(:has(img))::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
 
-.article-full-content a:not(:has(img)):hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-}
+        .article-full-content a:not(:has(img)):hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
 
-/* 目录导航链接保持原样 */
-.toc-list a {
-    color: rgba(255,255,255,0.8) !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    position: static !important;
-}
+        /* 目录导航链接保持原样 */
+        .toc-list a {
+            color: rgba(255,255,255,0.8) !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
 
-.toc-list a:hover {
-    color: var(--primary-color) !important;
-    transform: translateX(5px) !important;
-}
+        .toc-list a:hover {
+            color: var(--primary-color) !important;
+            transform: translateX(5px) !important;
+        }
 
-.toc-list a::before,
-.toc-list a::after {
-    content: none !important;
-}
+        .toc-list a::before,
+        .toc-list a::after {
+            content: none !important;
+        }
 
-/* 链接确认弹窗中的链接 */
-.link-confirm a {
-    color: #a3c8ff !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    position: static !important;
-}
+        /* 链接确认弹窗中的链接 */
+        .link-confirm a {
+            color: #a3c8ff !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
 
-.link-confirm a::before,
-.link-confirm a::after {
-    content: none !important;
-}
+        .link-confirm a::before,
+        .link-confirm a::after {
+            content: none !important;
+        }
 
-/* 音乐播放器中的链接保持原样 */
-.music-player-panel a {
-    color: inherit !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    position: static !important;
-}
+        /* 音乐播放器中的链接保持原样 */
+        .music-player-panel a {
+            color: inherit !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
 
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
@@ -1643,25 +1643,27 @@
                 playTrack(newIndex);
             });
             
-            // 进度条控制 - 修复核心部分
-            progressBar.addEventListener('input', function() {
+            // 修复进度条控制
+            progressBar.addEventListener('mousedown', () => {
                 isSeeking = true;
+            });
+            
+            progressBar.addEventListener('mouseup', () => {
+                isSeeking = false;
+            });
+            
+            progressBar.addEventListener('input', function() {
                 if (audio.duration) {
-                    const seekPercent = this.value;
+                    const seekPercent = parseFloat(this.value);
                     const seekTime = (seekPercent / 100) * audio.duration;
                     audio.currentTime = seekTime;
                 }
             });
             
-            progressBar.addEventListener('change', function() {
-                isSeeking = false;
-            });
-            
             // 更新进度显示
             audio.addEventListener('timeupdate', () => {
-                if (isSeeking) return;
-                
-                if (audio.duration) {
+                // 如果正在拖动进度条，则不更新进度条位置
+                if (!isSeeking && audio.duration) {
                     const progressPercent = (audio.currentTime / audio.duration) * 100;
                     progressBar.value = progressPercent;
                 }
