@@ -23,5 +23,13 @@ window.blogArticles = [
         category: "diary",
         excerpt: "天是倒过来的海，云是卷起来的梦",
         filename: "blog/diary/sunset/sunset.md"
+    },
+        {
+        id: "something-2",
+        title: "b站真的是越来越差了...",
+        date: "2025-08-17",
+        category: "something",
+        excerpt: "b站坏的不管，我发的东西倒是一删一个准……",
+        filename: "blog/something/fxxkbilibili/fxxkbilibili.md"
     }
 ];
