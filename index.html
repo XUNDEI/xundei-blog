@@ -7,106 +7,103 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
+        a {
+            text-decoration: none;
+            position: relative;
+            color: #a1c4fd;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 100%;
+            background-position: 100% 0;
+        }
 
-            a {
-        text-decoration: none;
-        position: relative;
-        color: #a1c4fd;
-        transition: all 0.3s ease;
-        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        background-size: 200% 100%;
-        background-position: 100% 0;
-    }
+        a:hover {
+            background-position: 0 0;
+            color: transparent;
+        }
 
-    a:hover {
-        background-position: 0 0;
-        color: transparent; /* 确保悬停时保持透明 */
-    }
+        a::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-    a::before {
-        content: attr(data-text);
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+        a:hover::before {
+            opacity: 1;
+        }
 
-    a:hover::before {
-        opacity: 1;
-    }
+        a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
 
-    a::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-        transform: scaleX(0);
-        transform-origin: right;
-        transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
+        a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
 
-    a:hover::after {
-        transform: scaleX(1);
-        transform-origin: left;
-    }
+        footer a {
+            display: inline-block;
+            padding: 0 3px;
+            margin: 0 2px;
+            border-radius: 4px;
+        }
 
-    /* 页脚链接特殊处理 */
-    footer a {
-        display: inline-block;
-        padding: 0 3px;
-        margin: 0 2px;
-        border-radius: 4px;
-    }
+        footer a:hover {
+            background: rgba(162, 196, 253, 0.15);
+            box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
+        }
 
-    footer a:hover {
-        background: rgba(162, 196, 253, 0.15);
-        box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
-    }
+        .read-more {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--light-text) !important;
+            background-image: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
 
-    /* 阅读全文按钮保持原样 */
-    .read-more {
-        background: rgba(255, 255, 255, 0.1) !important;
-        color: var(--light-text) !important;
-        background-image: none !important;
-        -webkit-background-clip: unset !important;
-        background-clip: unset !important;
-        position: static !important;
-    }
+        .read-more:hover {
+            background: var(--primary-color) !important;
+            box-shadow: 0 0 10px var(--glow-color) !important;
+        }
 
-    .read-more:hover {
-        background: var(--primary-color) !important;
-        box-shadow: 0 0 10px var(--glow-color) !important;
-    }
-
-    .read-more::after,
-    .read-more::before {
-        content: none !important;
-    }
+        .read-more::after,
+        .read-more::before {
+            content: none !important;
+        }
 
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --primary-color: #4285F4; /* 蓝色主题 */
+            --primary-color: #4285F4;
             --text-color: #333;
             --light-text: #fff;
             --transition: all 0.3s ease;
             --blur-amount: 12px;
-            --glow-color: rgba(66, 133, 244, 0.7); /* 发光效果 */
-            --scrollbar-width: 10px; /* 加宽滚动条 */
+            --glow-color: rgba(66, 133, 244, 0.7);
+            --scrollbar-width: 10px;
         }
         
         * {
@@ -146,7 +143,6 @@
             padding: 20px;
         }
         
-        /* 磨砂玻璃效果 */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -163,7 +159,6 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow-color);
         }
         
-        /* 头部样式 */
         header {
             text-align: center;
             margin: 20px 0 40px;
@@ -196,7 +191,6 @@
             padding: 10px 20px;
         }
         
-        /* 分类导航 */
         .categories {
             display: flex;
             justify-content: center;
@@ -224,7 +218,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 15px var(--glow-color);
         }
         
-        /* 文章网格 */
         .articles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -295,7 +288,6 @@
             box-shadow: 0 0 10px var(--glow-color);
         }
         
-        /* 关于我 */
         .about-btn {
             position: fixed;
             bottom: 30px;
@@ -371,6 +363,28 @@
             margin: 5px;
             cursor: pointer;
             transition: var(--transition);
+            position: relative;
+        }
+
+        .contact-tooltip {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 101;
+        }
+
+        .contact-btn:hover .contact-tooltip {
+            opacity: 1;
         }
         
         .contact-btn:hover {
@@ -396,31 +410,76 @@
             box-shadow: 0 0 10px var(--glow-color);
         }
         
-        /* 页脚 */
         footer {
             text-align: center;
             padding: 20px;
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        footer .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
         
-        /* 提示框 */
-        .toast {
+        .toast-container {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        .toast {
             background: var(--primary-color);
             color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
+            padding: 15px 20px;
+            border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            transform-origin: left;
+            animation: progress 3s linear forwards;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .toast.success {
+            background: #4CAF50;
+        }
+
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
         }
         
-        /* 加载动画 */
         .loader {
             display: inline-block;
             width: 50px;
@@ -439,9 +498,6 @@
             width: 100%;
         }
         
-        /* ====================== */
-        /* 左下角功能小窗 */
-        /* ====================== */
         .func-btn {
             position: fixed;
             bottom: 30px;
@@ -594,8 +650,25 @@
             padding: 10px;
             color: rgba(255, 255, 255, 0.6);
         }
+
+        .history-error {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 10px;
+        }
+
+        ::selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
+
+        ::-moz-selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
         
-        /* 动画 */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -623,7 +696,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* ========== 滚动条样式 ========== */
         ::-webkit-scrollbar {
             width: var(--scrollbar-width);
             height: var(--scrollbar-width);
@@ -645,13 +717,11 @@
             background: rgba(66, 133, 244, 0.7);
         }
         
-        /* Firefox滚动条样式 */
         * {
             scrollbar-width: thin;
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
         }
         
-        /* 响应式设计 */
         @media (max-width: 768px) {
             .blog-title {
                 font-size: 2.5rem;
@@ -678,6 +748,15 @@
             :root {
                 --blur-amount: 8px;
                 --scrollbar-width: 8px;
+            }
+
+            footer .footer-content {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .toast-container {
+                max-width: 250px;
             }
         }
         
@@ -713,10 +792,8 @@
         }
     </style>
     
-    <!-- 使用本地库 -->
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
-    <!-- 外部文章索引 -->
     <script src="articles.js" defer></script>
 </head>
 <body>
@@ -741,16 +818,18 @@
         </main>
         
         <footer class="glass">
-            made by <strong>xundei</strong> with ❤️| <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.6.3">xundei-blog V2.6.3</a>
+            <div class="footer-content">
+                <span>made by <strong>xundei</strong> with ❤️ |</span>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.7.0">xundei-blog V2.7.0</a>
+                <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
+            </div>
         </footer>
     </div>
     
-    <!-- 关于我按钮 -->
     <div class="about-btn" id="about-btn">
         <i class="fas fa-user"></i>
     </div>
     
-    <!-- 关于我卡片 -->
     <div class="about-card glass" id="about-card">
         <div class="about-header">
             <div style="display: flex; align-items: center;">
@@ -764,18 +843,23 @@
         <div class="contacts">
             <div class="contact-btn" data-contact="github" data-value="https://github.com/XUNDEI">
                 <i class="fab fa-github"></i>
+                <div class="contact-tooltip">GitHub</div>
             </div>
             <div class="contact-btn" data-contact="qq" data-value="503275418">
                 <i class="fab fa-qq"></i>
+                <div class="contact-tooltip">QQ</div>
             </div>
             <div class="contact-btn" data-contact="wechat" data-value="xie503275418">
                 <i class="fab fa-weixin"></i>
+                <div class="contact-tooltip">微信</div>
             </div>
             <div class="contact-btn" data-contact="bilibili" data-value="518218011">
                 <i class="fab fa-bilibili"></i>
+                <div class="contact-tooltip">B站</div>
             </div>
             <div class="contact-btn" data-contact="email" data-value="xundei_awa@outlook.com">
                 <i class="fas fa-envelope"></i>
+                <div class="contact-tooltip">邮箱</div>
             </div>
         </div>
         <p style="text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 10px;">
@@ -783,12 +867,10 @@
         </p>
     </div>
     
-    <!-- 功能按钮（左下角） -->
     <div class="func-btn" id="func-btn">
         <i class="fas fa-star"></i>
     </div>
     
-    <!-- 功能卡片 -->
     <div class="func-card glass" id="func-card">
         <div class="func-card-header">
             <div class="func-card-title">功能小窗</div>
@@ -796,14 +878,11 @@
                 <i class="fas fa-times"></i>
             </div>
         </div>
+        
         <div class="func-section">
-            <h4><i class="fas fa-eye"></i> 博客访问量</h4>
-            <div class="counter-value">
-                <span id="busuanzi_value_site_pv">加载中...</span>
-            </div>
-            <p>感谢您的访问！</p>
+            <h4><i class="fas fa-clock"></i> 博客运行时间</h4>
+            <div class="counter-value" id="runtime-display">0天0时0分0秒</div>
         </div>
-
         
         <div class="func-section">
             <h4><i class="fas fa-dice"></i> 今日运气</h4>
@@ -822,28 +901,9 @@
         </div>
     </div>
     
-    <!-- 提示框 -->
-    <div class="toast" id="toast"></div>
+    <div class="toast-container" id="toast-container"></div>
     
     <script>
-        // ======================
-        // 配置数据
-        // ======================
-        const wallpapers = ["wallpaper1.jpg", "wallpaper2.png", "wallpaper3.jpg", "wallpaper4.png", "wallpaper5.png", "wallpaper6.png"];
-        const sentences = [
-            "地球是人类的摇篮，但人类不可能永远待在摇篮里",
-            "星汉灿烂，若出其里",
-            "我生的太晚了，错过了大航海时代；我生的太早了，等不到人类探索群星璀璨时",
-            "愿天上每一颗星星都为你闪耀天际",
-            "当两颗星星的轨道重合，人类称之为相遇；当它们永远同步旋转，天文学家叫它双星——而诗人说这是爱情",
-            "爱不是一定要拥有，就像爱星空不必拥有，在星空下享受星光，就是最大的幸福",
-            "每个深夜，我也只是在仰望着星空，回忆着过去，我不会再为曾经洒下一滴泪，但我的心却愈加的怀念着曾经",
-            "星空是宇宙写给人类的情书，每一颗星星都是未干的墨点",
-            "我们抬头望见的星光，穿越了亿万年的孤独，只为在这一刻落入你的眼睛",
-            "如果银河是倒悬的海洋，那我愿与你乘一叶扁舟，在星辉里漂流至时光尽头",
-            "从最初那个椅子上绑火箭的“疯子”，到现在火箭发动机的轰鸣，人类从来没有停下过"
-        ];
-        
         const luckMessages = {
             0: "运气很差欸Σヽ(ﾟД ﾟ; )ﾉ，万事都要小心！",
             100: "欧皇就是你辣(≧∀≦)ゞ",
@@ -852,37 +912,72 @@
                 {min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )"},
                 {min: 45, max: 55, message: "普普通通呢(´･ω･`)"},
                 {min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)"},
+                {min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)"},
                 {min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧"},
                 {min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )"}
             ]
         };
         
-        // ======================
-        // 页面状态变量
-        // ======================
         let pageInitialized = false;
         let markedLoaded = false;
         let axiosLoaded = false;
         let articlesLoaded = false;
         
-        // 加载重试计数器
         let markedRetryCount = 0;
         let axiosRetryCount = 0;
         let articlesRetryCount = 0;
-        const MAX_RETRY = 30; // 最大重试次数 (30 * 100ms = 3秒)
+        const MAX_RETRY = 30;
 
-        // ======================
-        // 初始化函数
-        // ======================
         document.addEventListener('DOMContentLoaded', () => {
-            // 检查外部库是否已加载
             checkExternalLibraries();
-            
-            // 初始化功能小窗
             initFuncPanel();
+            updateRuntime();
+            setInterval(updateRuntime, 1000);
         });
 
-        // 初始化手气结果
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const progress = document.createElement('div');
+            progress.className = 'toast-progress';
+            
+            const messageEl = document.createElement('div');
+            messageEl.textContent = message;
+            
+            toast.appendChild(progress);
+            toast.appendChild(messageEl);
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 400);
+            }, 3000);
+        }
+
+        function updateRuntime() {
+            const startDate = new Date('2025-07-12T11:04:41');
+            const now = new Date();
+            const diff = now - startDate;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const runtimeStr = `${days}天${hours}时${minutes}分${seconds}秒`;
+            document.getElementById('runtime-display').textContent = runtimeStr;
+        }
+
         function initLuckResult() {
             const today = new Date().toDateString();
             const storedLuck = localStorage.getItem('dailyLuck');
@@ -890,22 +985,18 @@
             if (storedLuck) {
                 const luckData = JSON.parse(storedLuck);
                 if (luckData.date === today) {
-                    // 显示存储的结果
                     displayLuckResult(luckData.value);
                     return;
                 }
             }
             
-            // 没有当天的结果，显示初始状态
             document.getElementById('luck-result').textContent = "?";
         }
         
-        // 获取每日手气
         function getDailyLuck() {
             const today = new Date().toDateString();
             const storedLuck = localStorage.getItem('dailyLuck');
             
-            // 如果已有当天的结果，直接显示
             if (storedLuck) {
                 const luckData = JSON.parse(storedLuck);
                 if (luckData.date === today) {
@@ -914,36 +1005,28 @@
                 }
             }
             
-            // 生成随机数 (0-100)
             const luckValue = Math.floor(Math.random() * 101);
             
-            // 存储结果
             const luckData = {
                 date: today,
                 value: luckValue
             };
             localStorage.setItem('dailyLuck', JSON.stringify(luckData));
             
-            // 显示结果
             displayLuckResult(luckValue);
         }
         
-        // 显示手气结果
         function displayLuckResult(value) {
             const resultEl = document.getElementById('luck-result');
             const messageEl = document.getElementById('luck-message');
             
-            // 更新数字
             resultEl.textContent = value;
-            
-            // 添加动画效果
             resultEl.style.transition = 'all 0.5s ease';
             resultEl.style.transform = 'scale(1.5)';
             setTimeout(() => {
                 resultEl.style.transform = 'scale(1)';
             }, 500);
             
-            // 更新消息
             if (value === 0) {
                 messageEl.textContent = luckMessages[0];
             } else if (value === 100) {
@@ -958,9 +1041,75 @@
             }
         }
 
-        // 初始化功能小窗
+        async function loadSentences() {
+            try {
+                const response = await axios.get('./sentences.txt');
+                const sentences = response.data.split('\n').filter(line => line.trim());
+                if (sentences.length > 0) {
+                    const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
+                    document.getElementById('sentence').textContent = randomSentence;
+                } else {
+                    throw new Error('美句文件为空');
+                }
+            } catch (error) {
+                console.error('加载美句失败:', error);
+                document.getElementById('sentence').style.display = 'none';
+                showToast('美句加载失败', 'error');
+            }
+        }
+
+        async function loadWallpapers() {
+            try {
+                const response = await axios.get('./wallpapers.txt');
+                const wallpapers = response.data.split('\n')
+                    .filter(line => line.trim())
+                    .map(line => line.trim());
+                
+                if (wallpapers.length > 0) {
+                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                    const timestamp = new Date().getTime();
+                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
+                    
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            document.body.style.backgroundImage = `url(${wallpaperPath})`;
+                            resolve(true);
+                        };
+                        img.onerror = () => {
+                            console.error('壁纸加载失败:', wallpaperPath);
+                            resolve(false);
+                        };
+                        img.src = wallpaperPath;
+                    });
+                } else {
+                    throw new Error('壁纸文件为空');
+                }
+            } catch (error) {
+                console.error('加载壁纸失败:', error);
+                return false;
+            }
+        }
+
+        async function setDefaultWallpaper() {
+            try {
+                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
+                const bingData = bingResponse.data;
+                if (bingData.images && bingData.images[0]) {
+                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
+                    document.body.style.backgroundImage = `url(${bingUrl})`;
+                    return true;
+                }
+            } catch (error) {
+                console.error('获取必应壁纸失败:', error);
+            }
+            
+            const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+            document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+            return false;
+        }
+
         function initFuncPanel() {
-            // 功能按钮点击事件
             document.getElementById('func-btn').addEventListener('click', () => {
                 const funcCard = document.getElementById('func-card');
                 funcCard.style.display = funcCard.style.display === 'block' ? 'none' : 'block';
@@ -970,19 +1119,17 @@
                 }
             });
             
-            // 关闭按钮
             document.getElementById('close-func-card').addEventListener('click', () => {
                 document.getElementById('func-card').style.display = 'none';
             });
 
-            // 关闭关于按钮
             document.getElementById('close-about-btn').addEventListener('click', () => {
                 document.getElementById('about-card').style.display = 'none';
             });
 
             initLuckResult();
-
         }
+
         async function loadHistoryToday() {
             const contentEl = document.getElementById('history-content');
             
@@ -991,7 +1138,6 @@
                 
                 const apiUrl = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
                 
-                // 尝试使用axios，如果不可用则使用fetch
                 let response;
                 let responseData;
                 if (typeof axios !== 'undefined') {
@@ -1003,13 +1149,11 @@
                     responseData = await response.json();
                 }
                 
-                // 检查API返回的数据是否包含广告
                 const responseString = JSON.stringify(responseData).toLowerCase();
                 if (responseString.includes('www.apihz.cn') || responseString.includes('ad') || responseString.includes('广告')) {
                     throw new Error('API负载过高，请稍后再试');
                 }
                 
-                // 检查是否包含广告
                 if (responseData.title && responseData.title.includes('www.apihz.cn')) {
                     throw new Error('API负载过高，请稍后再');
                 }
@@ -1020,10 +1164,9 @@
                         <div class="history-event">${responseData.title}</div>
                     `;
                 } else {
-                    contentEl.innerHTML = `<div class="history-error">加载失败: ${responseData.msg || '未知错误'}</div>`;
+                    throw new Error(responseData.msg || '未知错误');
                 }
                 
-                // 标记已加载
                 window.historyLoaded = true;
             } catch (error) {
                 console.error('加载历史上的今天失败:', error);
@@ -1031,72 +1174,59 @@
             }
         }
 
-        // 检查外部库加载状态
         function checkExternalLibraries() {
-            // 检查文章索引是否已加载
             const checkArticles = () => {
                 if (typeof window.blogArticles !== 'undefined') {
                     articlesLoaded = true;
-                    console.log('Articles loaded');
                     if (pageInitialized) bindEvents();
                     initializePage();
                 } else {
                     articlesRetryCount++;
                     if (articlesRetryCount > MAX_RETRY) {
-                        console.error('Articles failed to load');
-                        showToast('文章索引加载失败，请刷新页面');
+                        showToast('文章索引加载失败，请刷新页面', 'error');
                     } else {
                         setTimeout(checkArticles, 100);
                     }
                 }
             };
             
-            // 检查marked是否已加载
             const checkMarked = () => {
                 if (typeof marked !== 'undefined') {
                     markedLoaded = true;
-                    console.log('Marked.js loaded');
                     configureMarked();
                     if (articlesLoaded && pageInitialized) bindEvents();
                 } else {
                     markedRetryCount++;
                     if (markedRetryCount > MAX_RETRY) {
-                        console.error('Marked.js failed to load');
-                        showToast('Markdown解析器加载失败，请刷新页面');
+                        showToast('Markdown解析器加载失败，请刷新页面', 'error');
                     } else {
                         setTimeout(checkMarked, 100);
                     }
                 }
             };
             
-            // 检查axios是否已加载
             const checkAxios = () => {
                 if (typeof axios !== 'undefined') {
                     axiosLoaded = true;
-                    console.log('Axios loaded');
                     if (articlesLoaded && pageInitialized) bindEvents();
                 } else {
                     axiosRetryCount++;
                     if (axiosRetryCount > MAX_RETRY) {
-                        console.error('Axios failed to load');
-                        showToast('网络错误，请刷新页面');
+                        showToast('网络错误，请刷新页面', 'error');
                     } else {
                         setTimeout(checkAxios, 100);
                     }
                 }
             };
             
-            // 开始检查
             checkArticles();
             checkMarked();
             checkAxios();
         }
 
-        // 配置Marked.js
         function configureMarked() {
             if (typeof marked === 'undefined') return;
             
-            // 配置Marked选项
             marked.setOptions({
                 gfm: true,
                 breaks: true,
@@ -1108,95 +1238,44 @@
             });
         }
 
-        // 初始化页面
         async function initializePage() {
             try {
                 if (!window.blogArticles) {
                     throw new Error('文章索引未加载');
                 }
                 
-                // 设置随机壁纸
-                await setRandomWallpaper();
+                const wallpaperSuccess = await loadWallpapers();
+                if (!wallpaperSuccess) {
+                    await setDefaultWallpaper();
+                    showToast('壁纸加载失败，使用默认壁纸', 'error');
+                }
                 
-                // 设置随机美句
-                setRandomSentence();
-                
-                // 加载文章
+                await loadSentences();
                 loadArticles();
                 
-                // 标记页面已初始化
                 pageInitialized = true;
-                
-                // 绑定事件
                 bindEvents();
                 
-                console.log('页面初始化完成');
             } catch (error) {
                 console.error('初始化页面失败:', error);
-                showToast('初始化失败: ' + error.message);
+                showToast('初始化失败: ' + error.message, 'error');
             }
         }
 
-        // 设置随机壁纸
-        async function setRandomWallpaper() {
-            try {
-                if (wallpapers.length > 0) {
-                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
-                    const timestamp = new Date().getTime();
-                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
-                    
-                    // 预加载壁纸
-                    await new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                        img.src = wallpaperPath;
-                    });
-                    
-                    document.body.style.backgroundImage = `url(${wallpaperPath})`;
-                } else {
-                    // 默认壁纸
-                    const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
-                    document.body.style.backgroundImage = `url(${defaultWallpaper})`;
-                }
-            } catch (error) {
-                console.error('设置壁纸失败:', error);
-                const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
-                document.body.style.backgroundImage = `url(${defaultWallpaper})`;
-            }
-        }
-
-        // 设置随机美句
-        function setRandomSentence() {
-            try {
-                if (sentences.length > 0) {
-                    const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-                    document.getElementById('sentence').textContent = randomSentence;
-                }
-            } catch (error) {
-                console.error('设置美句失败:', error);
-                document.getElementById('sentence').textContent = "加载中...";
-            }
-        }
-
-        // 加载文章
         function loadArticles() {
             try {
                 if (!window.blogArticles) {
                     throw new Error('文章索引未加载');
                 }
                 
-                // 对文章按日期倒序排序（最新在前）
                 window.blogArticles.sort((a, b) => {
                     return new Date(b.date) - new Date(a.date);
                 });
                 
-                // 渲染文章
                 renderArticles('all');
             } catch (error) {
                 console.error('加载文章失败:', error);
                 
-                // 显示错误信息
                 const grid = document.getElementById('articles-grid');
                 grid.innerHTML = `
                     <div class="glass" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
@@ -1208,7 +1287,6 @@
             }
         }
 
-        // 渲染文章
         function renderArticles(category) {
             if (!window.blogArticles) {
                 console.error('没有文章数据');
@@ -1222,7 +1300,6 @@
                 ? [...window.blogArticles] 
                 : window.blogArticles.filter(article => article.category === category);
             
-            // 按时间倒序排序（最新在前）
             filteredArticles.sort((a, b) => {
                 return new Date(b.date) - new Date(a.date);
             });
@@ -1257,13 +1334,11 @@
                 grid.appendChild(card);
             });
             
-            // 更新激活的分类按钮
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.category === category);
             });
         }
 
-        // 获取分类名称
         function getCategoryName(category) {
             const names = {
                 'technology': '技术',
@@ -1273,33 +1348,28 @@
             return names[category] || category;
         }
 
-        // 绑定事件
         function bindEvents() {
-            // 分类按钮
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     renderArticles(btn.dataset.category);
                 });
             });
             
-            // 关于按钮
             document.getElementById('about-btn').addEventListener('click', () => {
                 const aboutCard = document.getElementById('about-card');
                 aboutCard.style.display = aboutCard.style.display === 'block' ? 'none' : 'block';
             });
             
-            // 联系方式按钮
             document.querySelectorAll('.contact-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const contactType = btn.dataset.contact;
                     const value = btn.dataset.value;
                     
                     copyToClipboard(value);
-                    showToast(`${contactType}已复制到剪贴板`);
+                    showToast(`已复制到剪贴板`, 'success');
                 });
             });
             
-            // 点击其他地方关闭关于卡片
             document.addEventListener('click', (e) => {
                 const aboutCard = document.getElementById('about-card');
                 if (aboutCard.style.display === 'block' && 
@@ -1308,7 +1378,6 @@
                     aboutCard.style.display = 'none';
                 }
                 
-                // 点击其他地方关闭功能卡片
                 const funcCard = document.getElementById('func-card');
                 if (funcCard.style.display === 'block' && 
                     !e.target.closest('#func-card') && 
@@ -1317,14 +1386,12 @@
                 }
             });
             
-            // 修复：为"试试手气"按钮添加事件监听
             const luckBtn = document.getElementById('luck-btn');
             if (luckBtn) {
                 luckBtn.addEventListener('click', getDailyLuck);
             }
         }
 
-        // 复制到剪贴板
         function copyToClipboard(text) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -1332,17 +1399,6 @@
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-        }
-
-        // 显示提示
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.opacity = 1;
-            
-            setTimeout(() => {
-                toast.style.opacity = 0;
-            }, 3000);
         }
     </script>
 </body>

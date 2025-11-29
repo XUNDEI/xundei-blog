@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章详情 - 迅dei的赛博小家</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 添加highlight.js样式 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
-        /* 所有原有样式保持不变 */
         .article-full-content a:not(:has(img)) {
             text-decoration: none;
             position: relative;
@@ -66,7 +64,6 @@
             transform-origin: left;
         }
 
-        /* 目录导航链接保持原样 */
         .toc-list a {
             color: rgba(255,255,255,0.8) !important;
             background: none !important;
@@ -85,7 +82,6 @@
             content: none !important;
         }
 
-        /* 链接确认弹窗中的链接 */
         .link-confirm a {
             color: #a3c8ff !important;
             background: none !important;
@@ -99,7 +95,6 @@
             content: none !important;
         }
 
-        /* 音乐播放器中的链接保持原样 */
         .music-player-panel a {
             color: inherit !important;
             background: none !important;
@@ -112,7 +107,7 @@
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --primary-color: #4285F4; /* 蓝色主题 */
+            --primary-color: #4285F4;
             --text-color: #333;
             --light-text: #fff;
             --transition: all 0.3s ease;
@@ -122,8 +117,8 @@
             --code-copy-hover: rgba(255, 255, 255, 0.2);
             --success-color: #4CAF50;
             --error-color: #f44336;
-            --scrollbar-width: 10px; /* 加宽滚动条 */
-            --glow-color: rgba(66, 133, 244, 0.7); /* 发光效果 */
+            --scrollbar-width: 10px;
+            --glow-color: rgba(66, 133, 244, 0.7);
         }
         
         * {
@@ -163,7 +158,6 @@
             padding: 20px;
         }
         
-        /* 磨砂玻璃效果 */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -175,14 +169,12 @@
             transition: var(--transition);
         }
         
-        /* 阅读时间样式 */
         .reading-time {
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.7);
             margin-top: 5px;
         }
         
-        /* 返回按钮 */
         .back-btn {
             position: fixed;
             top: 20px;
@@ -207,7 +199,6 @@
             box-shadow: 0 0 20px var(--glow-color);
         }
         
-        /* 加载动画 */
         .loader {
             display: inline-block;
             width: 50px;
@@ -229,13 +220,11 @@
             color: rgba(255, 255, 255, 0.8);
         }
         
-        /* 动画 */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        /* 文章内容样式 */
         .article-container {
             max-width: 800px;
             margin: 60px auto 40px;
@@ -293,20 +282,18 @@
             margin-bottom: 25px;
         }
 
-        /* 修复单个列表项间距问题 */
         .article-full-content ul, 
         .article-full-content ol {
             margin-bottom: 25px;
-            padding-left: 30px; /* 增加左内边距 */
+            padding-left: 30px;
         }
         
         .article-full-content ul li, 
         .article-full-content ol li {
             margin-bottom: 10px;
-            padding-left: 10px; /* 增加列表项内边距 */
+            padding-left: 10px;
         }
         
-        /* ========== 代码块样式优化 ========== */
         .article-full-content pre {
             position: relative;
             background: var(--code-bg);
@@ -335,7 +322,6 @@
             overflow-x: auto;
         }
         
-        /* 代码语言标签 */
         .code-language {
             position: absolute;
             top: 10px;
@@ -347,7 +333,6 @@
             letter-spacing: 0.5px;
         }
         
-        /* 复制按钮 */
         .copy-btn {
             position: absolute;
             top: 10px;
@@ -406,62 +391,6 @@
             color: rgba(255, 255, 255, 0.9);
         }
         
-.article-full-content a:not(:has(img)) {
-    text-decoration: none;
-    position: relative;
-    color: #a1c4fd;
-    transition: all 0.3s ease;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    background-size: 200% 100%;
-    background-position: 100% 0;
-}
-
-.article-full-content a:not(:has(img)):hover {
-    background-position: 0 0;
-    color: transparent;
-}
-
-.article-full-content a:not(:has(img))::before {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.article-full-content a:not(:has(img)):hover::before {
-    opacity: 1;
-}
-
-.article-full-content a:not(:has(img))::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
-.article-full-content a:not(:has(img)):hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-}
-        
-        /* 图片灯箱效果 */
         .lightbox {
             display: none;
             position: fixed;
@@ -497,7 +426,6 @@
             color: var(--primary-color);
         }
         
-        /* 目录导航 */
         .toc-container {
             position: fixed;
             top: 100px;
@@ -509,6 +437,40 @@
             z-index: 99;
             display: none;
             animation: slideInRight 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            overscroll-behavior: contain;
+        }
+
+        .toc-toggle {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .toc-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+
+        .toc-toggle.mobile-only {
+            display: none;
         }
         
         .toc-title {
@@ -527,6 +489,20 @@
         .toc-list li {
             margin-bottom: 8px;
             line-height: 1.4;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+
+        .toc-list li:hover {
+            background: rgba(66, 133, 244, 0.1);
+            transform: translateX(5px);
+        }
+
+        .toc-list li.active {
+            background: rgba(66, 133, 244, 0.2);
+            border-left: 3px solid var(--primary-color);
+            padding-left: 12px;
         }
         
         .toc-list a {
@@ -539,7 +515,6 @@
         
         .toc-list a:hover {
             color: var(--primary-color);
-            transform: translateX(5px);
         }
         
         .toc-list .toc-h2 {
@@ -553,7 +528,6 @@
             font-size: 0.95rem;
         }
         
-        /* 回到顶部按钮 */
         .back-to-top {
             position: fixed;
             bottom: 30px;
@@ -582,7 +556,6 @@
             box-shadow: 0 0 20px var(--glow-color);
         }
         
-        /* 图片链接确认弹窗 */
         .link-confirm {
             position: fixed;
             bottom: 30px;
@@ -653,9 +626,58 @@
         .link-confirm-btn.cancel:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        .toast {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            transform-origin: left;
+            animation: progress 3s linear forwards;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .toast.success {
+            background: #4CAF50;
+        }
+
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
         
-        /* ========== 现代化滚动条样式 ========== */
-        /* 整个页面的滚动条 */
         ::-webkit-scrollbar {
             width: var(--scrollbar-width);
             height: var(--scrollbar-width);
@@ -677,7 +699,6 @@
             background: rgba(66, 133, 244, 0.7);
         }
         
-        /* 目录导航的滚动条 */
         .toc-container::-webkit-scrollbar {
             width: 8px;
         }
@@ -696,7 +717,6 @@
             background: rgba(66, 133, 244, 0.6);
         }
         
-        /* 音乐播放器列表的滚动条 */
         .music-list-container::-webkit-scrollbar {
             width: 8px;
         }
@@ -715,7 +735,6 @@
             background: rgba(66, 133, 244, 0.6);
         }
         
-        /* 代码块的横向滚动条 */
         .article-full-content pre::-webkit-scrollbar {
             height: 8px;
         }
@@ -734,7 +753,6 @@
             background: rgba(66, 133, 244, 0.7);
         }
         
-        /* Firefox滚动条样式 */
         * {
             scrollbar-width: thin;
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
@@ -749,8 +767,19 @@
             scrollbar-width: thin;
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.2);
         }
+
+        ::selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
+
+        ::-moz-selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
         
-        /* 动画效果 */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -767,10 +796,13 @@
             }
         }
         
-        /* 响应式设计 */
         @media (max-width: 1024px) {
             .toc-container {
                 display: none;
+            }
+
+            .toc-toggle.mobile-only {
+                display: flex;
             }
         }
         
@@ -791,10 +823,26 @@
                 width: 45px;
                 height: 45px;
             }
+
+            .toc-toggle {
+                top: 80px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .toc-container {
+                right: 15px;
+                max-width: 280px;
+            }
             
             :root {
                 --blur-amount: 8px;
                 --scrollbar-width: 8px;
+            }
+
+            .toast-container {
+                max-width: 250px;
             }
         }
         
@@ -820,9 +868,12 @@
                 padding: 5px 8px;
                 font-size: 0.7rem;
             }
+
+            .toc-container {
+                max-width: 250px;
+            }
         }
         
-        /* ========== 新增的音乐播放器样式 ========== */
         .music-player-btn {
             position: fixed;
             bottom: 20px;
@@ -1030,7 +1081,6 @@
             box-shadow: 0 0 4px var(--glow-color);
         }
 
-        /* 响应式调整 */
         @media (max-width: 768px) {
             .music-player-panel {
                 width: calc(100% - 40px);
@@ -1046,8 +1096,11 @@
     <a href="index.html" class="back-btn glass">
         <i class="fas fa-arrow-left"></i>
     </a>
+
+    <div class="toc-toggle glass mobile-only" id="toc-toggle">
+        <i class="fas fa-list"></i>
+    </div>
     
-    <!-- 新增的音乐播放器 -->
     <div class="music-player-btn glass" id="music-player-btn">
         <i class="fas fa-music"></i>
     </div>
@@ -1079,7 +1132,6 @@
         </div>
     </div>
     
-    <!-- 图片链接确认弹窗 -->
     <div class="link-confirm glass" id="link-confirm">
         <p>您即将离开本站，是否继续？</p>
         <a id="link-url" href="#" target="_blank"></a>
@@ -1088,19 +1140,19 @@
             <button class="link-confirm-btn confirm" id="link-confirm-btn">继续</button>
         </div>
     </div>
+
+    <div class="toast-container" id="toast-container"></div>
     
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" id="lightbox-close">&times;</span>
         <img id="lightbox-img" alt="Lightbox">
     </div>
     
-    <!-- 目录导航 -->
     <div class="toc-container glass" id="toc-container">
         <div class="toc-title">目录</div>
         <ul class="toc-list" id="toc-list"></ul>
     </div>
     
-    <!-- 回到顶部按钮 -->
     <div class="back-to-top glass" id="back-to-top">
         <i class="fas fa-arrow-up"></i>
     </div>
@@ -1114,7 +1166,6 @@
         </div>
     </div>
 
-    <!-- 添加highlight.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
@@ -1125,7 +1176,6 @@
     
     <script src="axios.min.js" defer></script>
     <script src="marked.min.js" defer></script>
-    <!-- 外部文章索引 -->
     <script src="articles.js" defer></script>
     <script>
         function formatReadingTime(minutes) {
@@ -1142,65 +1192,157 @@
             }
         }
 
-        // 壁纸（与主页一致）
-        const wallpapers = ["wallpaper1.jpg", "wallpaper2.png", "wallpaper3.jpg", "wallpaper4.png", "wallpaper5.png", "wallpaper6.png"];
-        
-        // 页面初始化
-        document.addEventListener('DOMContentLoaded', async () => {
-            // 设置随机壁纸
-            await setRandomWallpaper();
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
             
-            // 加载文章内容
+            const progress = document.createElement('div');
+            progress.className = 'toast-progress';
+            
+            const messageEl = document.createElement('div');
+            messageEl.textContent = message;
+            
+            toast.appendChild(progress);
+            toast.appendChild(messageEl);
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 400);
+            }, 3000);
+        }
+
+        let wallpapers = [];
+
+        async function loadWallpapers() {
+            try {
+                const response = await axios.get('./wallpapers.txt');
+                wallpapers = response.data.split('\n')
+                    .filter(line => line.trim())
+                    .map(line => line.trim());
+                
+                if (wallpapers.length > 0) {
+                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                    const timestamp = new Date().getTime();
+                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
+                    
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            document.body.style.backgroundImage = `url(${wallpaperPath})`;
+                            resolve(true);
+                        };
+                        img.onerror = () => {
+                            console.error('壁纸加载失败:', wallpaperPath);
+                            resolve(false);
+                        };
+                        img.src = wallpaperPath;
+                    });
+                } else {
+                    throw new Error('壁纸文件为空');
+                }
+            } catch (error) {
+                console.error('加载壁纸失败:', error);
+                return false;
+            }
+        }
+
+        async function setDefaultWallpaper() {
+            try {
+                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
+                const bingData = bingResponse.data;
+                if (bingData.images && bingData.images[0]) {
+                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
+                    document.body.style.backgroundImage = `url(${bingUrl})`;
+                    return true;
+                }
+            } catch (error) {
+                console.error('获取必应壁纸失败:', error);
+            }
+            
+            const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+            document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+            return false;
+        }
+
+        // 防止目录滚动时影响主内容
+        function preventTocScrollPropagation() {
+            const tocContainer = document.getElementById('toc-container');
+            if (tocContainer) {
+                tocContainer.addEventListener('wheel', function(e) {
+                    const isScrollable = this.scrollHeight > this.clientHeight;
+                    const isAtTop = this.scrollTop === 0;
+                    const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 1;
+                    
+                    const scrollingUp = e.deltaY < 0;
+                    const scrollingDown = e.deltaY > 0;
+                    
+                    // 如果目录可以滚动，并且在顶部向上滚动或在底部向下滚动，允许事件冒泡
+                    if ((isAtTop && scrollingUp) || (isAtBottom && scrollingDown)) {
+                        return true;
+                    }
+                    
+                    // 否则阻止事件冒泡，只滚动目录
+                    if (isScrollable) {
+                        e.stopPropagation();
+                    }
+                }, { passive: false });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const wallpaperSuccess = await loadWallpapers();
+            if (!wallpaperSuccess) {
+                await setDefaultWallpaper();
+                showToast('壁纸加载失败，使用默认壁纸', 'error');
+            }
+            
             await loadArticle();
             
-            // 设置图片点击事件
             document.addEventListener('click', handleImageClick);
-            
-            // 监听滚动事件
             window.addEventListener('scroll', handleScroll);
             
-            // 绑定回到顶部按钮
             document.getElementById('back-to-top').addEventListener('click', () => {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
             });
+
+            document.getElementById('toc-toggle').addEventListener('click', () => {
+                const tocContainer = document.getElementById('toc-container');
+                if (tocContainer.style.display === 'block') {
+                    tocContainer.style.display = 'none';
+                } else {
+                    tocContainer.style.display = 'block';
+                    highlightTOC();
+                    const activeItem = document.querySelector('.toc-list li.active');
+                    if (activeItem) {
+                        activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
             
-            // 初始化音乐播放器
+            // 添加防止目录滚动传播
+            preventTocScrollPropagation();
+            
             initMusicPlayer();
             
-            // 绑定链接确认弹窗事件
             document.getElementById('link-cancel').addEventListener('click', () => {
                 hideLinkConfirm();
             });
         });
         
-        // 设置随机壁纸
-        async function setRandomWallpaper() {
-            try {
-                if (wallpapers.length > 0) {
-                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
-                    const timestamp = new Date().getTime();
-                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
-                    
-                    await new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                        img.src = wallpaperPath;
-                    });
-                    
-                    document.body.style.backgroundImage = `url(${wallpaperPath})`;
-                }
-            } catch (error) {
-                console.error('设置壁纸失败:', error);
-            }
-        }
-        
-        // 加载文章
         async function loadArticle() {
-            // 获取URL参数
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
             
@@ -1216,37 +1358,29 @@
             }
             
             try {
-                // 设置页面标题
                 document.title = `${article.title} - 迅dei的赛博小家`;
                 
-                // 加载文章内容
                 const response = await axios.get(`./${article.filename}?t=${Date.now()}`, {
                     responseType: 'text'
                 });
                 
-                // 计算阅读时间
                 const wordCount = response.data.replace(/\s+/g, '').length;
                 const readingTime = Math.ceil(wordCount / 300);
                 
-                // 获取文章所在目录
                 const articleDir = article.filename.substring(0, article.filename.lastIndexOf('/') + 1);
                 
-                // 转换图片路径
                 let markdownContent = response.data;
                 markdownContent = markdownContent.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, path) => {
-                    // 处理相对路径图片
                     if (!path.startsWith('http') && !path.startsWith('/') && !path.startsWith('data:')) {
                         return `![${alt}](${encodeURI('./' + articleDir + path)})`;
                     }
                     return match;
                 });
                 
-                // 解析Markdown
                 if (typeof marked === 'undefined') {
                     throw new Error('Markdown解析器未加载');
                 }
                 
-                // 配置Marked
                 marked.setOptions({
                     gfm: true,
                     breaks: true,
@@ -1265,7 +1399,6 @@
                 
                 const htmlContent = marked.parse(markdownContent);
                 
-                // 渲染文章
                 const container = document.getElementById('article-container');
                 container.innerHTML = `
                     <div class="article-header">
@@ -1283,15 +1416,12 @@
                     </div>
                 `;
                 
-                // 添加复制按钮到代码块
                 addCopyButtonsToCodeBlocks();
                 
-                // 高亮所有代码块
                 document.querySelectorAll('pre code').forEach((el) => {
                     hljs.highlightElement(el);
                 });
                 
-                // 生成目录
                 generateTOC();
                 
             } catch (error) {
@@ -1300,21 +1430,19 @@
                     showError('此文章不存在，可能已被删除或移动');
                 } else {
                     showError(`网络错误，请刷新页面`);
+                    showToast('网络错误，请刷新页面', 'error');
                 }
             }
         }
         
-        // 添加复制按钮到所有代码块
         function addCopyButtonsToCodeBlocks() {
             const codeBlocks = document.querySelectorAll('.article-full-content pre');
             
             codeBlocks.forEach((pre) => {
-                // 创建复制按钮
                 const copyButton = document.createElement('button');
                 copyButton.className = 'copy-btn';
                 copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
                 
-                // 添加语言标签
                 const code = pre.querySelector('code');
                 const language = code.className.replace('language-', '') || 'code';
                 const langLabel = document.createElement('span');
@@ -1322,14 +1450,13 @@
                 langLabel.textContent = language;
                 pre.appendChild(langLabel);
                 
-                // 添加按钮事件
                 copyButton.addEventListener('click', () => {
                     const textToCopy = code.innerText;
                     
                     navigator.clipboard.writeText(textToCopy).then(() => {
-                        // 复制成功反馈
                         copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
                         copyButton.classList.add('success');
+                        showToast('代码已复制到剪贴板', 'success');
                         
                         setTimeout(() => {
                             copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
@@ -1351,11 +1478,9 @@
             });
         }
         
-        // 图片点击处理
         function handleImageClick(e) {
             const target = e.target;
             
-            // 处理图片灯箱
             if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
                 const imgSrc = target.src;
                 const lightbox = document.getElementById('lightbox');
@@ -1364,10 +1489,8 @@
                 lightboxImg.src = imgSrc;
                 lightbox.style.display = 'flex';
                 
-                // 点击关闭灯箱
                 document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
                 
-                // 点击背景关闭
                 lightbox.addEventListener('click', (e) => {
                     if (e.target === lightbox) {
                         closeLightbox();
@@ -1375,7 +1498,6 @@
                 });
             }
             
-            // 处理带链接的图片
             if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
                 e.preventDefault();
                 const link = target.closest('a');
@@ -1383,15 +1505,12 @@
             }
         }
         
-        // 关闭灯箱
         function closeLightbox() {
             const lightbox = document.getElementById('lightbox');
             lightbox.style.display = 'none';
-            // 关闭灯箱时也关闭跳转提示弹窗
             hideLinkConfirm();
         }
         
-        // 显示链接确认弹窗
         function showLinkConfirm(url) {
             const confirmEl = document.getElementById('link-confirm');
             const linkUrlEl = document.getElementById('link-url');
@@ -1404,14 +1523,12 @@
                 confirmEl.classList.add('show');
             }, 10);
             
-            // 绑定确认按钮事件
             document.getElementById('link-confirm-btn').onclick = function() {
                 hideLinkConfirm();
                 window.open(url, '_blank');
             };
         }
         
-        // 隐藏链接确认弹窗
         function hideLinkConfirm() {
             const confirmEl = document.getElementById('link-confirm');
             confirmEl.classList.remove('show');
@@ -1420,7 +1537,6 @@
             }, 400);
         }
         
-        // 获取分类名称
         function getCategoryName(category) {
             const names = {
                 'technology': '技术',
@@ -1430,7 +1546,6 @@
             return names[category] || category;
         }
         
-        // 生成目录
         function generateTOC() {
             const tocContainer = document.getElementById('toc-container');
             const tocList = document.getElementById('toc-list');
@@ -1438,31 +1553,47 @@
             
             if (headings.length === 0) {
                 tocContainer.style.display = 'none';
+                document.getElementById('toc-toggle').style.display = 'none';
                 return;
             }
             
-            tocContainer.style.display = 'block';
+            if (window.innerWidth > 1024) {
+                tocContainer.style.display = 'block';
+            }
             tocList.innerHTML = '';
             
             headings.forEach((heading, index) => {
-                // 为标题添加ID（如果还没有）
                 if (!heading.id) {
                     heading.id = `heading-${index}`;
                 }
                 
                 const listItem = document.createElement('li');
                 listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
+                listItem.dataset.id = heading.id;
                 
                 const link = document.createElement('a');
                 link.href = `#${heading.id}`;
                 link.textContent = heading.textContent;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetElement = document.getElementById(heading.id);
+                    if (targetElement) {
+                        const offsetTop = targetElement.offsetTop - 80;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                    if (window.innerWidth <= 1024) {
+                        tocContainer.style.display = 'none';
+                    }
+                });
                 
                 listItem.appendChild(link);
                 tocList.appendChild(listItem);
             });
         }
         
-        // 处理滚动事件
         function handleScroll() {
             const backToTopBtn = document.getElementById('back-to-top');
             if (window.scrollY > 300) {
@@ -1471,36 +1602,78 @@
                 backToTopBtn.classList.remove('visible');
             }
             
-            // 高亮当前目录项
             highlightTOC();
         }
         
-        // 高亮当前目录项
         function highlightTOC() {
             const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
-            const tocLinks = document.querySelectorAll('.toc-list a');
+            const tocItems = document.querySelectorAll('.toc-list li');
             
-            let currentId = '';
-            headings.forEach(heading => {
-                const rect = heading.getBoundingClientRect();
-                if (rect.top <= 100) {
-                    currentId = heading.id;
-                }
-            });
+            if (headings.length === 0) return;
             
-            tocLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href === `#${currentId}`) {
-                    link.style.color = 'var(--primary-color)';
-                    link.style.textShadow = '0 0 8px rgba(66, 133, 244, 0.7)';
-                } else {
-                    link.style.color = '';
-                    link.style.textShadow = '';
+            let currentHeading = null;
+            const scrollPosition = window.scrollY + 100;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // 检查是否滚动到页面底部
+            const isAtBottom = windowHeight + window.scrollY >= documentHeight - 100;
+            
+            if (isAtBottom) {
+                // 如果在页面底部，高亮最后一个标题
+                currentHeading = headings[headings.length - 1];
+            } else {
+                // 否则正常查找当前标题
+                for (let i = 0; i < headings.length; i++) {
+                    const heading = headings[i];
+                    const headingTop = heading.offsetTop;
+                    const headingBottom = headingTop + heading.offsetHeight;
+                    
+                    // 如果标题的顶部在视口内或者标题的底部在视口内
+                    if ((headingTop <= scrollPosition && headingBottom >= scrollPosition) ||
+                        (i === headings.length - 1 && headingTop <= scrollPosition)) {
+                        currentHeading = heading;
+                        break;
+                    }
+                    
+                    // 如果当前标题在视口下方，选择前一个标题
+                    if (headingTop > scrollPosition) {
+                        currentHeading = headings[Math.max(0, i - 1)];
+                        break;
+                    }
                 }
-            });
+            }
+            
+            // 如果没有找到，选择第一个标题
+            if (!currentHeading && headings.length > 0) {
+                currentHeading = headings[0];
+            }
+            
+            // 高亮对应的目录项
+            if (currentHeading) {
+                tocItems.forEach(item => {
+                    if (item.dataset.id === currentHeading.id) {
+                        item.classList.add('active');
+                        // 在大屏幕上自动滚动目录到当前项
+                        if (window.innerWidth > 1024) {
+                            const tocContainer = document.getElementById('toc-container');
+                            const itemTop = item.offsetTop;
+                            const containerHeight = tocContainer.clientHeight;
+                            const itemHeight = item.clientHeight;
+                            
+                            // 确保当前项在目录容器中可见
+                            if (itemTop < tocContainer.scrollTop || 
+                                itemTop + itemHeight > tocContainer.scrollTop + containerHeight) {
+                                tocContainer.scrollTop = itemTop - containerHeight / 2 + itemHeight / 2;
+                            }
+                        }
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
         }
         
-        // 显示错误信息
         function showError(message) {
             const container = document.getElementById('article-container');
             container.innerHTML = `
@@ -1513,7 +1686,6 @@
             `;
         }
         
-        // ========== 修复后的音乐播放器功能 ==========
         function initMusicPlayer() {
             const musicBtn = document.getElementById('music-player-btn');
             const musicPanel = document.getElementById('music-player-panel');
@@ -1534,13 +1706,11 @@
             let tracks = [];
             let isSeeking = false;
             
-            // 切换播放器面板
             musicBtn.addEventListener('click', () => {
                 if (musicPanel.style.display === 'flex') {
                     musicPanel.style.display = 'none';
                 } else {
                     musicPanel.style.display = 'flex';
-                    // 如果还没有加载音乐，则加载
                     if (tracks.length === 0) {
                         loadMusicList();
                     }
@@ -1551,16 +1721,13 @@
                 musicPanel.style.display = 'none';
             });
             
-            // 加载音乐列表
             async function loadMusicList() {
                 try {
                     const response = await axios.get('./Music/music.json');
                     tracks = response.data;
                     
-                    // 清空列表
                     musicList.innerHTML = '';
                     
-                    // 添加音乐到列表
                     tracks.forEach((track, index) => {
                         const li = document.createElement('li');
                         li.textContent = track.name;
@@ -1572,37 +1739,32 @@
                         });
                     });
                     
-                    // 自动播放第一首
                     if (tracks.length > 0) {
                         playTrack(0);
                     }
                 } catch (error) {
                     console.error('加载音乐列表失败:', error);
                     musicList.innerHTML = '<li>无法加载音乐列表</li>';
+                    showToast('音乐列表加载失败', 'error');
                 }
             }
             
-            // 播放指定曲目
             function playTrack(index) {
                 if (index < 0 || index >= tracks.length) return;
                 
                 currentTrackIndex = index;
                 const track = tracks[index];
                 
-                // 重置进度条
                 progressBar.value = 0;
                 currentTimeEl.textContent = '0:00';
                 totalTimeEl.textContent = '0:00';
                 
-                // 更新播放器状态
                 audio.src = `./Music/${encodeURIComponent(track.file)}`;
                 audio.load();
                 audio.play();
                 
-                // 更新UI
                 nowPlaying.textContent = `正在播放: ${track.name}`;
                 
-                // 更新列表选中状态
                 const listItems = musicList.querySelectorAll('li');
                 listItems.forEach((item, i) => {
                     if (i === index) {
@@ -1612,12 +1774,10 @@
                     }
                 });
                 
-                // 更新播放按钮图标
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 isPlaying = true;
             }
             
-            // 播放/暂停控制
             playPauseBtn.addEventListener('click', () => {
                 if (isPlaying) {
                     audio.pause();
@@ -1629,21 +1789,18 @@
                 isPlaying = !isPlaying;
             });
             
-            // 上一首
             prevBtn.addEventListener('click', () => {
                 let newIndex = currentTrackIndex - 1;
                 if (newIndex < 0) newIndex = tracks.length - 1;
                 playTrack(newIndex);
             });
             
-            // 下一首
             nextBtn.addEventListener('click', () => {
                 let newIndex = currentTrackIndex + 1;
                 if (newIndex >= tracks.length) newIndex = 0;
                 playTrack(newIndex);
             });
             
-            // 修复进度条控制
             progressBar.addEventListener('mousedown', () => {
                 isSeeking = true;
             });
@@ -1660,38 +1817,31 @@
                 }
             });
             
-            // 更新进度显示
             audio.addEventListener('timeupdate', () => {
-                // 如果正在拖动进度条，则不更新进度条位置
                 if (!isSeeking && audio.duration) {
                     const progressPercent = (audio.currentTime / audio.duration) * 100;
                     progressBar.value = progressPercent;
                 }
                 
-                // 更新时间显示
                 currentTimeEl.textContent = formatTime(audio.currentTime);
                 if (audio.duration) {
                     totalTimeEl.textContent = formatTime(audio.duration);
                 }
             });
             
-            // 当音频加载完成时更新总时间
             audio.addEventListener('loadedmetadata', () => {
                 totalTimeEl.textContent = formatTime(audio.duration);
             });
             
-            // 当音乐结束时自动播放下一首
             audio.addEventListener('ended', () => {
                 nextBtn.click();
             });
             
-            // 音量控制
             audio.volume = volumeControl.value;
             volumeControl.addEventListener('input', function() {
                 audio.volume = this.value;
             });
             
-            // 格式化时间 (秒 -> mm:ss)
             function formatTime(seconds) {
                 if (isNaN(seconds)) return "0:00";
                 const minutes = Math.floor(seconds / 60);
