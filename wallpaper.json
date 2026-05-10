@@ -1,8 +1,9 @@
 [
-  { "path": "wallpaper/wallpaper1.jpg" },
-  { "path": "wallpaper/wallpaper2.png" },
-  { "path": "wallpaper/wallpaper3.jpg" },
-  { "path": "wallpaper/wallpaper4.png" },
-  { "path": "wallpaper/wallpaper5.png" },
-  { "path": "wallpaper/wallpaper6.png" }
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381168875_wallpaper1.jpg" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381169496_wallpaper2.png" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381169741_wallpaper3.jpg" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381174341_wallpaper4.png" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381174636_wallpaper5.png" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381167853_wallpaper6.png" },
+  { "path": "https://xundei.dpdns.org/file/wallpaper/1778381172753_wallpaper7.png" }
 ]
