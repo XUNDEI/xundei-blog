@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>迅dei的赛博小家</title>
+    <title>xundei's blog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
@@ -165,17 +165,95 @@
             animation: fadeInDown 1s ease;
         }
         
+        /* ========== 标题故障效果样式 ========== */
         .blog-title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(45deg, #4285F4, #34A853);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #ffffff;
             margin-bottom: 15px;
             letter-spacing: -1px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
+
+        .blog-title .highlight {
+            background: linear-gradient(90deg, #1E90FF, #00BFFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 #1E90FF;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 #00BFFF;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0%   { clip: rect(38px, 9999px, 34px, 0); }
+            5%   { clip: rect(72px, 9999px, 11px, 0); }
+            10%  { clip: rect(6px, 9999px, 86px, 0); }
+            15%  { clip: rect(54px, 9999px, 18px, 0); }
+            20%  { clip: rect(22px, 9999px, 63px, 0); }
+            25%  { clip: rect(81px, 9999px, 35px, 0); }
+            30%  { clip: rect(13px, 9999px, 92px, 0); }
+            35%  { clip: rect(65px, 9999px, 49px, 0); }
+            40%  { clip: rect(27px, 9999px, 7px, 0); }
+            45%  { clip: rect(98px, 9999px, 53px, 0); }
+            50%  { clip: rect(44px, 9999px, 26px, 0); }
+            55%  { clip: rect(15px, 9999px, 88px, 0); }
+            60%  { clip: rect(61px, 9999px, 39px, 0); }
+            65%  { clip: rect(33px, 9999px, 74px, 0); }
+            70%  { clip: rect(89px, 9999px, 12px, 0); }
+            75%  { clip: rect(5px, 9999px, 68px, 0); }
+            80%  { clip: rect(47px, 9999px, 94px, 0); }
+            85%  { clip: rect(76px, 9999px, 21px, 0); }
+            90%  { clip: rect(19px, 9999px, 57px, 0); }
+            95%  { clip: rect(92px, 9999px, 43px, 0); }
+            100% { clip: rect(58px, 9999px, 81px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0%   { clip: rect(12px, 9999px, 91px, 0); }
+            5%   { clip: rect(67px, 9999px, 24px, 0); }
+            10%  { clip: rect(34px, 9999px, 58px, 0); }
+            15%  { clip: rect(88px, 9999px, 15px, 0); }
+            20%  { clip: rect(42px, 9999px, 77px, 0); }
+            25%  { clip: rect(9px, 9999px, 36px, 0); }
+            30%  { clip: rect(55px, 9999px, 83px, 0); }
+            35%  { clip: rect(28px, 9999px, 46px, 0); }
+            40%  { clip: rect(73px, 9999px, 19px, 0); }
+            45%  { clip: rect(16px, 9999px, 62px, 0); }
+            50%  { clip: rect(94px, 9999px, 31px, 0); }
+            55%  { clip: rect(39px, 9999px, 85px, 0); }
+            60%  { clip: rect(82px, 9999px, 48px, 0); }
+            65%  { clip: rect(25px, 9999px, 71px, 0); }
+            70%  { clip: rect(69px, 9999px, 14px, 0); }
+            75%  { clip: rect(46px, 9999px, 97px, 0); }
+            80%  { clip: rect(13px, 9999px, 52px, 0); }
+            85%  { clip: rect(59px, 9999px, 29px, 0); }
+            90%  { clip: rect(96px, 9999px, 66px, 0); }
+            95%  { clip: rect(31px, 9999px, 89px, 0); }
+            100% { clip: rect(78px, 9999px, 41px, 0); }
+        }
+        /* ========== 故障效果结束 ========== */
         
         .sentence {
             font-size: 1.4rem;
@@ -189,6 +267,24 @@
             align-items: center;
             justify-content: center;
             padding: 10px 20px;
+        }
+
+        /* 打字机光标 */
+        .typewriter-cursor {
+            display: inline-block;
+            color: var(--light-text);
+            font-weight: 300;
+            margin-left: 2px;
+            opacity: 1;
+        }
+
+        .typewriter-cursor.blink {
+            animation: cursorBlink 0.9s infinite;
+        }
+
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
         
         .categories {
@@ -793,13 +889,13 @@
     </style>
     
     <script src="axios.min.js" defer></script>
-    <script src="marked.min.js" defer></script>
-    <script src="articles.js" defer></script>
 </head>
 <body>
     <div class="container">
         <header class="glass">
-            <h1 class="blog-title">迅dei的赛博小家</h1>
+            <h1 class="blog-title glitch-text" data-text="xundei's blog">
+                <span class="highlight">xundei</span>'s blog
+            </h1>
             <div class="sentence" id="sentence">加载中...</div>
             <div class="categories">
                 <button class="category-btn active" data-category="all">全部</button>
@@ -820,7 +916,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.7.0">xundei-blog V2.7.0</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.0">xundei-blog V2.7.0</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
             </div>
         </footer>
@@ -912,27 +1008,28 @@
                 {min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )"},
                 {min: 45, max: 55, message: "普普通通呢(´･ω･`)"},
                 {min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)"},
-                {min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)"},
                 {min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧"},
                 {min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )"}
             ]
         };
         
-        let pageInitialized = false;
-        let markedLoaded = false;
-        let axiosLoaded = false;
-        let articlesLoaded = false;
-        
-        let markedRetryCount = 0;
-        let axiosRetryCount = 0;
-        let articlesRetryCount = 0;
-        const MAX_RETRY = 30;
+        let articlesData = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            checkExternalLibraries();
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('./articles.json');
+                if (!response.ok) throw new Error('文章列表加载失败');
+                articlesData = await response.json();
+            } catch (err) {
+                console.error(err);
+                showToast('文章列表加载失败，请刷新', 'error');
+                articlesData = [];
+            }
+            
             initFuncPanel();
             updateRuntime();
             setInterval(updateRuntime, 1000);
+            await initializePage();
         });
 
         function showToast(message, type = 'info') {
@@ -1041,13 +1138,39 @@
             }
         }
 
+        // 打字机效果函数
+        function typeWriter(element, text, speed = 80) {
+            element.innerHTML = ''; // 清空内容
+            const cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            cursor.textContent = '|';
+            element.appendChild(cursor);
+            
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    const char = text.charAt(i);
+                    const textNode = document.createTextNode(char);
+                    element.insertBefore(textNode, cursor);
+                    i++;
+                    // 速度随机波动，模拟真实打字感
+                    const variation = Math.random() * 0.6 + 0.7; // 0.7~1.3
+                    setTimeout(type, speed * variation);
+                } else {
+                    cursor.classList.add('blink'); // 打字完成后光标开始闪烁
+                }
+            }
+            type();
+        }
+
         async function loadSentences() {
+            const sentenceEl = document.getElementById('sentence');
             try {
                 const response = await axios.get('./sentences.txt');
                 const sentences = response.data.split('\n').filter(line => line.trim());
                 if (sentences.length > 0) {
                     const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-                    document.getElementById('sentence').textContent = randomSentence;
+                    typeWriter(sentenceEl, randomSentence, 80);
                 } else {
                     throw new Error('美句文件为空');
                 }
@@ -1060,30 +1183,29 @@
 
         async function loadWallpapers() {
             try {
-                const response = await axios.get('./wallpapers.txt');
-                const wallpapers = response.data.split('\n')
-                    .filter(line => line.trim())
-                    .map(line => line.trim());
+                const response = await axios.get('./wallpaper.json');
+                const wallpapersData = response.data;
                 
-                if (wallpapers.length > 0) {
-                    const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                if (wallpapersData && wallpapersData.length > 0) {
+                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
+                    const wallpaperPath = randomEntry.path;
                     const timestamp = new Date().getTime();
-                    const wallpaperPath = `./${randomWallpaper}?t=${timestamp}`;
+                    const fullPath = `${wallpaperPath}?t=${timestamp}`;
                     
                     return new Promise((resolve) => {
                         const img = new Image();
                         img.onload = () => {
-                            document.body.style.backgroundImage = `url(${wallpaperPath})`;
+                            document.body.style.backgroundImage = `url(${fullPath})`;
                             resolve(true);
                         };
                         img.onerror = () => {
-                            console.error('壁纸加载失败:', wallpaperPath);
+                            console.error('壁纸加载失败:', fullPath);
                             resolve(false);
                         };
-                        img.src = wallpaperPath;
+                        img.src = fullPath;
                     });
                 } else {
-                    throw new Error('壁纸文件为空');
+                    throw new Error('壁纸列表为空');
                 }
             } catch (error) {
                 console.error('加载壁纸失败:', error);
@@ -1138,13 +1260,12 @@
                 
                 const apiUrl = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
                 
-                let response;
                 let responseData;
                 if (typeof axios !== 'undefined') {
-                    response = await axios.get(apiUrl);
+                    const response = await axios.get(apiUrl);
                     responseData = response.data;
                 } else {
-                    response = await fetch(apiUrl);
+                    const response = await fetch(apiUrl);
                     if (!response.ok) throw new Error('网络响应异常');
                     responseData = await response.json();
                 }
@@ -1174,76 +1295,8 @@
             }
         }
 
-        function checkExternalLibraries() {
-            const checkArticles = () => {
-                if (typeof window.blogArticles !== 'undefined') {
-                    articlesLoaded = true;
-                    if (pageInitialized) bindEvents();
-                    initializePage();
-                } else {
-                    articlesRetryCount++;
-                    if (articlesRetryCount > MAX_RETRY) {
-                        showToast('文章索引加载失败，请刷新页面', 'error');
-                    } else {
-                        setTimeout(checkArticles, 100);
-                    }
-                }
-            };
-            
-            const checkMarked = () => {
-                if (typeof marked !== 'undefined') {
-                    markedLoaded = true;
-                    configureMarked();
-                    if (articlesLoaded && pageInitialized) bindEvents();
-                } else {
-                    markedRetryCount++;
-                    if (markedRetryCount > MAX_RETRY) {
-                        showToast('Markdown解析器加载失败，请刷新页面', 'error');
-                    } else {
-                        setTimeout(checkMarked, 100);
-                    }
-                }
-            };
-            
-            const checkAxios = () => {
-                if (typeof axios !== 'undefined') {
-                    axiosLoaded = true;
-                    if (articlesLoaded && pageInitialized) bindEvents();
-                } else {
-                    axiosRetryCount++;
-                    if (axiosRetryCount > MAX_RETRY) {
-                        showToast('网络错误，请刷新页面', 'error');
-                    } else {
-                        setTimeout(checkAxios, 100);
-                    }
-                }
-            };
-            
-            checkArticles();
-            checkMarked();
-            checkAxios();
-        }
-
-        function configureMarked() {
-            if (typeof marked === 'undefined') return;
-            
-            marked.setOptions({
-                gfm: true,
-                breaks: true,
-                smartypants: true,
-                langPrefix: 'language-',
-                highlight: function(code, lang) {
-                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
-                }
-            });
-        }
-
         async function initializePage() {
             try {
-                if (!window.blogArticles) {
-                    throw new Error('文章索引未加载');
-                }
-                
                 const wallpaperSuccess = await loadWallpapers();
                 if (!wallpaperSuccess) {
                     await setDefaultWallpaper();
@@ -1251,44 +1304,20 @@
                 }
                 
                 await loadSentences();
-                loadArticles();
-                
-                pageInitialized = true;
+                renderArticles('all');
                 bindEvents();
-                
             } catch (error) {
                 console.error('初始化页面失败:', error);
                 showToast('初始化失败: ' + error.message, 'error');
             }
         }
 
-        function loadArticles() {
-            try {
-                if (!window.blogArticles) {
-                    throw new Error('文章索引未加载');
-                }
-                
-                window.blogArticles.sort((a, b) => {
-                    return new Date(b.date) - new Date(a.date);
-                });
-                
-                renderArticles('all');
-            } catch (error) {
-                console.error('加载文章失败:', error);
-                
-                const grid = document.getElementById('articles-grid');
-                grid.innerHTML = `
-                    <div class="glass" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
-                        <h3>无法加载文章索引</h3>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-            }
+        function getSlug(filename) {
+            return filename.split('/').pop().replace(/\.md$/, '');
         }
 
         function renderArticles(category) {
-            if (!window.blogArticles) {
+            if (!articlesData) {
                 console.error('没有文章数据');
                 return;
             }
@@ -1297,8 +1326,8 @@
             grid.innerHTML = '';
             
             let filteredArticles = category === 'all' 
-                ? [...window.blogArticles] 
-                : window.blogArticles.filter(article => article.category === category);
+                ? [...articlesData] 
+                : articlesData.filter(article => article.category === category);
             
             filteredArticles.sort((a, b) => {
                 return new Date(b.date) - new Date(a.date);
@@ -1316,6 +1345,7 @@
             }
             
             filteredArticles.forEach(article => {
+                const slug = getSlug(article.filename);
                 const card = document.createElement('div');
                 card.className = 'article-card glass';
                 card.innerHTML = `
@@ -1329,7 +1359,7 @@
                     <div class="article-content">
                         ${article.excerpt}
                     </div>
-                    <a href="article.html?id=${article.id}" class="read-more">阅读全文</a>
+                    <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
                 `;
                 grid.appendChild(card);
             });
