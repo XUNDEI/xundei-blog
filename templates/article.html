@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ARTICLE_TITLE}} - xundei's blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <style>
+        .article-full-content a:not(:has(img)) {
+            text-decoration: none;
+            position: relative;
+            color: #a1c4fd;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .article-full-content a:not(:has(img)):hover {
+            background-position: 0 0;
+            color: transparent;
+        }
+
+        .article-full-content a:not(:has(img))::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .article-full-content a:not(:has(img)):hover::before {
+            opacity: 1;
+        }
+
+        .article-full-content a:not(:has(img))::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .article-full-content a:not(:has(img)):hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .toc-list a {
+            color: rgba(255,255,255,0.8) !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
+
+        .toc-list a:hover {
+            color: var(--primary-color) !important;
+            transform: translateX(5px) !important;
+        }
+
+        .toc-list a::before,
+        .toc-list a::after {
+            content: none !important;
+        }
+
+        .link-confirm a {
+            color: #a3c8ff !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
+
+        .link-confirm a::before,
+        .link-confirm a::after {
+            content: none !important;
+        }
+
+        .music-player-panel a {
+            color: inherit !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+        }
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --primary-color: #4285F4;
+            --text-color: #333;
+            --light-text: #fff;
+            --transition: all 0.3s ease;
+            --blur-amount: 12px;
+            --code-bg: #1e1e1e;
+            --code-copy-bg: rgba(255, 255, 255, 0.1);
+            --code-copy-hover: rgba(255, 255, 255, 0.2);
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --scrollbar-width: 10px;
+            --glow-color: rgba(66, 133, 244, 0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            color: var(--text-color);
+            position: relative;
+            overflow-x: hidden;
+            background-attachment: fixed;
+            transition: background-image 1.5s ease-in-out;
+            background-color: #121212;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        .reading-time {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 60px auto 40px;
+        }
+        
+        .article-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .article-title {
+            font-size: 2.2rem;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        
+        .article-full-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .article-full-content h2,
+        .article-full-content h3 {
+            margin: 30px 0 20px;
+            color: var(--light-text);
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .article-full-content h2::before,
+        .article-full-content h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 60%;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .article-full-content p {
+            margin-bottom: 25px;
+        }
+
+        .article-full-content ul, 
+        .article-full-content ol {
+            margin-bottom: 25px;
+            padding-left: 30px;
+        }
+        
+        .article-full-content ul li, 
+        .article-full-content ol li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+        
+        .article-full-content pre {
+            position: relative;
+            background: var(--code-bg);
+            color: #dcdcdc;
+            padding: 50px 20px 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 25px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .article-full-content code {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .article-full-content pre code {
+            background: none;
+            padding: 0;
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .code-language {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--code-copy-bg);
+            border: none;
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+        
+        .copy-btn:hover {
+            background: var(--code-copy-hover);
+            color: white;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .copy-btn.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .copy-btn.error {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .article-full-content img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 25px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .article-full-content img:hover {
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .article-full-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 20px;
+            margin: 25px 0;
+            background: rgba(66, 133, 244, 0.1);
+            border-radius: 0 8px 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(66, 133, 244, 0.5);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lightbox-close:hover {
+            color: var(--primary-color);
+        }
+        
+        .toc-container {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            max-width: 300px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 99;
+            display: none;
+            animation: slideInRight 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            overscroll-behavior: contain;
+        }
+
+        .toc-toggle {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .toc-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+
+        .toc-toggle.mobile-only {
+            display: none;
+        }
+        
+        .toc-title {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .toc-list {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+        
+        .toc-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+
+        .toc-list li:hover {
+            background: rgba(66, 133, 244, 0.1);
+            transform: translateX(5px);
+        }
+
+        .toc-list li.active {
+            background: rgba(66, 133, 244, 0.2);
+            border-left: 3px solid var(--primary-color);
+            padding-left: 12px;
+        }
+        
+        .toc-list a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: block;
+            padding: 3px 0;
+        }
+        
+        .toc-list a:hover {
+            color: var(--primary-color);
+        }
+        
+        .toc-list .toc-h2 {
+            font-weight: 600;
+            padding-left: 0;
+        }
+        
+        .toc-list .toc-h3 {
+            font-weight: 400;
+            padding-left: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 98;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .link-confirm {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 1001;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            display: none;
+        }
+        
+        .link-confirm.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .link-confirm p {
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+        
+        .link-confirm a {
+            color: #a3c8ff;
+            word-break: break-all;
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+        }
+        
+        .link-confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .link-confirm-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .link-confirm-btn.confirm {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .link-confirm-btn.confirm:hover {
+            background: #3b78e7;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .link-confirm-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .link-confirm-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        .toast {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            transform-origin: left;
+            animation: progress 3s linear forwards;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .toast.success {
+            background: #4CAF50;
+        }
+
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+        
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-width);
+            height: var(--scrollbar-width);
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(66, 133, 244, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(66, 133, 244, 0.7);
+        }
+        
+        .toc-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .toc-container::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 4px;
+        }
+        
+        .toc-container::-webkit-scrollbar-thumb {
+            background: rgba(66, 133, 244, 0.4);
+            border-radius: 4px;
+        }
+        
+        .toc-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(66, 133, 244, 0.6);
+        }
+        
+        .music-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 4px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-thumb {
+            background: rgba(66, 133, 244, 0.4);
+            border-radius: 4px;
+        }
+        
+        .music-list-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(66, 133, 244, 0.6);
+        }
+        
+        .article-full-content pre::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-thumb {
+            background: rgba(66, 133, 244, 0.5);
+            border-radius: 4px;
+        }
+        
+        .article-full-content pre::-webkit-scrollbar-thumb:hover {
+            background: rgba(66, 133, 244, 0.7);
+        }
+        
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
+        }
+        
+        .toc-container, .music-list-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(66, 133, 244, 0.4) transparent;
+        }
+        
+        .article-full-content pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.2);
+        }
+
+        ::selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
+
+        ::-moz-selection {
+            background: rgba(66, 133, 244, 0.3);
+            color: white;
+            text-shadow: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .toc-container {
+                display: none;
+            }
+
+            .toc-toggle.mobile-only {
+                display: flex;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .article-title {
+                font-size: 1.8rem;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .toc-toggle {
+                top: 80px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .toc-container {
+                right: 15px;
+                max-width: 280px;
+            }
+            
+            :root {
+                --blur-amount: 8px;
+                --scrollbar-width: 8px;
+            }
+
+            .toast-container {
+                max-width: 250px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-title {
+                font-size: 1.6rem;
+            }
+            
+            .article-meta {
+                font-size: 0.9rem;
+            }
+            
+            .article-full-content {
+                font-size: 1rem;
+            }
+            
+            .code-language {
+                font-size: 0.7rem;
+                right: 45px;
+            }
+            
+            .copy-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+            }
+
+            .toc-container {
+                max-width: 250px;
+            }
+        }
+        
+        .music-player-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+        }
+
+        .music-player-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+
+        .music-player-panel {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            width: 300px;
+            max-height: 400px;
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+            overflow: hidden;
+            transition: var(--transition);
+            animation: popIn 0.3s ease;
+        }
+        
+        @keyframes popIn {
+            from {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .music-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .music-player-header h3 {
+            color: var(--light-text);
+            margin: 0;
+        }
+
+        .music-player-header button {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        
+        .music-player-header button:hover {
+            transform: scale(1.2);
+            color: white;
+        }
+
+        .music-list-container {
+            overflow-y: auto;
+            max-height: 200px;
+            padding: 10px;
+        }
+
+        #music-list {
+            list-style-type: none;
+        }
+
+        #music-list li {
+            padding: 8px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.8);
+            transition: var(--transition);
+        }
+
+        #music-list li:hover {
+            background: rgba(66, 133, 244, 0.2);
+            box-shadow: 0 0 8px rgba(66, 133, 244, 0.3);
+        }
+
+        #music-list li.playing {
+            background: rgba(66, 133, 244, 0.4);
+            color: white;
+        }
+
+        .music-controls {
+            padding: 15px;
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-container span {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            min-width: 40px;
+        }
+
+        .progress {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .progress::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 5px var(--glow-color);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .control-buttons button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-buttons button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-control i {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .volume {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .volume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 4px var(--glow-color);
+        }
+
+        @media (max-width: 768px) {
+            .music-player-panel {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+                max-width: 300px;
+            }
+        }
+
+        /* 新增文章协议页脚样式 */
+        .article-footer {
+            margin-top: 30px;
+            padding: 15px;
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+            backdrop-filter: blur(var(--blur-amount));
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        .article-footer a {
+            color: #a1c4fd !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .article-footer a::before,
+        .article-footer a::after {
+            content: none !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-btn glass">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="toc-toggle glass mobile-only" id="toc-toggle">
+        <i class="fas fa-list"></i>
+    </div>
+    
+    <div class="music-player-btn glass" id="music-player-btn">
+        <i class="fas fa-music"></i>
+    </div>
+    
+    <div class="music-player-panel glass" id="music-player-panel">
+        <div class="music-player-header">
+            <h3>音乐播放器</h3>
+            <button id="close-music-player"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="music-list-container">
+            <ul id="music-list"></ul>
+        </div>
+        <div class="music-controls">
+            <div class="now-playing" id="now-playing">未播放</div>
+            <div class="progress-container">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress" class="progress" min="0" max="100" value="0">
+                <span id="total-time">0:00</span>
+            </div>
+            <div class="control-buttons">
+                <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+                <button id="play-pause-btn"><i class="fas fa-play"></i></button>
+                <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+            </div>
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" id="volume" class="volume" min="0" max="1" step="0.01" value="0.7">
+            </div>
+        </div>
+    </div>
+    
+    <div class="link-confirm glass" id="link-confirm">
+        <p>您即将离开本站，是否继续？</p>
+        <a id="link-url" href="#" target="_blank"></a>
+        <div class="link-confirm-buttons">
+            <button class="link-confirm-btn cancel" id="link-cancel">取消</button>
+            <button class="link-confirm-btn confirm" id="link-confirm-btn">继续</button>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+    
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img id="lightbox-img" alt="Lightbox">
+    </div>
+    
+    <div class="toc-container glass" id="toc-container">
+        <div class="toc-title">目录</div>
+        <ul class="toc-list" id="toc-list"></ul>
+    </div>
+    
+    <div class="back-to-top glass" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <div class="container">
+        <div class="article-container glass" id="article-container">
+            <div class="article-header">
+                <h1 class="article-title">{{ARTICLE_TITLE}}</h1>
+                <div class="article-meta">
+                    <div>
+                        <span>{{ARTICLE_DATE}}</span>
+                        <span>{{ARTICLE_CATEGORY}}</span>
+                    </div>
+                    <div class="reading-time">预计阅读时间: {{READING_TIME}}</div>
+                </div>
+            </div>
+            <div class="article-full-content">
+                {{ARTICLE_CONTENT}}
+            </div>
+        </div>
+
+        <!-- 新增：文章协议页脚 -->
+        <footer class="article-footer" id="article-footer" style="display: none;">
+            <div class="footer-content" id="license-text"></div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    
+    <script src="../axios.min.js" defer></script>
+    <script>
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const progress = document.createElement('div');
+            progress.className = 'toast-progress';
+            
+            const messageEl = document.createElement('div');
+            messageEl.textContent = message;
+            
+            toast.appendChild(progress);
+            toast.appendChild(messageEl);
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 400);
+            }, 3000);
+        }
+
+        // 壁纸加载
+        async function loadWallpapers() {
+            try {
+                const response = await axios.get('../wallpaper.json');
+                const wallpapersData = response.data;
+                
+                if (wallpapersData && wallpapersData.length > 0) {
+                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
+                    const wallpaperPath = randomEntry.path;
+                    const timestamp = new Date().getTime();
+                    const fullPath = `../${wallpaperPath}?t=${timestamp}`;
+                    
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            document.body.style.backgroundImage = `url(${fullPath})`;
+                            resolve(true);
+                        };
+                        img.onerror = () => {
+                            console.error('壁纸加载失败:', fullPath);
+                            resolve(false);
+                        };
+                        img.src = fullPath;
+                    });
+                } else {
+                    throw new Error('壁纸列表为空');
+                }
+            } catch (error) {
+                console.error('加载壁纸失败:', error);
+                return false;
+            }
+        }
+
+        async function setDefaultWallpaper() {
+            try {
+                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
+                const bingData = bingResponse.data;
+                if (bingData.images && bingData.images[0]) {
+                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
+                    document.body.style.backgroundImage = `url(${bingUrl})`;
+                    return true;
+                }
+            } catch (error) {
+                console.error('获取必应壁纸失败:', error);
+            }
+            
+            const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+            document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+            return false;
+        }
+
+        function preventTocScrollPropagation() {
+            const tocContainer = document.getElementById('toc-container');
+            if (tocContainer) {
+                tocContainer.addEventListener('wheel', function(e) {
+                    const isScrollable = this.scrollHeight > this.clientHeight;
+                    const isAtTop = this.scrollTop === 0;
+                    const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 1;
+                    
+                    const scrollingUp = e.deltaY < 0;
+                    const scrollingDown = e.deltaY > 0;
+                    
+                    if ((isAtTop && scrollingUp) || (isAtBottom && scrollingDown)) {
+                        return true;
+                    }
+                    
+                    if (isScrollable) {
+                        e.stopPropagation();
+                    }
+                }, { passive: false });
+            }
+        }
+
+        function addCopyButtonsToCodeBlocks() {
+            const codeBlocks = document.querySelectorAll('.article-full-content pre');
+            
+            codeBlocks.forEach((pre) => {
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-btn';
+                copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                
+                const code = pre.querySelector('code');
+                const language = code.className.replace('language-', '') || 'code';
+                const langLabel = document.createElement('span');
+                langLabel.className = 'code-language';
+                langLabel.textContent = language;
+                pre.appendChild(langLabel);
+                
+                copyButton.addEventListener('click', () => {
+                    const textToCopy = code.innerText;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                        copyButton.classList.add('success');
+                        showToast('代码已复制到剪贴板', 'success');
+                        
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                            copyButton.classList.remove('success');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                        copyButton.innerHTML = '<i class="fas fa-times"></i> 失败';
+                        copyButton.classList.add('error');
+                        
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                            copyButton.classList.remove('error');
+                        }, 2000);
+                    });
+                });
+                
+                pre.appendChild(copyButton);
+            });
+        }
+        
+        function handleImageClick(e) {
+            const target = e.target;
+            
+            if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
+                const imgSrc = target.src;
+                const lightbox = document.getElementById('lightbox');
+                const lightboxImg = document.getElementById('lightbox-img');
+                
+                lightboxImg.src = imgSrc;
+                lightbox.style.display = 'flex';
+                
+                document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+                
+                lightbox.addEventListener('click', (e) => {
+                    if (e.target === lightbox) {
+                        closeLightbox();
+                    }
+                });
+            }
+            
+            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
+                e.preventDefault();
+                const link = target.closest('a');
+                showLinkConfirm(link.href);
+            }
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.style.display = 'none';
+            hideLinkConfirm();
+        }
+        
+        function showLinkConfirm(url) {
+            const confirmEl = document.getElementById('link-confirm');
+            const linkUrlEl = document.getElementById('link-url');
+            
+            linkUrlEl.textContent = url;
+            linkUrlEl.href = url;
+            
+            confirmEl.style.display = 'block';
+            setTimeout(() => {
+                confirmEl.classList.add('show');
+            }, 10);
+            
+            document.getElementById('link-confirm-btn').onclick = function() {
+                hideLinkConfirm();
+                window.open(url, '_blank');
+            };
+        }
+        
+        function hideLinkConfirm() {
+            const confirmEl = document.getElementById('link-confirm');
+            confirmEl.classList.remove('show');
+            setTimeout(() => {
+                confirmEl.style.display = 'none';
+            }, 400);
+        }
+        
+        function generateTOC() {
+            const tocContainer = document.getElementById('toc-container');
+            const tocList = document.getElementById('toc-list');
+            const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+            
+            if (headings.length === 0) {
+                tocContainer.style.display = 'none';
+                document.getElementById('toc-toggle').style.display = 'none';
+                return;
+            }
+            
+            if (window.innerWidth > 1024) {
+                tocContainer.style.display = 'block';
+            }
+            tocList.innerHTML = '';
+            
+            headings.forEach((heading, index) => {
+                if (!heading.id) {
+                    heading.id = `heading-${index}`;
+                }
+                
+                const listItem = document.createElement('li');
+                listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
+                listItem.dataset.id = heading.id;
+                
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.textContent = heading.textContent;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetElement = document.getElementById(heading.id);
+                    if (targetElement) {
+                        const offsetTop = targetElement.offsetTop - 80;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                    if (window.innerWidth <= 1024) {
+                        tocContainer.style.display = 'none';
+                    }
+                });
+                
+                listItem.appendChild(link);
+                tocList.appendChild(listItem);
+            });
+        }
+        
+        function handleScroll() {
+            const backToTopBtn = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+            
+            highlightTOC();
+        }
+        
+        function highlightTOC() {
+            const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+            const tocItems = document.querySelectorAll('.toc-list li');
+            
+            if (headings.length === 0) return;
+            
+            let currentHeading = null;
+            const scrollPosition = window.scrollY + 100;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            const isAtBottom = windowHeight + window.scrollY >= documentHeight - 100;
+            
+            if (isAtBottom) {
+                currentHeading = headings[headings.length - 1];
+            } else {
+                for (let i = 0; i < headings.length; i++) {
+                    const heading = headings[i];
+                    const headingTop = heading.offsetTop;
+                    const headingBottom = headingTop + heading.offsetHeight;
+                    
+                    if ((headingTop <= scrollPosition && headingBottom >= scrollPosition) ||
+                        (i === headings.length - 1 && headingTop <= scrollPosition)) {
+                        currentHeading = heading;
+                        break;
+                    }
+                    
+                    if (headingTop > scrollPosition) {
+                        currentHeading = headings[Math.max(0, i - 1)];
+                        break;
+                    }
+                }
+            }
+            
+            if (!currentHeading && headings.length > 0) {
+                currentHeading = headings[0];
+            }
+            
+            if (currentHeading) {
+                tocItems.forEach(item => {
+                    if (item.dataset.id === currentHeading.id) {
+                        item.classList.add('active');
+                        if (window.innerWidth > 1024) {
+                            const tocContainer = document.getElementById('toc-container');
+                            const itemTop = item.offsetTop;
+                            const containerHeight = tocContainer.clientHeight;
+                            const itemHeight = item.clientHeight;
+                            
+                            if (itemTop < tocContainer.scrollTop || 
+                                itemTop + itemHeight > tocContainer.scrollTop + containerHeight) {
+                                tocContainer.scrollTop = itemTop - containerHeight / 2 + itemHeight / 2;
+                            }
+                        }
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        function initMusicPlayer() {
+            const musicBtn = document.getElementById('music-player-btn');
+            const musicPanel = document.getElementById('music-player-panel');
+            const closeBtn = document.getElementById('close-music-player');
+            const musicList = document.getElementById('music-list');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress');
+            const volumeControl = document.getElementById('volume');
+            const nowPlaying = document.getElementById('now-playing');
+            const currentTimeEl = document.getElementById('current-time');
+            const totalTimeEl = document.getElementById('total-time');
+            
+            let audio = new Audio();
+            let currentTrackIndex = 0;
+            let isPlaying = false;
+            let tracks = [];
+            let isSeeking = false;
+            
+            musicBtn.addEventListener('click', () => {
+                if (musicPanel.style.display === 'flex') {
+                    musicPanel.style.display = 'none';
+                } else {
+                    musicPanel.style.display = 'flex';
+                    if (tracks.length === 0) {
+                        loadMusicList();
+                    }
+                }
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                musicPanel.style.display = 'none';
+            });
+            
+            async function loadMusicList() {
+                try {
+                    const response = await axios.get('../Music/music.json');
+                    tracks = response.data;
+                    
+                    musicList.innerHTML = '';
+                    
+                    tracks.forEach((track, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = track.name;
+                        li.dataset.index = index;
+                        musicList.appendChild(li);
+                        
+                        li.addEventListener('click', () => {
+                            playTrack(index);
+                        });
+                    });
+                    
+                    if (tracks.length > 0) {
+                        playTrack(0);
+                    }
+                } catch (error) {
+                    console.error('加载音乐列表失败:', error);
+                    musicList.innerHTML = '<li>无法加载音乐列表</li>';
+                    showToast('音乐列表加载失败', 'error');
+                }
+            }
+            
+            function playTrack(index) {
+                if (index < 0 || index >= tracks.length) return;
+                
+                currentTrackIndex = index;
+                const track = tracks[index];
+                
+                progressBar.value = 0;
+                currentTimeEl.textContent = '0:00';
+                totalTimeEl.textContent = '0:00';
+                
+                audio.src = `../Music/${encodeURIComponent(track.file)}`;
+                audio.load();
+                audio.play();
+                
+                nowPlaying.textContent = `正在播放: ${track.name}`;
+                
+                const listItems = musicList.querySelectorAll('li');
+                listItems.forEach((item, i) => {
+                    if (i === index) {
+                        item.classList.add('playing');
+                    } else {
+                        item.classList.remove('playing');
+                    }
+                });
+                
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                isPlaying = true;
+            }
+            
+            playPauseBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    audio.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                } else {
+                    audio.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            });
+            
+            prevBtn.addEventListener('click', () => {
+                let newIndex = currentTrackIndex - 1;
+                if (newIndex < 0) newIndex = tracks.length - 1;
+                playTrack(newIndex);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                let newIndex = currentTrackIndex + 1;
+                if (newIndex >= tracks.length) newIndex = 0;
+                playTrack(newIndex);
+            });
+            
+            progressBar.addEventListener('mousedown', () => {
+                isSeeking = true;
+            });
+            
+            progressBar.addEventListener('mouseup', () => {
+                isSeeking = false;
+            });
+            
+            progressBar.addEventListener('input', function() {
+                if (audio.duration) {
+                    const seekPercent = parseFloat(this.value);
+                    const seekTime = (seekPercent / 100) * audio.duration;
+                    audio.currentTime = seekTime;
+                }
+            });
+            
+            audio.addEventListener('timeupdate', () => {
+                if (!isSeeking && audio.duration) {
+                    const progressPercent = (audio.currentTime / audio.duration) * 100;
+                    progressBar.value = progressPercent;
+                }
+                
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+                if (audio.duration) {
+                    totalTimeEl.textContent = formatTime(audio.duration);
+                }
+            });
+            
+            audio.addEventListener('loadedmetadata', () => {
+                totalTimeEl.textContent = formatTime(audio.duration);
+            });
+            
+            audio.addEventListener('ended', () => {
+                nextBtn.click();
+            });
+            
+            audio.volume = volumeControl.value;
+            volumeControl.addEventListener('input', function() {
+                audio.volume = this.value;
+            });
+            
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+        }
+
+        // 新增：加载并渲染文章许可协议
+        async function loadLicenseInfo() {
+            try {
+                const response = await axios.get('../articles.json');
+                const articles = response.data;
+                
+                // 根据当前页面路径提取 slug
+                const currentPath = window.location.pathname;
+                const filename = currentPath.split('/').pop();        // e.g. "1.html"
+                const slug = filename.replace(/\.html$/, '');
+                
+                const article = articles.find(a => {
+                    const aFilename = a.filename.split('/').pop();   // e.g. "1.md"
+                    const aSlug = aFilename.replace(/\.md$/, '');
+                    return aSlug === slug;
+                });
+                
+                const footer = document.getElementById('article-footer');
+                const licenseText = document.getElementById('license-text');
+                
+                if (article && article.license && article.license !== false) {
+                    const license = article.license;
+                    const licenseUrls = {
+                        'CC BY': 'https://creativecommons.org/licenses/by/4.0/',
+                        'CC BY-SA': 'https://creativecommons.org/licenses/by-sa/4.0/',
+                        'CC BY-NC': 'https://creativecommons.org/licenses/by-nc/4.0/',
+                        'CC BY-ND': 'https://creativecommons.org/licenses/by-nd/4.0/'
+                    };
+                    const url = licenseUrls[license] || '#';
+                    licenseText.innerHTML = `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`;
+                    footer.style.display = 'block';
+                } else {
+                    // 未设定协议时也展示页脚，给予明确说明
+                    licenseText.innerHTML = '本文未使用任何知识共享协议';
+                    footer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载许可协议信息失败:', error);
+                // 静默处理，不显示页脚
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const wallpaperSuccess = await loadWallpapers();
+            if (!wallpaperSuccess) {
+                await setDefaultWallpaper();
+                showToast('壁纸加载失败，使用默认壁纸', 'error');
+            }
+            
+            // 文章内容已内嵌，直接增强
+            addCopyButtonsToCodeBlocks();
+            document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+            generateTOC();
+            
+            document.addEventListener('click', handleImageClick);
+            window.addEventListener('scroll', handleScroll);
+            
+            document.getElementById('back-to-top').addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            document.getElementById('toc-toggle').addEventListener('click', () => {
+                const tocContainer = document.getElementById('toc-container');
+                if (tocContainer.style.display === 'block') {
+                    tocContainer.style.display = 'none';
+                } else {
+                    tocContainer.style.display = 'block';
+                    highlightTOC();
+                    const activeItem = document.querySelector('.toc-list li.active');
+                    if (activeItem) {
+                        activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+            
+            preventTocScrollPropagation();
+            
+            initMusicPlayer();
+            
+            document.getElementById('link-cancel').addEventListener('click', () => {
+                hideLinkConfirm();
+            });
+
+            // 加载协议信息
+            await loadLicenseInfo();
+        });
+    </script>
+</body>
+</html>
