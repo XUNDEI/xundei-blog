@@ -1220,7 +1220,7 @@
             }, 3000);
         }
 
-        // 壁纸加载
+        // 壁纸加载 - 修复远程 URL 拼接错误
         async function loadWallpapers() {
             try {
                 const response = await axios.get('../wallpaper.json');
@@ -1230,7 +1230,16 @@
                     const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
                     const wallpaperPath = randomEntry.path;
                     const timestamp = new Date().getTime();
-                    const fullPath = `../${wallpaperPath}?t=${timestamp}`;
+                    
+                    // 关键修复：判断是否为绝对 URL（http/https 开头），是则直接使用
+                    let fullPath;
+                    if (/^https?:\/\//i.test(wallpaperPath)) {
+                        // 远程图床链接，不加 ../ 前缀
+                        fullPath = `${wallpaperPath}?t=${timestamp}`;
+                    } else {
+                        // 本地相对路径，保留原有拼接逻辑
+                        fullPath = `../${wallpaperPath}?t=${timestamp}`;
+                    }
                     
                     return new Promise((resolve) => {
                         const img = new Image();
