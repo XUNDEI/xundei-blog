@@ -1,0 +1,10 @@
+[
+    {
+        "title": "Hello,world！",
+        "date": "2026-05-03",
+        "category": "diary",
+        "excerpt": "新的一年，无限进步",
+        "filename": "blog/diary/1/1.md",
+        "license":false
+    }
+]
