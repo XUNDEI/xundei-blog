@@ -7,43 +7,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
+        /* ========== 优化后的超链接样式 ========== */
         .article-full-content a:not(:has(img)) {
             text-decoration: none;
             position: relative;
             color: #a1c4fd;
-            transition: all 0.3s ease;
-            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-size: 200% 100%;
-            background-position: 100% 0;
+            transition: color 0.3s ease, background 0.3s ease;
             padding: 0 2px;
             border-radius: 2px;
+            background: transparent;
         }
 
         .article-full-content a:not(:has(img)):hover {
-            background-position: 0 0;
-            color: transparent;
+            color: #ffffff;
+            background: rgba(66, 133, 244, 0.2);
         }
 
         .article-full-content a:not(:has(img))::before {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .article-full-content a:not(:has(img)):hover::before {
-            opacity: 1;
+            content: none !important;
         }
 
         .article-full-content a:not(:has(img))::after {
@@ -64,6 +45,7 @@
             transform-origin: left;
         }
 
+        /* 排除规则保持不变 */
         .toc-list a {
             color: rgba(255,255,255,0.8) !important;
             background: none !important;
@@ -101,6 +83,22 @@
             -webkit-background-clip: unset !important;
             background-clip: unset !important;
             position: static !important;
+        }
+
+        /* 页脚链接样式 */
+        .article-footer a {
+            color: #a1c4fd !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            position: static !important;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .article-footer a::before,
+        .article-footer a::after {
+            content: none !important;
         }
 
         :root {
@@ -151,6 +149,121 @@
             background: rgba(0, 0, 0, 0.4);
             z-index: -1;
         }
+
+        /* ========== Loading 弹窗样式 ========== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-card {
+            background: rgba(30, 60, 120, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(100, 160, 240, 0.45);
+            border-radius: 18px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(66, 133, 244, 0.35);
+            padding: 35px 30px 25px;
+            width: 320px;
+            max-width: 85vw;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes loadingPopIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.85);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .loading-card .loader {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #5badf5;
+            border-right: 4px solid #3d8ef7;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 18px;
+        }
+
+        .loading-card .loading-text {
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .loading-card .loading-subtext {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            margin-bottom: 18px;
+            min-height: 18px;
+        }
+
+        .loading-progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3d8ef7, #5badf5, #7dc8f8);
+            background-size: 200% 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: progressShimmer 2s linear infinite;
+            box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
+        }
+
+        @keyframes progressShimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* ========== Loading 弹窗样式结束 ========== */
         
         .container {
             max-width: 1200px;
@@ -809,6 +922,11 @@
                 right: 15px;
                 max-width: 280px;
             }
+
+            .loading-card {
+                width: 280px;
+                padding: 28px 22px 20px;
+            }
             
             :root {
                 --blur-amount: 8px;
@@ -845,6 +963,21 @@
 
             .toc-container {
                 max-width: 250px;
+            }
+
+            .loading-card {
+                width: 260px;
+                padding: 24px 18px 16px;
+            }
+
+            .loading-card .loader {
+                width: 38px;
+                height: 38px;
+                border-width: 3px;
+            }
+
+            .loading-card .loading-text {
+                font-size: 0.95rem;
             }
         }
         
@@ -1064,7 +1197,7 @@
             }
         }
 
-        /* 新增文章协议页脚样式 */
+        /* 文章协议页脚样式 */
         .article-footer {
             margin-top: 30px;
             padding: 15px;
@@ -1076,24 +1209,22 @@
             border: 1px solid var(--glass-border);
             border-radius: 16px;
         }
-
-        .article-footer a {
-            color: #a1c4fd !important;
-            background: none !important;
-            -webkit-background-clip: unset !important;
-            background-clip: unset !important;
-            position: static !important;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        .article-footer a::before,
-        .article-footer a::after {
-            content: none !important;
-        }
     </style>
 </head>
 <body>
+    <!-- ========== Loading 弹窗 ========== -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-card">
+            <div class="loader"></div>
+            <div class="loading-text">加载中...</div>
+            <div class="loading-subtext" id="loading-subtext">正在准备文章内容</div>
+            <div class="loading-progress-container">
+                <div class="loading-progress-bar" id="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== Loading 弹窗结束 ========== -->
+
     <a href="../index.html" class="back-btn glass">
         <i class="fas fa-arrow-left"></i>
     </a>
@@ -1175,7 +1306,6 @@
             </div>
         </div>
 
-        <!-- 新增：文章协议页脚 -->
         <footer class="article-footer" id="article-footer" style="display: none;">
             <div class="footer-content" id="license-text"></div>
         </footer>
@@ -1220,6 +1350,32 @@
             }, 3000);
         }
 
+        // ========== Loading 进度控制 ==========
+        function updateLoadingProgress(percentage, subtext) {
+            const progressBar = document.getElementById('loading-progress-bar');
+            const subtextEl = document.getElementById('loading-subtext');
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+            }
+            if (subtextEl && subtext) {
+                subtextEl.textContent = subtext;
+            }
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            updateLoadingProgress(100, '加载完成 ✨');
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }, 500);
+            }, 350);
+        }
+        // ========== Loading 进度控制结束 ==========
+
         // 壁纸加载 - 修复远程 URL 拼接错误
         async function loadWallpapers() {
             try {
@@ -1231,13 +1387,10 @@
                     const wallpaperPath = randomEntry.path;
                     const timestamp = new Date().getTime();
                     
-                    // 关键修复：判断是否为绝对 URL（http/https 开头），是则直接使用
                     let fullPath;
                     if (/^https?:\/\//i.test(wallpaperPath)) {
-                        // 远程图床链接，不加 ../ 前缀
                         fullPath = `${wallpaperPath}?t=${timestamp}`;
                     } else {
-                        // 本地相对路径，保留原有拼接逻辑
                         fullPath = `../${wallpaperPath}?t=${timestamp}`;
                     }
                     
@@ -1275,7 +1428,7 @@
                 console.error('获取必应壁纸失败:', error);
             }
             
-            const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
+            const defaultWallpaper = 'https://www.yumus.cn/api/?target=img&brand=360&type=3';
             document.body.style.backgroundImage = `url(${defaultWallpaper})`;
             return false;
         }
@@ -1687,19 +1840,18 @@
             }
         }
 
-        // 新增：加载并渲染文章许可协议
+        // 加载并渲染文章许可协议
         async function loadLicenseInfo() {
             try {
                 const response = await axios.get('../articles.json');
                 const articles = response.data;
                 
-                // 根据当前页面路径提取 slug
                 const currentPath = window.location.pathname;
-                const filename = currentPath.split('/').pop();        // e.g. "1.html"
+                const filename = currentPath.split('/').pop();
                 const slug = filename.replace(/\.html$/, '');
                 
                 const article = articles.find(a => {
-                    const aFilename = a.filename.split('/').pop();   // e.g. "1.md"
+                    const aFilename = a.filename.split('/').pop();
                     const aSlug = aFilename.replace(/\.md$/, '');
                     return aSlug === slug;
                 });
@@ -1719,24 +1871,28 @@
                     licenseText.innerHTML = `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`;
                     footer.style.display = 'block';
                 } else {
-                    // 未设定协议时也展示页脚，给予明确说明
                     licenseText.innerHTML = '本文未使用任何知识共享协议';
                     footer.style.display = 'block';
                 }
             } catch (error) {
                 console.error('加载许可协议信息失败:', error);
-                // 静默处理，不显示页脚
             }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化 loading 进度
+            updateLoadingProgress(10, '正在准备...');
+            
+            // 壁纸加载
+            updateLoadingProgress(20, '正在加载壁纸...');
             const wallpaperSuccess = await loadWallpapers();
+            updateLoadingProgress(55, wallpaperSuccess ? '壁纸加载完成' : '使用默认壁纸...');
             if (!wallpaperSuccess) {
                 await setDefaultWallpaper();
                 showToast('壁纸加载失败，使用默认壁纸', 'error');
             }
             
-            // 文章内容已内嵌，直接增强
+            updateLoadingProgress(70, '正在增强文章...');
             addCopyButtonsToCodeBlocks();
             document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
             generateTOC();
@@ -1767,14 +1923,18 @@
             
             preventTocScrollPropagation();
             
+            updateLoadingProgress(85, '准备音乐播放器...');
             initMusicPlayer();
             
             document.getElementById('link-cancel').addEventListener('click', () => {
                 hideLinkConfirm();
             });
 
-            // 加载协议信息
+            updateLoadingProgress(92, '正在加载协议信息...');
             await loadLicenseInfo();
+
+            // 完成
+            hideLoadingOverlay();
         });
     </script>
 </body>

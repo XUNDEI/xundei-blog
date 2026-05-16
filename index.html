@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xundei's blog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+    </script>
     <style>
+        /* ========== 原有样式保持不动 ========== */
         a {
             text-decoration: none;
             position: relative;
@@ -93,6 +95,30 @@
             content: none !important;
         }
 
+        /* ========== 修复1：弹窗内阅读全文按钮文字消失问题 ========== */
+        .modal-read-full {
+            /* 覆盖全局 a 标签的渐变文字效果，保证文字始终可见 */
+            background: var(--primary-color) !important;
+            color: white !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            background-image: none !important;
+            /* 取消可能的下划线效果 */
+        }
+
+        .modal-read-full:hover {
+            background: #2b6de0 !important;
+            color: white !important;
+            box-shadow: 0 0 20px var(--glow-color);
+            transform: translateY(-2px);
+        }
+
+        /* 取消全局 a 对弹窗按钮的影响，包括伪元素 */
+        .modal-read-full::before,
+        .modal-read-full::after {
+            content: none !important;
+        }
+
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
@@ -105,14 +131,14 @@
             --glow-color: rgba(66, 133, 244, 0.7);
             --scrollbar-width: 10px;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-size: cover;
             background-position: center;
@@ -125,7 +151,7 @@
             transition: background-image 1.5s ease-in-out;
             background-color: #121212;
         }
-        
+
         body::before {
             content: '';
             position: absolute;
@@ -136,13 +162,122 @@
             background: rgba(0, 0, 0, 0.4);
             z-index: -1;
         }
-        
+
+        /* Loading 弹窗样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-card {
+            background: rgba(30, 60, 120, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(100, 160, 240, 0.45);
+            border-radius: 18px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(66, 133, 244, 0.35);
+            padding: 35px 30px 25px;
+            width: 320px;
+            max-width: 85vw;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes loadingPopIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.85);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .loading-card .loader {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #5badf5;
+            border-right: 4px solid #3d8ef7;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 18px;
+        }
+
+        .loading-card .loading-text {
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .loading-card .loading-subtext {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            margin-bottom: 18px;
+            min-height: 18px;
+        }
+
+        .loading-progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3d8ef7, #5badf5, #7dc8f8);
+            background-size: 200% 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: progressShimmer 2s linear infinite;
+            box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
+        }
+
+        @keyframes progressShimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -153,19 +288,19 @@
             padding: 20px;
             transition: var(--transition);
         }
-        
+
         .glass:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow-color);
         }
-        
+
         header {
             text-align: center;
             margin: 20px 0 40px;
             animation: fadeInDown 1s ease;
         }
-        
-        /* ========== 标题故障效果样式 ========== */
+
+        /* 标题故障效果 */
         .blog-title {
             font-size: 3.5rem;
             font-weight: 800;
@@ -176,10 +311,24 @@
         }
 
         .blog-title .highlight {
-            background: linear-gradient(90deg, #1E90FF, #00BFFF);
+            background: linear-gradient(90deg,
+                    #ff0000, #ff8800, #ffff00, #00cc00,
+                    #0088ff, #6600ff, #cc00ff, #ff0044, #ff0000);
+            background-size: 600% 100%;
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-flow 3.5s linear infinite;
+            display: inline;
+        }
+
+        @keyframes rainbow-flow {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 600% 50%;
+            }
         }
 
         .glitch-text::before,
@@ -207,60 +356,143 @@
         }
 
         @keyframes glitch-anim {
-            0%   { clip: rect(38px, 9999px, 34px, 0); }
-            5%   { clip: rect(72px, 9999px, 11px, 0); }
-            10%  { clip: rect(6px, 9999px, 86px, 0); }
-            15%  { clip: rect(54px, 9999px, 18px, 0); }
-            20%  { clip: rect(22px, 9999px, 63px, 0); }
-            25%  { clip: rect(81px, 9999px, 35px, 0); }
-            30%  { clip: rect(13px, 9999px, 92px, 0); }
-            35%  { clip: rect(65px, 9999px, 49px, 0); }
-            40%  { clip: rect(27px, 9999px, 7px, 0); }
-            45%  { clip: rect(98px, 9999px, 53px, 0); }
-            50%  { clip: rect(44px, 9999px, 26px, 0); }
-            55%  { clip: rect(15px, 9999px, 88px, 0); }
-            60%  { clip: rect(61px, 9999px, 39px, 0); }
-            65%  { clip: rect(33px, 9999px, 74px, 0); }
-            70%  { clip: rect(89px, 9999px, 12px, 0); }
-            75%  { clip: rect(5px, 9999px, 68px, 0); }
-            80%  { clip: rect(47px, 9999px, 94px, 0); }
-            85%  { clip: rect(76px, 9999px, 21px, 0); }
-            90%  { clip: rect(19px, 9999px, 57px, 0); }
-            95%  { clip: rect(92px, 9999px, 43px, 0); }
-            100% { clip: rect(58px, 9999px, 81px, 0); }
+            0% {
+                clip: rect(38px, 9999px, 34px, 0);
+            }
+            5% {
+                clip: rect(72px, 9999px, 11px, 0);
+            }
+            10% {
+                clip: rect(6px, 9999px, 86px, 0);
+            }
+            15% {
+                clip: rect(54px, 9999px, 18px, 0);
+            }
+            20% {
+                clip: rect(22px, 9999px, 63px, 0);
+            }
+            25% {
+                clip: rect(81px, 9999px, 35px, 0);
+            }
+            30% {
+                clip: rect(13px, 9999px, 92px, 0);
+            }
+            35% {
+                clip: rect(65px, 9999px, 49px, 0);
+            }
+            40% {
+                clip: rect(27px, 9999px, 7px, 0);
+            }
+            45% {
+                clip: rect(98px, 9999px, 53px, 0);
+            }
+            50% {
+                clip: rect(44px, 9999px, 26px, 0);
+            }
+            55% {
+                clip: rect(15px, 9999px, 88px, 0);
+            }
+            60% {
+                clip: rect(61px, 9999px, 39px, 0);
+            }
+            65% {
+                clip: rect(33px, 9999px, 74px, 0);
+            }
+            70% {
+                clip: rect(89px, 9999px, 12px, 0);
+            }
+            75% {
+                clip: rect(5px, 9999px, 68px, 0);
+            }
+            80% {
+                clip: rect(47px, 9999px, 94px, 0);
+            }
+            85% {
+                clip: rect(76px, 9999px, 21px, 0);
+            }
+            90% {
+                clip: rect(19px, 9999px, 57px, 0);
+            }
+            95% {
+                clip: rect(92px, 9999px, 43px, 0);
+            }
+            100% {
+                clip: rect(58px, 9999px, 81px, 0);
+            }
         }
 
         @keyframes glitch-anim2 {
-            0%   { clip: rect(12px, 9999px, 91px, 0); }
-            5%   { clip: rect(67px, 9999px, 24px, 0); }
-            10%  { clip: rect(34px, 9999px, 58px, 0); }
-            15%  { clip: rect(88px, 9999px, 15px, 0); }
-            20%  { clip: rect(42px, 9999px, 77px, 0); }
-            25%  { clip: rect(9px, 9999px, 36px, 0); }
-            30%  { clip: rect(55px, 9999px, 83px, 0); }
-            35%  { clip: rect(28px, 9999px, 46px, 0); }
-            40%  { clip: rect(73px, 9999px, 19px, 0); }
-            45%  { clip: rect(16px, 9999px, 62px, 0); }
-            50%  { clip: rect(94px, 9999px, 31px, 0); }
-            55%  { clip: rect(39px, 9999px, 85px, 0); }
-            60%  { clip: rect(82px, 9999px, 48px, 0); }
-            65%  { clip: rect(25px, 9999px, 71px, 0); }
-            70%  { clip: rect(69px, 9999px, 14px, 0); }
-            75%  { clip: rect(46px, 9999px, 97px, 0); }
-            80%  { clip: rect(13px, 9999px, 52px, 0); }
-            85%  { clip: rect(59px, 9999px, 29px, 0); }
-            90%  { clip: rect(96px, 9999px, 66px, 0); }
-            95%  { clip: rect(31px, 9999px, 89px, 0); }
-            100% { clip: rect(78px, 9999px, 41px, 0); }
+            0% {
+                clip: rect(12px, 9999px, 91px, 0);
+            }
+            5% {
+                clip: rect(67px, 9999px, 24px, 0);
+            }
+            10% {
+                clip: rect(34px, 9999px, 58px, 0);
+            }
+            15% {
+                clip: rect(88px, 9999px, 15px, 0);
+            }
+            20% {
+                clip: rect(42px, 9999px, 77px, 0);
+            }
+            25% {
+                clip: rect(9px, 9999px, 36px, 0);
+            }
+            30% {
+                clip: rect(55px, 9999px, 83px, 0);
+            }
+            35% {
+                clip: rect(28px, 9999px, 46px, 0);
+            }
+            40% {
+                clip: rect(73px, 9999px, 19px, 0);
+            }
+            45% {
+                clip: rect(16px, 9999px, 62px, 0);
+            }
+            50% {
+                clip: rect(94px, 9999px, 31px, 0);
+            }
+            55% {
+                clip: rect(39px, 9999px, 85px, 0);
+            }
+            60% {
+                clip: rect(82px, 9999px, 48px, 0);
+            }
+            65% {
+                clip: rect(25px, 9999px, 71px, 0);
+            }
+            70% {
+                clip: rect(69px, 9999px, 14px, 0);
+            }
+            75% {
+                clip: rect(46px, 9999px, 97px, 0);
+            }
+            80% {
+                clip: rect(13px, 9999px, 52px, 0);
+            }
+            85% {
+                clip: rect(59px, 9999px, 29px, 0);
+            }
+            90% {
+                clip: rect(96px, 9999px, 66px, 0);
+            }
+            95% {
+                clip: rect(31px, 9999px, 89px, 0);
+            }
+            100% {
+                clip: rect(78px, 9999px, 41px, 0);
+            }
         }
-        /* ========== 故障效果结束 ========== */
-        
+
         .sentence {
             font-size: 1.4rem;
             font-weight: 300;
             font-style: italic;
             color: var(--light-text);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             margin-bottom: 30px;
             min-height: 60px;
             display: flex;
@@ -269,7 +501,6 @@
             padding: 10px 20px;
         }
 
-        /* 打字机光标 */
         .typewriter-cursor {
             display: inline-block;
             color: var(--light-text);
@@ -283,10 +514,16 @@
         }
 
         @keyframes cursorBlink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+            0%,
+            50% {
+                opacity: 1;
+            }
+            51%,
+            100% {
+                opacity: 0;
+            }
         }
-        
+
         .categories {
             display: flex;
             justify-content: center;
@@ -294,7 +531,7 @@
             margin-bottom: 40px;
             flex-wrap: wrap;
         }
-        
+
         .category-btn {
             background: rgba(255, 255, 255, 0.2);
             border: none;
@@ -307,53 +544,85 @@
             backdrop-filter: blur(5px);
             font-weight: 600;
         }
-        
-        .category-btn:hover, .category-btn.active {
+
+        .category-btn:hover,
+        .category-btn.active {
             background: var(--primary-color);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 15px var(--glow-color);
         }
-        
+
         .articles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
             margin-bottom: 50px;
         }
-        
+
         .article-card {
             height: 320px;
             display: flex;
             flex-direction: column;
             transition: var(--transition);
             overflow: hidden;
+            cursor: pointer;
+            position: relative; /* 为提示层定位 */
         }
-        
+
         .article-card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 0 20px var(--glow-color);
         }
-        
+
+        /* ========== 新增：卡片悬浮提示“查看详细” ========== */
+        .card-hint {
+            position: absolute;
+            bottom: 50px; /* 位于阅读全文按钮上方 */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            pointer-events: none; /* 不阻挡点击 */
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 5;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .article-card:hover .card-hint {
+            opacity: 1;
+        }
+
         .article-header {
             padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .article-title {
             font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--light-text);
             line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-        
+
         .article-meta {
             display: flex;
             justify-content: space-between;
             font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.8);
         }
-        
+
+        /* ========== 修复2：文章介绍换行优化 ========== */
         .article-content {
             padding: 15px;
             flex-grow: 1;
@@ -365,8 +634,11 @@
             -webkit-line-clamp: 5;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            word-wrap: break-word;       /* 允许在单词内换行 */
+            overflow-wrap: break-word;   /* 现代浏览器 */
+            word-break: break-word;      /* 兼容性 */
         }
-        
+
         .read-more {
             display: block;
             text-align: center;
@@ -377,13 +649,129 @@
             font-weight: 600;
             transition: var(--transition);
             border-radius: 0 0 12px 12px;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
         }
-        
+
         .read-more:hover {
             background: var(--primary-color);
             box-shadow: 0 0 10px var(--glow-color);
         }
-        
+
+        /* 弹窗样式保持不变，仅修复按钮部分已在上方处理 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(30, 50, 100, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(100, 160, 240, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow-color);
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+            animation: modalPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light-text);
+            font-size: 1.2rem;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--primary-color);
+            transform: rotate(90deg);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            word-break: break-word;
+        }
+
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-excerpt {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            margin-bottom: 25px;
+        }
+
+        /* modal-read-full 的样式已在上面覆盖，此处仅保留基础定义 */
+        .modal-read-full {
+            display: inline-block;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        }
+
+        /* 其余原有样式 (about, func, toast, footer等) 保持不变 */
         .about-btn {
             position: fixed;
             bottom: 30px;
@@ -401,12 +789,12 @@
             z-index: 100;
             transition: var(--transition);
         }
-        
+
         .about-btn:hover {
             transform: scale(1.1) rotate(10deg);
             box-shadow: 0 0 20px var(--glow-color);
         }
-        
+
         .about-card {
             position: fixed;
             bottom: 100px;
@@ -416,7 +804,7 @@
             display: none;
             animation: popIn 0.4s ease;
         }
-        
+
         .about-header {
             display: flex;
             align-items: center;
@@ -424,7 +812,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             justify-content: space-between;
         }
-        
+
         .avatar {
             width: 70px;
             height: 70px;
@@ -433,20 +821,20 @@
             margin-right: 15px;
             border: 2px solid white;
         }
-        
+
         .about-name {
             font-size: 1.4rem;
             font-weight: 700;
             color: var(--light-text);
         }
-        
+
         .contacts {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
             flex-wrap: wrap;
         }
-        
+
         .contact-btn {
             width: 40px;
             height: 40px;
@@ -482,13 +870,13 @@
         .contact-btn:hover .contact-tooltip {
             opacity: 1;
         }
-        
+
         .contact-btn:hover {
             transform: translateY(-5px);
             background: var(--primary-color);
             box-shadow: 0 0 10px var(--glow-color);
         }
-        
+
         .close-about-btn {
             cursor: pointer;
             width: 30px;
@@ -499,13 +887,13 @@
             border-radius: 50%;
             transition: var(--transition);
         }
-        
+
         .close-about-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: rotate(90deg);
             box-shadow: 0 0 10px var(--glow-color);
         }
-        
+
         footer {
             text-align: center;
             padding: 20px;
@@ -524,7 +912,7 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .toast-container {
             position: fixed;
             top: 20px;
@@ -572,20 +960,24 @@
         }
 
         @keyframes progress {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
+            from {
+                transform: scaleX(1);
+            }
+            to {
+                transform: scaleX(0);
+            }
         }
-        
+
         .loader {
             display: inline-block;
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
+            border: 5px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top: 5px solid var(--primary-color);
             animation: spin 1s linear infinite;
         }
-        
+
         .loading-container {
             display: flex;
             justify-content: center;
@@ -593,7 +985,7 @@
             height: 200px;
             width: 100%;
         }
-        
+
         .func-btn {
             position: fixed;
             bottom: 30px;
@@ -611,12 +1003,12 @@
             z-index: 100;
             transition: var(--transition);
         }
-        
+
         .func-btn:hover {
             transform: scale(1.1) rotate(10deg);
             box-shadow: 0 0 20px var(--glow-color);
         }
-        
+
         .func-card {
             position: fixed;
             bottom: 100px;
@@ -627,7 +1019,7 @@
             animation: popIn 0.4s ease;
             padding: 15px;
         }
-        
+
         .func-card-header {
             display: flex;
             justify-content: space-between;
@@ -636,13 +1028,13 @@
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .func-card-title {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--light-text);
         }
-        
+
         .close-btn {
             cursor: pointer;
             width: 30px;
@@ -653,13 +1045,13 @@
             border-radius: 50%;
             transition: var(--transition);
         }
-        
+
         .close-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: rotate(90deg);
             box-shadow: 0 0 10px var(--glow-color);
         }
-        
+
         .func-section {
             margin-bottom: 15px;
             padding: 12px;
@@ -667,11 +1059,11 @@
             background: rgba(255, 255, 255, 0.05);
             transition: var(--transition);
         }
-        
+
         .func-section:hover {
             box-shadow: 0 0 20px var(--glow-color);
         }
-        
+
         .func-section h4 {
             color: var(--light-text);
             margin-bottom: 8px;
@@ -679,12 +1071,12 @@
             display: flex;
             align-items: center;
         }
-        
+
         .func-section h4 i {
             margin-right: 8px;
             color: var(--primary-color);
         }
-        
+
         .counter-value {
             font-size: 1.4rem;
             font-weight: bold;
@@ -692,7 +1084,7 @@
             text-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
             margin: 5px 0;
         }
-        
+
         .luck-btn {
             background: rgba(66, 133, 244, 0.3);
             border: none;
@@ -706,12 +1098,12 @@
             width: 100%;
             margin: 10px 0;
         }
-        
+
         .luck-btn:hover {
             background: var(--primary-color);
             box-shadow: 0 0 20px var(--glow-color);
         }
-        
+
         .luck-result {
             text-align: center;
             font-size: 2.5rem;
@@ -721,26 +1113,26 @@
             text-shadow: 0 0 15px var(--primary-color);
             transition: all 0.5s ease;
         }
-        
+
         .luck-message {
             text-align: center;
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
             min-height: 40px;
         }
-        
+
         .history-content {
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.5;
         }
-        
+
         .history-date {
             font-weight: bold;
             color: var(--primary-color);
             margin-bottom: 5px;
         }
-        
+
         .history-loading {
             text-align: center;
             padding: 10px;
@@ -764,7 +1156,7 @@
             color: white;
             text-shadow: none;
         }
-        
+
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -775,7 +1167,7 @@
                 transform: translateY(0);
             }
         }
-        
+
         @keyframes popIn {
             from {
                 opacity: 0;
@@ -786,61 +1178,70 @@
                 transform: translateY(0) scale(1);
             }
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         ::-webkit-scrollbar {
             width: var(--scrollbar-width);
             height: var(--scrollbar-width);
         }
-        
+
         ::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: rgba(66, 133, 244, 0.5);
             border-radius: 10px;
             border: 2px solid transparent;
             background-clip: content-box;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(66, 133, 244, 0.7);
         }
-        
+
         * {
             scrollbar-width: thin;
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
         }
-        
+
         @media (max-width: 768px) {
             .blog-title {
                 font-size: 2.5rem;
             }
-            
+
             .sentence {
                 font-size: 1.1rem;
             }
-            
+
             .articles-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .about-card {
                 width: 250px;
                 right: 15px;
             }
-            
+
             .func-card {
                 width: 260px;
                 left: 15px;
             }
-            
+
+            .loading-card {
+                width: 280px;
+                padding: 28px 22px 20px;
+            }
+
             :root {
                 --blur-amount: 8px;
                 --scrollbar-width: 8px;
@@ -854,43 +1255,77 @@
             .toast-container {
                 max-width: 250px;
             }
+            
+            .card-hint {
+                bottom: 45px;
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
         }
-        
+
         @media (max-width: 480px) {
             .blog-title {
                 font-size: 2rem;
             }
-            
+
             .sentence {
                 font-size: 1rem;
             }
-            
+
             .category-btn {
                 padding: 10px 15px;
                 font-size: 0.9rem;
             }
-            
+
             .about-card {
                 width: 90%;
                 right: 5%;
                 left: 5%;
             }
-            
+
             .func-card {
                 width: 90%;
                 left: 5%;
             }
-            
+
             .func-btn {
                 left: 15px;
                 bottom: 15px;
             }
+
+            .loading-card {
+                width: 260px;
+                padding: 24px 18px 16px;
+            }
+
+            .loading-card .loader {
+                width: 38px;
+                height: 38px;
+                border-width: 3px;
+            }
+
+            .loading-card .loading-text {
+                font-size: 0.95rem;
+            }
         }
     </style>
-    
+
     <script src="axios.min.js" defer></script>
 </head>
 <body>
+
+    <!-- Loading 弹窗 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-card">
+            <div class="loader"></div>
+            <div class="loading-text">加载中...</div>
+            <div class="loading-subtext" id="loading-subtext">正在准备精彩内容</div>
+            <div class="loading-progress-container">
+                <div class="loading-progress-bar" id="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header class="glass">
             <h1 class="blog-title glitch-text" data-text="xundei's blog">
@@ -904,7 +1339,7 @@
                 <button class="category-btn" data-category="something">杂碎</button>
             </div>
         </header>
-        
+
         <main>
             <div class="articles-grid" id="articles-grid">
                 <div class="loading-container">
@@ -912,20 +1347,36 @@
                 </div>
             </div>
         </main>
-        
+
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.1">xundei-blog V2.8.1</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.2">xundei-blog V2.8.2</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
             </div>
         </footer>
     </div>
-    
+
+    <!-- 文章详情弹窗 -->
+    <div class="modal-overlay" id="article-modal">
+        <div class="modal-content">
+            <div class="modal-close-btn" id="modal-close-btn">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="modal-title" id="modal-title"></h2>
+            <div class="modal-meta">
+                <span id="modal-date"></span>
+                <span id="modal-category"></span>
+            </div>
+            <div class="modal-excerpt" id="modal-excerpt"></div>
+            <a href="#" class="modal-read-full" id="modal-read-link">阅读全文</a>
+        </div>
+    </div>
+
     <div class="about-btn" id="about-btn">
         <i class="fas fa-user"></i>
     </div>
-    
+
     <div class="about-card glass" id="about-card">
         <div class="about-header">
             <div style="display: flex; align-items: center;">
@@ -962,11 +1413,11 @@
             点击图标复制联系方式
         </p>
     </div>
-    
+
     <div class="func-btn" id="func-btn">
         <i class="fas fa-star"></i>
     </div>
-    
+
     <div class="func-card glass" id="func-card">
         <div class="func-card-header">
             <div class="func-card-title">功能小窗</div>
@@ -974,19 +1425,19 @@
                 <i class="fas fa-times"></i>
             </div>
         </div>
-        
+
         <div class="func-section">
             <h4><i class="fas fa-clock"></i> 博客运行时间</h4>
             <div class="counter-value" id="runtime-display">0天0时0分0秒</div>
         </div>
-        
+
         <div class="func-section">
             <h4><i class="fas fa-dice"></i> 今日运气</h4>
             <button class="luck-btn" id="luck-btn">试试手气</button>
             <div class="luck-result" id="luck-result">?</div>
             <div class="luck-message" id="luck-message">结果仅供参考，切勿迷信</div>
         </div>
-        
+
         <div class="func-section">
             <h4><i class="fas fa-history"></i> 历史上的今天</h4>
             <div class="history-content" id="history-content">
@@ -996,36 +1447,60 @@
             </div>
         </div>
     </div>
-    
+
     <div class="toast-container" id="toast-container"></div>
-    
+
     <script>
         const luckMessages = {
-            0: "运气很差欸Σヽ(ﾟД ﾟ; )ﾉ，万事都要小心！",
+            0: "Σ (・□・;)",
             100: "欧皇就是你辣(≧∀≦)ゞ",
             range: [
-                {min: 1, max: 20, message: "运气不是很好呢(´･_･`)"},
-                {min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )"},
-                {min: 45, max: 55, message: "普普通通呢(´･ω･`)"},
-                {min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)"},
-                {min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧"},
-                {min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )"}
+                { min: 1, max: 20, message: "运气不是很好呢(´･_･`)" },
+                { min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )" },
+                { min: 45, max: 55, message: "普普通通呢(´･ω･`)" },
+                { min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)" },
+                { min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧" },
+                { min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )" }
             ]
         };
-        
+
         let articlesData = [];
 
+        function updateLoadingProgress(percentage, subtext) {
+            const progressBar = document.getElementById('loading-progress-bar');
+            const subtextEl = document.getElementById('loading-subtext');
+            if (progressBar) progressBar.style.width = percentage + '%';
+            if (subtextEl && subtext) subtextEl.textContent = subtext;
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            updateLoadingProgress(100, '加载完成 ✨');
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }, 500);
+            }, 350);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            updateLoadingProgress(8, '正在连接...');
             try {
+                updateLoadingProgress(15, '正在获取文章列表...');
                 const response = await fetch('./articles.json');
                 if (!response.ok) throw new Error('文章列表加载失败');
                 articlesData = await response.json();
+                updateLoadingProgress(25, '文章列表已就绪');
             } catch (err) {
                 console.error(err);
                 showToast('文章列表加载失败，请刷新', 'error');
                 articlesData = [];
+                updateLoadingProgress(25, '文章列表加载失败，继续中...');
             }
-            
+
             initFuncPanel();
             updateRuntime();
             setInterval(updateRuntime, 1000);
@@ -1033,102 +1508,75 @@
         });
 
         function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toast-container');
+            const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
             const progress = document.createElement('div');
             progress.className = 'toast-progress';
-            
-            const messageEl = document.createElement('div');
-            messageEl.textContent = message;
-            
+            const msg = document.createElement('div');
+            msg.textContent = message;
             toast.appendChild(progress);
-            toast.appendChild(messageEl);
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
+            toast.appendChild(msg);
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => {
-                    if (toastContainer.contains(toast)) {
-                        toastContainer.removeChild(toast);
-                    }
+                    if (container.contains(toast)) container.removeChild(toast);
                 }, 400);
             }, 3000);
         }
 
         function updateRuntime() {
-            const startDate = new Date('2025-07-12T11:04:41');
+            const start = new Date('2025-07-12T11:04:41');
             const now = new Date();
-            const diff = now - startDate;
-            
+            const diff = now - start;
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            const runtimeStr = `${days}天${hours}时${minutes}分${seconds}秒`;
-            document.getElementById('runtime-display').textContent = runtimeStr;
+            document.getElementById('runtime-display').textContent = `${days}天${hours}时${minutes}分${seconds}秒`;
         }
 
         function initLuckResult() {
             const today = new Date().toDateString();
-            const storedLuck = localStorage.getItem('dailyLuck');
-            
-            if (storedLuck) {
-                const luckData = JSON.parse(storedLuck);
-                if (luckData.date === today) {
-                    displayLuckResult(luckData.value);
+            const stored = localStorage.getItem('dailyLuck');
+            if (stored) {
+                const data = JSON.parse(stored);
+                if (data.date === today) {
+                    displayLuckResult(data.value);
                     return;
                 }
             }
-            
-            document.getElementById('luck-result').textContent = "?";
+            document.getElementById('luck-result').textContent = '?';
         }
-        
+
         function getDailyLuck() {
             const today = new Date().toDateString();
-            const storedLuck = localStorage.getItem('dailyLuck');
-            
-            if (storedLuck) {
-                const luckData = JSON.parse(storedLuck);
-                if (luckData.date === today) {
-                    displayLuckResult(luckData.value);
+            const stored = localStorage.getItem('dailyLuck');
+            if (stored) {
+                const data = JSON.parse(stored);
+                if (data.date === today) {
+                    displayLuckResult(data.value);
                     return;
                 }
             }
-            
-            const luckValue = Math.floor(Math.random() * 101);
-            
-            const luckData = {
-                date: today,
-                value: luckValue
-            };
-            localStorage.setItem('dailyLuck', JSON.stringify(luckData));
-            
-            displayLuckResult(luckValue);
+            const value = Math.floor(Math.random() * 101);
+            localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value }));
+            displayLuckResult(value);
         }
-        
+
         function displayLuckResult(value) {
             const resultEl = document.getElementById('luck-result');
             const messageEl = document.getElementById('luck-message');
-            
             resultEl.textContent = value;
-            resultEl.style.transition = 'all 0.5s ease';
             resultEl.style.transform = 'scale(1.5)';
-            setTimeout(() => {
-                resultEl.style.transform = 'scale(1)';
-            }, 500);
-            
-            if (value === 0) {
-                messageEl.textContent = luckMessages[0];
-            } else if (value === 100) {
-                messageEl.textContent = luckMessages[100];
-            } else {
+            setTimeout(() => resultEl.style.transform = 'scale(1)', 500);
+
+            if (value === 0) messageEl.textContent = luckMessages[0];
+            else if (value === 100) messageEl.textContent = luckMessages[100];
+            else {
                 for (const range of luckMessages.range) {
                     if (value >= range.min && value <= range.max) {
                         messageEl.textContent = range.message;
@@ -1138,177 +1586,140 @@
             }
         }
 
-        // 打字机效果函数
         function typeWriter(element, text, speed = 80) {
-            element.innerHTML = ''; // 清空内容
+            element.innerHTML = '';
             const cursor = document.createElement('span');
             cursor.className = 'typewriter-cursor';
             cursor.textContent = '|';
             element.appendChild(cursor);
-            
             let i = 0;
             function type() {
                 if (i < text.length) {
                     const char = text.charAt(i);
-                    const textNode = document.createTextNode(char);
-                    element.insertBefore(textNode, cursor);
+                    const node = document.createTextNode(char);
+                    element.insertBefore(node, cursor);
                     i++;
-                    // 速度随机波动，模拟真实打字感
-                    const variation = Math.random() * 0.6 + 0.7; // 0.7~1.3
+                    const variation = Math.random() * 0.6 + 0.7;
                     setTimeout(type, speed * variation);
                 } else {
-                    cursor.classList.add('blink'); // 打字完成后光标开始闪烁
+                    cursor.classList.add('blink');
                 }
             }
             type();
         }
 
         async function loadSentences() {
-            const sentenceEl = document.getElementById('sentence');
+            const el = document.getElementById('sentence');
             try {
-                const response = await axios.get('./sentences.txt');
-                const sentences = response.data.split('\n').filter(line => line.trim());
-                if (sentences.length > 0) {
-                    const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-                    typeWriter(sentenceEl, randomSentence, 80);
-                } else {
-                    throw new Error('美句文件为空');
-                }
-            } catch (error) {
-                console.error('加载美句失败:', error);
-                document.getElementById('sentence').style.display = 'none';
+                const res = await axios.get('./sentences.txt');
+                const sentences = res.data.split('\n').filter(line => line.trim());
+                if (sentences.length) {
+                    const random = sentences[Math.floor(Math.random() * sentences.length)];
+                    typeWriter(el, random, 80);
+                } else throw new Error('空文件');
+            } catch (e) {
+                console.error('加载美句失败:', e);
+                el.style.display = 'none';
                 showToast('美句加载失败', 'error');
             }
         }
 
         async function loadWallpapers() {
             try {
-                const response = await axios.get('./wallpaper.json');
-                const wallpapersData = response.data;
-                
-                if (wallpapersData && wallpapersData.length > 0) {
-                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
-                    const wallpaperPath = randomEntry.path;
-                    const timestamp = new Date().getTime();
-                    const fullPath = `${wallpaperPath}?t=${timestamp}`;
-                    
-                    return new Promise((resolve) => {
+                const res = await axios.get('./wallpaper.json');
+                const data = res.data;
+                if (data && data.length) {
+                    const entry = data[Math.floor(Math.random() * data.length)];
+                    const path = entry.path + '?t=' + new Date().getTime();
+                    return new Promise(resolve => {
                         const img = new Image();
                         img.onload = () => {
-                            document.body.style.backgroundImage = `url(${fullPath})`;
+                            document.body.style.backgroundImage = `url(${path})`;
                             resolve(true);
                         };
-                        img.onerror = () => {
-                            console.error('壁纸加载失败:', fullPath);
-                            resolve(false);
-                        };
-                        img.src = fullPath;
+                        img.onerror = () => resolve(false);
+                        img.src = path;
                     });
-                } else {
-                    throw new Error('壁纸列表为空');
                 }
-            } catch (error) {
-                console.error('加载壁纸失败:', error);
-                return false;
+            } catch (e) {
+                console.error('壁纸加载失败:', e);
             }
+            return false;
         }
 
         async function setDefaultWallpaper() {
             try {
-                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
-                const bingData = bingResponse.data;
-                if (bingData.images && bingData.images[0]) {
-                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
-                    document.body.style.backgroundImage = `url(${bingUrl})`;
+                const res = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
+                if (res.data.images?.[0]) {
+                    document.body.style.backgroundImage = `url(https://bing.com${res.data.images[0].url})`;
                     return true;
                 }
-            } catch (error) {
-                console.error('获取必应壁纸失败:', error);
-            }
-            
-            const defaultWallpaper = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
-            document.body.style.backgroundImage = `url(${defaultWallpaper})`;
+            } catch (e) {}
+            document.body.style.backgroundImage = `url(https://www.yumus.cn/api/?target=img&brand=360&type=3)`;
             return false;
         }
 
         function initFuncPanel() {
             document.getElementById('func-btn').addEventListener('click', () => {
-                const funcCard = document.getElementById('func-card');
-                funcCard.style.display = funcCard.style.display === 'block' ? 'none' : 'block';
-                
-                if (funcCard.style.display === 'block' && !window.historyLoaded) {
-                    loadHistoryToday();
-                }
+                const card = document.getElementById('func-card');
+                card.style.display = card.style.display === 'block' ? 'none' : 'block';
+                if (card.style.display === 'block' && !window.historyLoaded) loadHistoryToday();
             });
-            
             document.getElementById('close-func-card').addEventListener('click', () => {
                 document.getElementById('func-card').style.display = 'none';
             });
-
             document.getElementById('close-about-btn').addEventListener('click', () => {
                 document.getElementById('about-card').style.display = 'none';
             });
-
             initLuckResult();
         }
 
         async function loadHistoryToday() {
-            const contentEl = document.getElementById('history-content');
-            
+            const el = document.getElementById('history-content');
             try {
-                contentEl.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-                
-                const apiUrl = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
-                
-                let responseData;
+                el.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+                const api = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
+                let data;
                 if (typeof axios !== 'undefined') {
-                    const response = await axios.get(apiUrl);
-                    responseData = response.data;
+                    const res = await axios.get(api);
+                    data = res.data;
                 } else {
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) throw new Error('网络响应异常');
-                    responseData = await response.json();
+                    const res = await fetch(api);
+                    data = await res.json();
                 }
-                
-                const responseString = JSON.stringify(responseData).toLowerCase();
-                if (responseString.includes('www.apihz.cn') || responseString.includes('ad') || responseString.includes('广告')) {
-                    throw new Error('API负载过高，请稍后再试');
+                if (JSON.stringify(data).toLowerCase().includes('www.apihz.cn') || 
+                    (data.title && data.title.includes('www.apihz.cn'))) {
+                    throw new Error('API负载过高');
                 }
-                
-                if (responseData.title && responseData.title.includes('www.apihz.cn')) {
-                    throw new Error('API负载过高，请稍后再');
-                }
-                
-                if (responseData.code == 200) {
-                    contentEl.innerHTML = `
-                        <div class="history-date">${responseData.y}年${responseData.m}月${responseData.d}日</div>
-                        <div class="history-event">${responseData.title}</div>
-                    `;
-                } else {
-                    throw new Error(responseData.msg || '未知错误');
-                }
-                
+                if (data.code == 200) {
+                    el.innerHTML = `<div class="history-date">${data.y}年${data.m}月${data.d}日</div><div class="history-event">${data.title}</div>`;
+                } else throw new Error(data.msg || '未知错误');
                 window.historyLoaded = true;
-            } catch (error) {
-                console.error('加载历史上的今天失败:', error);
-                contentEl.innerHTML = `<div class="history-error">加载失败: ${error.message}</div>`;
+            } catch (e) {
+                el.innerHTML = `<div class="history-error">加载失败: ${e.message}</div>`;
             }
         }
 
         async function initializePage() {
             try {
-                const wallpaperSuccess = await loadWallpapers();
-                if (!wallpaperSuccess) {
+                updateLoadingProgress(30, '正在加载壁纸...');
+                const wallOk = await loadWallpapers();
+                updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用默认壁纸...');
+                if (!wallOk) {
                     await setDefaultWallpaper();
                     showToast('壁纸加载失败，使用默认壁纸', 'error');
                 }
-                
+                updateLoadingProgress(75, '正在加载美句...');
                 await loadSentences();
+                updateLoadingProgress(88, '正在渲染文章...');
                 renderArticles('all');
+                updateLoadingProgress(95, '即将完成...');
                 bindEvents();
-            } catch (error) {
-                console.error('初始化页面失败:', error);
-                showToast('初始化失败: ' + error.message, 'error');
+                hideLoadingOverlay();
+            } catch (e) {
+                console.error(e);
+                showToast('初始化失败: ' + e.message, 'error');
+                hideLoadingOverlay();
             }
         }
 
@@ -1316,35 +1727,36 @@
             return filename.split('/').pop().replace(/\.md$/, '');
         }
 
+        function openArticleModal(article) {
+            const modal = document.getElementById('article-modal');
+            document.getElementById('modal-title').textContent = article.title;
+            document.getElementById('modal-date').textContent = article.date;
+            document.getElementById('modal-category').textContent = getCategoryName(article.category);
+            document.getElementById('modal-excerpt').textContent = article.excerpt;
+            document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}.html`;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeArticleModal() {
+            document.getElementById('article-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         function renderArticles(category) {
-            if (!articlesData) {
-                console.error('没有文章数据');
-                return;
-            }
-            
+            if (!articlesData) return;
             const grid = document.getElementById('articles-grid');
             grid.innerHTML = '';
-            
-            let filteredArticles = category === 'all' 
-                ? [...articlesData] 
-                : articlesData.filter(article => article.category === category);
-            
-            filteredArticles.sort((a, b) => {
-                return new Date(b.date) - new Date(a.date);
-            });
-            
-            if (filteredArticles.length === 0) {
-                grid.innerHTML = `
-                    <div class="glass" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
-                        <i class="far fa-folder-open" style="font-size: 3rem; margin-bottom: 20px;"></i>
-                        <h3>暂无文章</h3>
-                        <p>该分类下还没有文章</p>
-                    </div>
-                `;
+
+            let filtered = category === 'all' ? [...articlesData] : articlesData.filter(a => a.category === category);
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (!filtered.length) {
+                grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
                 return;
             }
-            
-            filteredArticles.forEach(article => {
+
+            filtered.forEach(article => {
                 const slug = getSlug(article.filename);
                 const card = document.createElement('div');
                 card.className = 'article-card glass';
@@ -1356,79 +1768,75 @@
                             <span>${getCategoryName(article.category)}</span>
                         </div>
                     </div>
-                    <div class="article-content">
-                        ${article.excerpt}
-                    </div>
+                    <div class="article-content">${article.excerpt}</div>
                     <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
+                    <div class="card-hint">点击查看详细</div>
                 `;
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.read-more')) return;
+                    openArticleModal(article);
+                });
                 grid.appendChild(card);
             });
-            
+
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.category === category);
             });
         }
 
-        function getCategoryName(category) {
-            const names = {
-                'technology': '技术',
-                'diary': '日记',
-                'something': '杂碎'
-            };
-            return names[category] || category;
+        function getCategoryName(cat) {
+            return { technology: '技术', diary: '日记', something: '杂碎' }[cat] || cat;
         }
 
         function bindEvents() {
             document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    renderArticles(btn.dataset.category);
-                });
+                btn.addEventListener('click', () => renderArticles(btn.dataset.category));
             });
-            
+
             document.getElementById('about-btn').addEventListener('click', () => {
-                const aboutCard = document.getElementById('about-card');
-                aboutCard.style.display = aboutCard.style.display === 'block' ? 'none' : 'block';
+                const card = document.getElementById('about-card');
+                card.style.display = card.style.display === 'block' ? 'none' : 'block';
             });
-            
+
             document.querySelectorAll('.contact-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const contactType = btn.dataset.contact;
-                    const value = btn.dataset.value;
-                    
-                    copyToClipboard(value);
-                    showToast(`已复制到剪贴板`, 'success');
+                    copyToClipboard(btn.dataset.value);
+                    showToast('已复制到剪贴板', 'success');
                 });
             });
-            
-            document.addEventListener('click', (e) => {
-                const aboutCard = document.getElementById('about-card');
-                if (aboutCard.style.display === 'block' && 
-                    !e.target.closest('#about-card') && 
-                    !e.target.closest('#about-btn')) {
-                    aboutCard.style.display = 'none';
-                }
-                
-                const funcCard = document.getElementById('func-card');
-                if (funcCard.style.display === 'block' && 
-                    !e.target.closest('#func-card') && 
-                    !e.target.closest('#func-btn')) {
-                    funcCard.style.display = 'none';
+
+            document.getElementById('article-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeArticleModal();
+            });
+            document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains('active')) {
+                    closeArticleModal();
                 }
             });
-            
-            const luckBtn = document.getElementById('luck-btn');
-            if (luckBtn) {
-                luckBtn.addEventListener('click', getDailyLuck);
-            }
+
+            document.addEventListener('click', (e) => {
+                const about = document.getElementById('about-card');
+                if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest('#about-btn')) {
+                    about.style.display = 'none';
+                }
+                const func = document.getElementById('func-card');
+                if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest('#func-btn')) {
+                    func.style.display = 'none';
+                }
+            });
+
+            document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
         }
 
         function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
             document.execCommand('copy');
-            document.body.removeChild(textarea);
+            document.body.removeChild(ta);
         }
     </script>
 </body>
