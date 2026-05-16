@@ -59,7 +59,7 @@ function build() {
     }
   }
 
-  // 复制根目录必要文件
+  // 复制根目录必要文件（包含 robots.txt）
   const rootFiles = [
     'index.html',
     'axios.min.js',
@@ -67,7 +67,8 @@ function build() {
     'articles.json',
     'sentences.txt',
     'portrait.png',
-    'favicon.ico'
+    'favicon.ico',
+    'robots.txt'          // 新增：若存在则复制到 dist，否则跳过
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
