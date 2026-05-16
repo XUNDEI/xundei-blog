@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 
+// ========== 配置区 ==========
+const SITE_URL = 'https://xundei.qzz.io';   // 你的网站域名，记得修改
+// ===========================
+
 function loadArticles() {
   const filePath = path.join(__dirname, 'articles.json');
   return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
@@ -33,6 +37,61 @@ function fixRelativePaths(markdown, mdFilePath, htmlOutputPath) {
   });
 }
 
+// ========== 生成 sitemap.xml ==========
+function generateSitemap(articles, siteUrl) {
+  const now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // 首页
+  let urls = `
+  <url>
+    <loc>${siteUrl}/</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>`;
+
+  // 文章页
+  for (const article of articles) {
+    const slug = path.basename(article.filename, '.md');
+    const lastmod = article.date || now;  // 使用文章的日期，若没有则用当天
+    urls += `
+  <url>
+    <loc>${siteUrl}/articles/${slug}.html</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+}
+
+// ========== 确保 robots.txt 包含 Sitemap 引用 ==========
+function ensureRobotsTxtHasSitemap(distDir, siteUrl) {
+  const robotsPath = path.join(distDir, 'robots.txt');
+  if (!fs.existsSync(robotsPath)) {
+    console.warn('⚠️ robots.txt 不存在，请手动创建并添加 Sitemap 指令');
+    return;
+  }
+
+  let content = fs.readFileSync(robotsPath, 'utf-8');
+  const sitemapLine = `Sitemap: ${siteUrl}/sitemap.xml`;
+
+  if (!content.includes(sitemapLine)) {
+    // 如果末尾没有换行，先加上
+    if (!content.endsWith('\n')) content += '\n';
+    content += sitemapLine + '\n';
+    fs.writeFileSync(robotsPath, content);
+    console.log('✅ 已自动添加 Sitemap 引用到 robots.txt');
+  } else {
+    console.log('✅ robots.txt 已包含 Sitemap 引用');
+  }
+}
+
+// ========== 主构建函数 ==========
 function build() {
   const articles = loadArticles();
   const articleTemplate = fs.readFileSync(
@@ -43,12 +102,13 @@ function build() {
   const distDir = path.join(__dirname, 'dist');
   const articlesDir = path.join(distDir, 'articles');
 
+  // 清空旧目录
   if (fs.existsSync(distDir)) {
     fs.rmSync(distDir, { recursive: true });
   }
   fs.mkdirSync(articlesDir, { recursive: true });
 
-  // 复制静态资源目录（包含 wallpaper，若存在）
+  // 复制静态资源目录
   const staticDirs = ['Music', 'blog', 'wallpaper'];
   for (const dir of staticDirs) {
     const src = path.join(__dirname, dir);
@@ -59,7 +119,7 @@ function build() {
     }
   }
 
-  // 复制根目录必要文件（包含 robots.txt）
+  // 复制根目录必要文件
   const rootFiles = [
     'index.html',
     'axios.min.js',
@@ -68,7 +128,7 @@ function build() {
     'sentences.txt',
     'portrait.png',
     'favicon.ico',
-    'robots.txt'          // 新增：若存在则复制到 dist，否则跳过
+    'robots.txt'
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
@@ -105,6 +165,14 @@ function build() {
     fs.writeFileSync(htmlOutputPath, page);
     console.log(`生成: articles/${slug}.html`);
   }
+
+  // 生成 sitemap.xml
+  const sitemap = generateSitemap(articles, SITE_URL);
+  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
+  console.log('✅ 生成 sitemap.xml');
+
+  // 确保 robots.txt 包含 Sitemap 引用
+  ensureRobotsTxtHasSitemap(distDir, SITE_URL);
 
   console.log(`构建完成！共 ${articles.length} 篇文章，输出目录: dist/`);
 }
