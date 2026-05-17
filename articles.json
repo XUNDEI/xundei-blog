@@ -6,5 +6,13 @@
         "excerpt": "新的一年，无限进步",
         "filename": "blog/diary/1/1.md",
         "license":false
+    },
+    {
+        "title": "全程图文！保姆级带你入坑python",
+        "date": "2026-05-16",
+        "category": "technology",
+        "excerpt": "零基础带你入坑python不走弯路，从安装python到写出第一行代码全程图文解释",
+        "filename": "blog/technology/2/2.md",
+        "license":"CC BY"
     }
 ]
