@@ -139,6 +139,12 @@ function build() {
     }
   }
 
+  // 检测并复制 BingSiteAuth.xml（若存在，静默忽略不存在的情况）
+  const bingAuthSrc = path.join(__dirname, 'BingSiteAuth.xml');
+  if (fs.existsSync(bingAuthSrc)) {
+    fs.copyFileSync(bingAuthSrc, path.join(distDir, 'BingSiteAuth.xml'));
+  }
+
   // 生成文章 HTML
   for (const article of articles) {
     const mdPath = path.join(__dirname, article.filename);
