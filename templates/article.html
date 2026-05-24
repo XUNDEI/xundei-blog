@@ -344,25 +344,42 @@
             font-size: 1.1rem;
         }
         
-        .article-full-content h2,
-        .article-full-content h3 {
-            margin: 30px 0 20px;
+        /* ========== 优化后的标题层级样式 ========== */
+        .article-full-content h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 35px 0 20px;
             color: var(--light-text);
             position: relative;
-            padding-left: 15px;
+            padding-left: 20px;
+            border-left: 5px solid var(--primary-color);
         }
         
-        .article-full-content h2::before,
+        .article-full-content h2::before {
+            content: none; /* 移除原有伪元素，改用border-left */
+        }
+        
+        .article-full-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 28px 0 16px;
+            color: rgba(255, 255, 255, 0.92);
+            position: relative;
+            padding-left: 15px;
+            border-left: 3px solid rgba(66, 133, 244, 0.7);
+        }
+        
         .article-full-content h3::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 6px;
-            height: 60%;
-            background: var(--primary-color);
-            border-radius: 3px;
+            content: none;
+        }
+        
+        .article-full-content h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 24px 0 12px;
+            color: rgba(255, 255, 255, 0.85);
+            padding-left: 10px;
+            border-left: 2px solid rgba(66, 133, 244, 0.5);
         }
         
         .article-full-content p {
@@ -1108,7 +1125,8 @@
         .progress-container span {
             color: rgba(255,255,255,0.7);
             font-size: 0.8rem;
-            min-width: 40px;
+            min-width: 45px;
+            text-align: center;
         }
 
         .progress {
@@ -1119,6 +1137,17 @@
             background: rgba(255,255,255,0.2);
             border-radius: 5px;
             outline: none;
+            transition: background 0.3s ease;
+        }
+
+        /* 下载状态进度条样式 */
+        .progress.downloading {
+            background: rgba(66, 133, 244, 0.25);
+        }
+
+        .progress.downloading::-webkit-slider-thumb {
+            background: #5badf5;
+            box-shadow: 0 0 8px rgba(90, 173, 245, 0.6);
         }
 
         .progress::-webkit-slider-thumb {
@@ -1153,7 +1182,14 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .control-buttons button:hover {
+        .control-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-buttons button:hover:not(:disabled) {
             transform: scale(1.1);
             box-shadow: 0 0 15px var(--glow-color);
         }
@@ -1417,10 +1453,10 @@
 
         async function setDefaultWallpaper() {
             try {
-                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
+                const bingResponse = await axios.get('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
                 const bingData = bingResponse.data;
                 if (bingData.images && bingData.images[0]) {
-                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
+                    const bingUrl = `https://www.bing.com${bingData.images[0].url}`;
                     document.body.style.backgroundImage = `url(${bingUrl})`;
                     return true;
                 }
@@ -1695,7 +1731,80 @@
             let isPlaying = false;
             let tracks = [];
             let isSeeking = false;
-            
+            let isDownloading = false; // 是否正在缓冲/下载
+            let downloadTargetIndex = -1; // 正在下载的目标曲目索引
+
+            // 移除之前的事件监听器辅助函数
+            function removeAudioListeners() {
+                audio.removeEventListener('progress', onAudioProgress);
+                audio.removeEventListener('canplaythrough', onAudioReady);
+                audio.removeEventListener('timeupdate', onTimeUpdate);
+                audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+                audio.removeEventListener('ended', onAudioEnded);
+            }
+
+            // 音频缓冲进度事件
+            function onAudioProgress() {
+                if (!isDownloading || !audio.duration) return;
+                const buffered = audio.buffered.length > 0 ? audio.buffered.end(audio.buffered.length - 1) : 0;
+                const percent = Math.min(100, (buffered / audio.duration) * 100);
+                progressBar.value = percent;
+                currentTimeEl.textContent = `缓冲 ${Math.round(percent)}%`;
+            }
+
+            // 音频可以流畅播放（下载完成）
+            function onAudioReady() {
+                if (!isDownloading) return;
+                isDownloading = false;
+                progressBar.classList.remove('downloading');
+                // 恢复按钮状态
+                playPauseBtn.disabled = false;
+                prevBtn.disabled = false;
+                nextBtn.disabled = false;
+                
+                // 开始播放
+                audio.play().then(() => {
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                }).catch(err => {
+                    console.error('播放失败:', err);
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                });
+                
+                // 更新显示
+                currentTimeEl.textContent = '0:00';
+                totalTimeEl.textContent = formatTime(audio.duration);
+                nowPlaying.textContent = `正在播放: ${tracks[currentTrackIndex].name}`;
+                
+                // 高亮列表项
+                const listItems = musicList.querySelectorAll('li');
+                listItems.forEach((item, i) => {
+                    if (i === currentTrackIndex) {
+                        item.classList.add('playing');
+                    } else {
+                        item.classList.remove('playing');
+                    }
+                });
+            }
+
+            function onTimeUpdate() {
+                if (isDownloading || isSeeking || !audio.duration) return;
+                const progressPercent = (audio.currentTime / audio.duration) * 100;
+                progressBar.value = progressPercent;
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+            }
+
+            function onLoadedMetadata() {
+                if (!isDownloading && audio.duration) {
+                    totalTimeEl.textContent = formatTime(audio.duration);
+                }
+            }
+
+            function onAudioEnded() {
+                nextBtn.click();
+            }
+
             musicBtn.addEventListener('click', () => {
                 if (musicPanel.style.display === 'flex') {
                     musicPanel.style.display = 'none';
@@ -1725,6 +1834,10 @@
                         musicList.appendChild(li);
                         
                         li.addEventListener('click', () => {
+                            if (isDownloading) {
+                                showToast('正在缓冲上一首，请稍后', 'info');
+                                return;
+                            }
                             playTrack(index);
                         });
                     });
@@ -1741,34 +1854,50 @@
             
             function playTrack(index) {
                 if (index < 0 || index >= tracks.length) return;
+                if (isDownloading && index !== downloadTargetIndex) {
+                    // 如果正在下载其他歌曲，先取消
+                    audio.src = '';
+                    removeAudioListeners();
+                    isDownloading = false;
+                    progressBar.classList.remove('downloading');
+                }
                 
                 currentTrackIndex = index;
                 const track = tracks[index];
                 
+                // 重置界面
                 progressBar.value = 0;
-                currentTimeEl.textContent = '0:00';
-                totalTimeEl.textContent = '0:00';
+                currentTimeEl.textContent = '下载中...';
+                totalTimeEl.textContent = '--:--';
+                nowPlaying.textContent = `准备: ${track.name}`;
+                
+                // 标记下载状态
+                isDownloading = true;
+                downloadTargetIndex = index;
+                progressBar.classList.add('downloading');
+                
+                // 禁用控制按钮
+                playPauseBtn.disabled = true;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                
+                // 移除旧的监听器，重新绑定
+                removeAudioListeners();
+                audio.addEventListener('progress', onAudioProgress);
+                audio.addEventListener('canplaythrough', onAudioReady);
+                audio.addEventListener('timeupdate', onTimeUpdate);
+                audio.addEventListener('loadedmetadata', onLoadedMetadata);
+                audio.addEventListener('ended', onAudioEnded);
                 
                 audio.src = `../Music/${encodeURIComponent(track.file)}`;
                 audio.load();
-                audio.play();
-                
-                nowPlaying.textContent = `正在播放: ${track.name}`;
-                
-                const listItems = musicList.querySelectorAll('li');
-                listItems.forEach((item, i) => {
-                    if (i === index) {
-                        item.classList.add('playing');
-                    } else {
-                        item.classList.remove('playing');
-                    }
-                });
-                
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                isPlaying = true;
             }
             
             playPauseBtn.addEventListener('click', () => {
+                if (isDownloading) {
+                    showToast('正在缓冲中，请稍候', 'info');
+                    return;
+                }
                 if (isPlaying) {
                     audio.pause();
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -1780,51 +1909,40 @@
             });
             
             prevBtn.addEventListener('click', () => {
+                if (isDownloading) {
+                    showToast('正在缓冲中，请稍候', 'info');
+                    return;
+                }
                 let newIndex = currentTrackIndex - 1;
                 if (newIndex < 0) newIndex = tracks.length - 1;
                 playTrack(newIndex);
             });
             
             nextBtn.addEventListener('click', () => {
+                if (isDownloading) {
+                    showToast('正在缓冲中，请稍候', 'info');
+                    return;
+                }
                 let newIndex = currentTrackIndex + 1;
                 if (newIndex >= tracks.length) newIndex = 0;
                 playTrack(newIndex);
             });
             
             progressBar.addEventListener('mousedown', () => {
+                if (isDownloading) return;
                 isSeeking = true;
             });
             
             progressBar.addEventListener('mouseup', () => {
+                if (isDownloading) return;
                 isSeeking = false;
             });
             
             progressBar.addEventListener('input', function() {
-                if (audio.duration) {
-                    const seekPercent = parseFloat(this.value);
-                    const seekTime = (seekPercent / 100) * audio.duration;
-                    audio.currentTime = seekTime;
-                }
-            });
-            
-            audio.addEventListener('timeupdate', () => {
-                if (!isSeeking && audio.duration) {
-                    const progressPercent = (audio.currentTime / audio.duration) * 100;
-                    progressBar.value = progressPercent;
-                }
-                
-                currentTimeEl.textContent = formatTime(audio.currentTime);
-                if (audio.duration) {
-                    totalTimeEl.textContent = formatTime(audio.duration);
-                }
-            });
-            
-            audio.addEventListener('loadedmetadata', () => {
-                totalTimeEl.textContent = formatTime(audio.duration);
-            });
-            
-            audio.addEventListener('ended', () => {
-                nextBtn.click();
+                if (isDownloading || !audio.duration) return;
+                const seekPercent = parseFloat(this.value);
+                const seekTime = (seekPercent / 100) * audio.duration;
+                audio.currentTime = seekTime;
             });
             
             audio.volume = volumeControl.value;

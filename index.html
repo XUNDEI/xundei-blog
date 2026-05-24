@@ -8,7 +8,7 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
     </script>
     <style>
-        /* ========== 原有样式保持不动 ========== */
+        /* ========== 全局链接样式 ========== */
         a {
             text-decoration: none;
             position: relative;
@@ -76,6 +76,7 @@
             box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
         }
 
+        /* ========== 阅读全文按钮覆盖全局a样式 ========== */
         .read-more {
             background: rgba(255, 255, 255, 0.1) !important;
             color: var(--light-text) !important;
@@ -83,11 +84,14 @@
             -webkit-background-clip: unset !important;
             background-clip: unset !important;
             position: static !important;
+            transition: all 0.35s ease !important;
         }
 
         .read-more:hover {
             background: var(--primary-color) !important;
-            box-shadow: 0 0 10px var(--glow-color) !important;
+            box-shadow: 0 0 18px var(--glow-color), 0 0 36px rgba(66, 133, 244, 0.35) !important;
+            color: #fff !important;
+            letter-spacing: 1px;
         }
 
         .read-more::after,
@@ -95,30 +99,30 @@
             content: none !important;
         }
 
-        /* ========== 修复1：弹窗内阅读全文按钮文字消失问题 ========== */
+        /* ========== 弹窗内阅读全文按钮 ========== */
         .modal-read-full {
-            /* 覆盖全局 a 标签的渐变文字效果，保证文字始终可见 */
             background: var(--primary-color) !important;
             color: white !important;
             -webkit-background-clip: unset !important;
             background-clip: unset !important;
             background-image: none !important;
-            /* 取消可能的下划线效果 */
+            transition: all 0.35s ease !important;
         }
 
         .modal-read-full:hover {
             background: #2b6de0 !important;
             color: white !important;
-            box-shadow: 0 0 20px var(--glow-color);
+            box-shadow: 0 0 24px var(--glow-color), 0 0 48px rgba(66, 133, 244, 0.4);
             transform: translateY(-2px);
+            letter-spacing: 1px;
         }
 
-        /* 取消全局 a 对弹窗按钮的影响，包括伪元素 */
         .modal-read-full::before,
         .modal-read-full::after {
             content: none !important;
         }
 
+        /* ========== CSS 变量 ========== */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
@@ -126,10 +130,11 @@
             --primary-color: #4285F4;
             --text-color: #333;
             --light-text: #fff;
-            --transition: all 0.3s ease;
+            --transition: all 0.35s ease;
             --blur-amount: 12px;
             --glow-color: rgba(66, 133, 244, 0.7);
             --scrollbar-width: 10px;
+            --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
         }
 
         * {
@@ -163,7 +168,7 @@
             z-index: -1;
         }
 
-        /* Loading 弹窗样式 */
+        /* ========== Loading 弹窗 ========== */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -272,12 +277,14 @@
             }
         }
 
+        /* ========== 容器 ========== */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* ========== 磨砂玻璃卡片 - hover仅发光不浮动 ========== */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -290,17 +297,22 @@
         }
 
         .glass:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow-color);
+            /* 移除浮动，仅发光 */
+            box-shadow: var(--glow-strong);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
+        /* ========== Header ========== */
         header {
             text-align: center;
             margin: 20px 0 40px;
             animation: fadeInDown 1s ease;
         }
 
-        /* 标题故障效果 */
+        header.glass:hover {
+            box-shadow: var(--glow-strong);
+        }
+
         .blog-title {
             font-size: 3.5rem;
             font-weight: 800;
@@ -339,6 +351,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            pointer-events: none;
         }
 
         .glitch-text::before {
@@ -524,6 +537,7 @@
             }
         }
 
+        /* ========== 分类按钮 ========== */
         .categories {
             display: flex;
             justify-content: center;
@@ -545,13 +559,19 @@
             font-weight: 600;
         }
 
-        .category-btn:hover,
+        .category-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 18px var(--glow-color);
+        }
+
         .category-btn.active {
             background: var(--primary-color);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 15px var(--glow-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 22px var(--glow-color);
         }
 
+        /* ========== 文章网格 ========== */
         .articles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -559,6 +579,7 @@
             margin-bottom: 50px;
         }
 
+        /* ========== 文章卡片 - hover仅发光不浮动 ========== */
         .article-card {
             height: 320px;
             display: flex;
@@ -566,42 +587,53 @@
             transition: var(--transition);
             overflow: hidden;
             cursor: pointer;
-            position: relative; /* 为提示层定位 */
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
         .article-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 0 20px var(--glow-color);
+            /* 移除浮动，仅发光 */
+            box-shadow: var(--glow-strong);
+            border-color: rgba(255, 255, 255, 0.55);
         }
 
-        /* ========== 新增：卡片悬浮提示“查看详细” ========== */
+        /* ========== 卡片悬浮提示 ========== */
         .card-hint {
             position: absolute;
-            bottom: 50px; /* 位于阅读全文按钮上方 */
+            bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.72);
             color: #fff;
-            padding: 6px 16px;
-            border-radius: 20px;
+            padding: 7px 18px;
+            border-radius: 22px;
             font-size: 0.85rem;
             font-weight: 500;
-            pointer-events: none; /* 不阻挡点击 */
+            pointer-events: none;
             opacity: 0;
-            transition: opacity 0.25s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease;
             z-index: 5;
             white-space: nowrap;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+            transform: translateX(-50%) translateY(8px);
         }
 
         .article-card:hover .card-hint {
             opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         .article-header {
             padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .article-card:hover .article-header {
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .article-title {
@@ -622,7 +654,6 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        /* ========== 修复2：文章介绍换行优化 ========== */
         .article-content {
             padding: 15px;
             flex-grow: 1;
@@ -634,9 +665,14 @@
             -webkit-line-clamp: 5;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            word-wrap: break-word;       /* 允许在单词内换行 */
-            overflow-wrap: break-word;   /* 现代浏览器 */
-            word-break: break-word;      /* 兼容性 */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            transition: color 0.3s ease;
+        }
+
+        .article-card:hover .article-content {
+            color: rgba(255, 255, 255, 0.95);
         }
 
         .read-more {
@@ -654,28 +690,23 @@
             z-index: 2;
         }
 
-        .read-more:hover {
-            background: var(--primary-color);
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        /* 弹窗样式保持不变，仅修复按钮部分已在上方处理 */
+        /* ========== 弹窗 - 优化后的磨砂玻璃详情卡片 ========== */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
         }
 
         .modal-overlay.active {
@@ -684,25 +715,25 @@
         }
 
         .modal-content {
-            background: rgba(30, 50, 100, 0.7);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(100, 160, 240, 0.4);
+            background: rgba(22, 40, 80, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(130, 180, 250, 0.4);
             border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 40px rgba(66, 133, 244, 0.3), 0 0 80px rgba(66, 133, 244, 0.12);
             width: 90%;
-            max-width: 600px;
+            max-width: 620px;
             max-height: 85vh;
             overflow-y: auto;
-            padding: 30px;
+            padding: 35px 30px 28px;
             position: relative;
-            animation: modalPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes modalPopIn {
             from {
                 opacity: 0;
-                transform: translateY(30px) scale(0.9);
+                transform: translateY(35px) scale(0.88);
             }
             to {
                 opacity: 1;
@@ -710,14 +741,26 @@
             }
         }
 
+        /* 弹窗顶部装饰线 */
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(130, 180, 250, 0.7), rgba(66, 133, 244, 0.9), rgba(130, 180, 250, 0.7), transparent);
+            border-radius: 0 0 3px 3px;
+        }
+
         .modal-close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 36px;
-            height: 36px;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -725,12 +768,15 @@
             transition: var(--transition);
             color: var(--light-text);
             font-size: 1.2rem;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .modal-close-btn:hover {
             background: var(--primary-color);
             transform: rotate(90deg);
-            box-shadow: 0 0 15px var(--glow-color);
+            box-shadow: 0 0 20px var(--glow-color);
+            border-color: transparent;
         }
 
         .modal-title {
@@ -739,6 +785,8 @@
             color: var(--light-text);
             margin-bottom: 15px;
             word-break: break-word;
+            padding-right: 40px;
+            line-height: 1.3;
         }
 
         .modal-meta {
@@ -750,28 +798,85 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .modal-meta .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .modal-meta .meta-item i {
+            color: var(--primary-color);
+            font-size: 0.85rem;
         }
 
         .modal-excerpt {
             color: rgba(255, 255, 255, 0.9);
-            line-height: 1.7;
+            line-height: 1.75;
             font-size: 1rem;
             white-space: pre-wrap;
-            margin-bottom: 25px;
+            margin-bottom: 28px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 16px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* modal-read-full 的样式已在上面覆盖，此处仅保留基础定义 */
         .modal-read-full {
-            display: inline-block;
-            padding: 10px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
             border-radius: 30px;
             font-weight: 600;
             transition: var(--transition);
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            box-shadow: 0 4px 20px rgba(66, 133, 244, 0.45);
+            font-size: 1rem;
         }
 
-        /* 其余原有样式 (about, func, toast, footer等) 保持不变 */
+        .modal-read-full i {
+            transition: transform 0.3s ease;
+        }
+
+        .modal-read-full:hover i {
+            transform: translateX(4px);
+        }
+
+        /* 弹窗滚动条 */
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(130, 180, 250, 0.45);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(130, 180, 250, 0.65);
+        }
+
+        .modal-content {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(130, 180, 250, 0.45) rgba(255, 255, 255, 0.05);
+        }
+
+        /* ========== 关于按钮与卡片 ========== */
         .about-btn {
             position: fixed;
             bottom: 30px;
@@ -792,7 +897,7 @@
 
         .about-btn:hover {
             transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 20px var(--glow-color);
+            box-shadow: 0 0 22px var(--glow-color);
         }
 
         .about-card {
@@ -874,7 +979,7 @@
         .contact-btn:hover {
             transform: translateY(-5px);
             background: var(--primary-color);
-            box-shadow: 0 0 10px var(--glow-color);
+            box-shadow: 0 0 14px var(--glow-color);
         }
 
         .close-about-btn {
@@ -886,6 +991,7 @@
             justify-content: center;
             border-radius: 50%;
             transition: var(--transition);
+            color: var(--light-text);
         }
 
         .close-about-btn:hover {
@@ -894,6 +1000,7 @@
             box-shadow: 0 0 10px var(--glow-color);
         }
 
+        /* ========== Footer ========== */
         footer {
             text-align: center;
             padding: 20px;
@@ -905,6 +1012,10 @@
             gap: 10px;
         }
 
+        footer.glass:hover {
+            box-shadow: var(--glow-strong);
+        }
+
         footer .footer-content {
             display: flex;
             flex-wrap: wrap;
@@ -913,6 +1024,7 @@
             gap: 8px;
         }
 
+        /* ========== Toast ========== */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -968,6 +1080,7 @@
             }
         }
 
+        /* ========== Loader ========== */
         .loader {
             display: inline-block;
             width: 50px;
@@ -986,6 +1099,7 @@
             width: 100%;
         }
 
+        /* ========== 功能按钮与卡片 ========== */
         .func-btn {
             position: fixed;
             bottom: 30px;
@@ -1006,7 +1120,7 @@
 
         .func-btn:hover {
             transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 20px var(--glow-color);
+            box-shadow: 0 0 22px var(--glow-color);
         }
 
         .func-card {
@@ -1044,6 +1158,7 @@
             justify-content: center;
             border-radius: 50%;
             transition: var(--transition);
+            color: var(--light-text);
         }
 
         .close-btn:hover {
@@ -1145,6 +1260,7 @@
             padding: 10px;
         }
 
+        /* ========== 全局 ========== */
         ::selection {
             background: rgba(66, 133, 244, 0.3);
             color: white;
@@ -1188,6 +1304,7 @@
             }
         }
 
+        /* ========== 全局滚动条 ========== */
         ::-webkit-scrollbar {
             width: var(--scrollbar-width);
             height: var(--scrollbar-width);
@@ -1214,6 +1331,7 @@
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
         }
 
+        /* ========== 响应式 ========== */
         @media (max-width: 768px) {
             .blog-title {
                 font-size: 2.5rem;
@@ -1242,6 +1360,19 @@
                 padding: 28px 22px 20px;
             }
 
+            .modal-content {
+                padding: 28px 20px 22px;
+            }
+
+            .modal-content::before {
+                left: 20px;
+                right: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
             :root {
                 --blur-amount: 8px;
                 --scrollbar-width: 8px;
@@ -1255,11 +1386,11 @@
             .toast-container {
                 max-width: 250px;
             }
-            
+
             .card-hint {
                 bottom: 45px;
                 font-size: 0.8rem;
-                padding: 4px 12px;
+                padding: 4px 14px;
             }
         }
 
@@ -1307,6 +1438,25 @@
             .loading-card .loading-text {
                 font-size: 0.95rem;
             }
+
+            .modal-content {
+                padding: 24px 16px 18px;
+                border-radius: 16px;
+            }
+
+            .modal-content::before {
+                left: 16px;
+                right: 16px;
+            }
+
+            .modal-title {
+                font-size: 1.35rem;
+            }
+
+            .modal-meta .meta-item {
+                font-size: 0.78rem;
+                padding: 4px 10px;
+            }
         }
     </style>
 
@@ -1351,13 +1501,13 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.2">xundei-blog V2.8.2</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.3">xundei-blog V2.8.3</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
             </div>
         </footer>
     </div>
 
-    <!-- 文章详情弹窗 -->
+    <!-- 文章详情弹窗（优化后的磨砂玻璃详细信息卡片） -->
     <div class="modal-overlay" id="article-modal">
         <div class="modal-content">
             <div class="modal-close-btn" id="modal-close-btn">
@@ -1365,18 +1515,23 @@
             </div>
             <h2 class="modal-title" id="modal-title"></h2>
             <div class="modal-meta">
-                <span id="modal-date"></span>
-                <span id="modal-category"></span>
+                <span class="meta-item"><i class="far fa-calendar-alt"></i> <span id="modal-date"></span></span>
+                <span class="meta-item"><i class="fas fa-folder"></i> <span id="modal-category"></span></span>
             </div>
             <div class="modal-excerpt" id="modal-excerpt"></div>
-            <a href="#" class="modal-read-full" id="modal-read-link">阅读全文</a>
+            <a href="#" class="modal-read-full" id="modal-read-link">
+                <span>阅读全文</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 
+    <!-- 关于按钮 -->
     <div class="about-btn" id="about-btn">
         <i class="fas fa-user"></i>
     </div>
 
+    <!-- 关于卡片 -->
     <div class="about-card glass" id="about-card">
         <div class="about-header">
             <div style="display: flex; align-items: center;">
@@ -1414,10 +1569,12 @@
         </p>
     </div>
 
+    <!-- 功能按钮 -->
     <div class="func-btn" id="func-btn">
         <i class="fas fa-star"></i>
     </div>
 
+    <!-- 功能卡片 -->
     <div class="func-card glass" id="func-card">
         <div class="func-card-header">
             <div class="func-card-title">功能小窗</div>
@@ -1448,6 +1605,7 @@
         </div>
     </div>
 
+    <!-- Toast 容器 -->
     <div class="toast-container" id="toast-container"></div>
 
     <script>
@@ -1648,13 +1806,39 @@
         }
 
         async function setDefaultWallpaper() {
+            // 多个Bing源备选
+            const bingApis = [
+                'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
+                'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
+                'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
+            ];
+
+            for (const api of bingApis) {
+                try {
+                    const res = await axios.get(api, { timeout: 8000 });
+                    if (res.data && res.data.images && res.data.images[0]) {
+                        const imgUrl = 'https://www.bing.com' + res.data.images[0].url;
+                        document.body.style.backgroundImage = `url(${imgUrl})`;
+                        return true;
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+
+            // 最终兜底：使用直接返回图片的API
             try {
-                const res = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN');
-                if (res.data.images?.[0]) {
-                    document.body.style.backgroundImage = `url(https://bing.com${res.data.images[0].url})`;
+                const fallbackRes = await axios.get('https://api.dujin.org/bing/1920.php', {
+                    timeout: 8000,
+                    responseType: 'text'
+                });
+                if (fallbackRes.data) {
+                    document.body.style.backgroundImage = `url(https://api.dujin.org/bing/1920.php)`;
                     return true;
                 }
             } catch (e) {}
+
+            // 最后的最后
             document.body.style.backgroundImage = `url(https://www.yumus.cn/api/?target=img&brand=360&type=3)`;
             return false;
         }
@@ -1687,12 +1871,13 @@
                     const res = await fetch(api);
                     data = await res.json();
                 }
-                if (JSON.stringify(data).toLowerCase().includes('www.apihz.cn') || 
+                if (JSON.stringify(data).toLowerCase().includes('www.apihz.cn') ||
                     (data.title && data.title.includes('www.apihz.cn'))) {
                     throw new Error('API负载过高');
                 }
                 if (data.code == 200) {
-                    el.innerHTML = `<div class="history-date">${data.y}年${data.m}月${data.d}日</div><div class="history-event">${data.title}</div>`;
+                    el.innerHTML =
+                        `<div class="history-date">${data.y}年${data.m}月${data.d}日</div><div class="history-event">${data.title}</div>`;
                 } else throw new Error(data.msg || '未知错误');
                 window.historyLoaded = true;
             } catch (e) {
@@ -1704,10 +1889,10 @@
             try {
                 updateLoadingProgress(30, '正在加载壁纸...');
                 const wallOk = await loadWallpapers();
-                updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用默认壁纸...');
+                updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用Bing壁纸...');
                 if (!wallOk) {
-                    await setDefaultWallpaper();
-                    showToast('壁纸加载失败，使用默认壁纸', 'error');
+                    const bingOk = await setDefaultWallpaper();
+                    if (!bingOk) showToast('壁纸加载失败，使用默认壁纸', 'error');
                 }
                 updateLoadingProgress(75, '正在加载美句...');
                 await loadSentences();
@@ -1752,7 +1937,8 @@
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (!filtered.length) {
-                grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
+                grid.innerHTML =
+                    `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
                 return;
             }
 
@@ -1770,8 +1956,9 @@
                     </div>
                     <div class="article-content">${article.excerpt}</div>
                     <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
-                    <div class="card-hint">点击查看详细</div>
+                    <div class="card-hint">✨ 点击卡片查看详细</div>
                 `;
+                // 点击卡片任意区域（除"阅读全文"按钮外）打开弹窗
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('.read-more')) return;
                     openArticleModal(article);
@@ -1811,18 +1998,21 @@
             document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
 
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains('active')) {
+                if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains(
+                        'active')) {
                     closeArticleModal();
                 }
             });
 
             document.addEventListener('click', (e) => {
                 const about = document.getElementById('about-card');
-                if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest('#about-btn')) {
+                if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest(
+                        '#about-btn')) {
                     about.style.display = 'none';
                 }
                 const func = document.getElementById('func-card');
-                if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest('#func-btn')) {
+                if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest(
+                        '#func-btn')) {
                     func.style.display = 'none';
                 }
             });
