@@ -22,5 +22,13 @@
         "excerpt": "暂无简介",
         "filename": "blog/technology/3/3.md",
         "license":false
+    },
+    {
+        "title": "如何关闭cloudflare pages的默认url（xxx.pages.dev）",
+        "date": "2026-06-07",
+        "category": "something",
+        "excerpt": "本文讲述如何关闭cloudflare pages默认url（xxx.pages.dev）的方法",
+        "filename": "blog/technology/4/4.md",
+        "license":"CC BY"
     }
 ]
