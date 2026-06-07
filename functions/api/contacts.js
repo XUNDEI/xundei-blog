@@ -1,18 +1,12 @@
-// /functions/api/contacts.js
 export async function onRequest(context) {
   const { env } = context;
-  const contacts = {
-    email: env.EMAIL || '',
-    qq: env.QQ || '',
-    github: env.GITHUB || '',
-    wechat: env.WECHAT || '',
-    bilibili: env.BILIBILI || ''
+  // 返回 env 对象中所有的键名（不含值，保护隐私）
+  const debugInfo = {
+    allKeys: Object.keys(env),
+    emailType: typeof env.email,
+    emailValue: env.email,
   };
-
-  return new Response(JSON.stringify(contacts), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-store'
-    }
+  return new Response(JSON.stringify(debugInfo, null, 2), {
+    headers: { 'Content-Type': 'application/json' }
   });
 }
