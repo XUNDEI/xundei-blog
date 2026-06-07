@@ -108,8 +108,8 @@ function build() {
   }
   fs.mkdirSync(articlesDir, { recursive: true });
 
-  // 复制静态资源目录
-  const staticDirs = ['Music', 'blog', 'wallpaper'];
+  // 复制静态资源目录（不再包含 Music）
+  const staticDirs = ['blog', 'wallpaper'];
   for (const dir of staticDirs) {
     const src = path.join(__dirname, dir);
     if (fs.existsSync(src)) {
@@ -117,6 +117,17 @@ function build() {
     } else {
       console.warn(`目录 ${dir} 不存在，跳过复制`);
     }
+  }
+
+  // 复制 functions/api/contacts.js 到 dist 中对应位置
+  const contactsSrc = path.join(__dirname, 'functions', 'api', 'contacts.js');
+  if (fs.existsSync(contactsSrc)) {
+    const contactsDestDir = path.join(distDir, 'functions', 'api');
+    fs.mkdirSync(contactsDestDir, { recursive: true });
+    fs.copyFileSync(contactsSrc, path.join(contactsDestDir, 'contacts.js'));
+    console.log('✅ 复制 functions/api/contacts.js');
+  } else {
+    console.warn('⚠️ functions/api/contacts.js 不存在，跳过复制');
   }
 
   // 复制根目录必要文件
