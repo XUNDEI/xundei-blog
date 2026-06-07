@@ -1,2033 +1,1710 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xundei's blog</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
-    </script>
-    <style>
-        /* ========== 全局链接样式 ========== */
-        a {
-            text-decoration: none;
-            position: relative;
-            color: #a1c4fd;
-            transition: all 0.3s ease;
-            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-size: 200% 100%;
-            background-position: 100% 0;
-        }
-
-        a:hover {
-            background-position: 0 0;
-            color: transparent;
-        }
-
-        a::before {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        a:hover::before {
-            opacity: 1;
-        }
-
-        a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
-
-        a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        footer a {
-            display: inline-block;
-            padding: 0 3px;
-            margin: 0 2px;
-            border-radius: 4px;
-        }
-
-        footer a:hover {
-            background: rgba(162, 196, 253, 0.15);
-            box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
-        }
-
-        /* ========== 阅读全文按钮覆盖全局a样式 ========== */
-        .read-more {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: var(--light-text) !important;
-            background-image: none !important;
-            -webkit-background-clip: unset !important;
-            background-clip: unset !important;
-            position: static !important;
-            transition: all 0.35s ease !important;
-        }
-
-        .read-more:hover {
-            background: var(--primary-color) !important;
-            box-shadow: 0 0 18px var(--glow-color), 0 0 36px rgba(66, 133, 244, 0.35) !important;
-            color: #fff !important;
-            letter-spacing: 1px;
-        }
-
-        .read-more::after,
-        .read-more::before {
-            content: none !important;
-        }
-
-        /* ========== 弹窗内阅读全文按钮 ========== */
-        .modal-read-full {
-            background: var(--primary-color) !important;
-            color: white !important;
-            -webkit-background-clip: unset !important;
-            background-clip: unset !important;
-            background-image: none !important;
-            transition: all 0.35s ease !important;
-        }
-
-        .modal-read-full:hover {
-            background: #2b6de0 !important;
-            color: white !important;
-            box-shadow: 0 0 24px var(--glow-color), 0 0 48px rgba(66, 133, 244, 0.4);
-            transform: translateY(-2px);
-            letter-spacing: 1px;
-        }
-
-        .modal-read-full::before,
-        .modal-read-full::after {
-            content: none !important;
-        }
-
-        /* ========== CSS 变量 ========== */
-        :root {
-            --glass-bg: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --primary-color: #4285F4;
-            --text-color: #333;
-            --light-text: #fff;
-            --transition: all 0.35s ease;
-            --blur-amount: 12px;
-            --glow-color: rgba(66, 133, 244, 0.7);
-            --scrollbar-width: 10px;
-            --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            min-height: 100vh;
-            color: var(--text-color);
-            position: relative;
-            overflow-x: hidden;
-            background-attachment: fixed;
-            transition: background-image 1.5s ease-in-out;
-            background-color: #121212;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
-        }
-
-        /* ========== Loading 弹窗 ========== */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease;
-            opacity: 1;
-        }
-
-        .loading-overlay.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-overlay.hidden {
-            display: none;
-        }
-
-        .loading-card {
-            background: rgba(30, 60, 120, 0.55);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(100, 160, 240, 0.45);
-            border-radius: 18px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(66, 133, 244, 0.35);
-            padding: 35px 30px 25px;
-            width: 320px;
-            max-width: 85vw;
-            text-align: center;
-            transition: all 0.3s ease;
-            animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes loadingPopIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.85);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .loading-card .loader {
-            display: inline-block;
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            border-top: 4px solid #5badf5;
-            border-right: 4px solid #3d8ef7;
-            animation: spin 0.9s linear infinite;
-            margin-bottom: 18px;
-        }
-
-        .loading-card .loading-text {
-            color: #ffffff;
-            font-size: 1.05rem;
-            font-weight: 500;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .loading-card .loading-subtext {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.8rem;
-            margin-bottom: 18px;
-            min-height: 18px;
-        }
-
-        .loading-progress-container {
-            width: 100%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loading-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #3d8ef7, #5badf5, #7dc8f8);
-            background-size: 200% 100%;
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: progressShimmer 2s linear infinite;
-            box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
-        }
-
-        @keyframes progressShimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* ========== 容器 ========== */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* ========== 磨砂玻璃卡片 - hover仅发光不浮动 ========== */
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: var(--glass-shadow);
-            padding: 20px;
-            transition: var(--transition);
-        }
-
-        .glass:hover {
-            /* 移除浮动，仅发光 */
-            box-shadow: var(--glow-strong);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* ========== Header ========== */
-        header {
-            text-align: center;
-            margin: 20px 0 40px;
-            animation: fadeInDown 1s ease;
-        }
-
-        header.glass:hover {
-            box-shadow: var(--glow-strong);
-        }
-
-        .blog-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 15px;
-            letter-spacing: -1px;
-            position: relative;
-        }
-
-        .blog-title .highlight {
-            background: linear-gradient(90deg,
-                    #ff0000, #ff8800, #ffff00, #00cc00,
-                    #0088ff, #6600ff, #cc00ff, #ff0044, #ff0000);
-            background-size: 600% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow-flow 3.5s linear infinite;
-            display: inline;
-        }
-
-        @keyframes rainbow-flow {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 600% 50%;
-            }
-        }
-
-        .glitch-text::before,
-        .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .glitch-text::before {
-            left: 2px;
-            text-shadow: -1px 0 #1E90FF;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim 5s infinite linear alternate-reverse;
-        }
-
-        .glitch-text::after {
-            left: -2px;
-            text-shadow: -1px 0 #00BFFF;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim2 5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% {
-                clip: rect(38px, 9999px, 34px, 0);
-            }
-            5% {
-                clip: rect(72px, 9999px, 11px, 0);
-            }
-            10% {
-                clip: rect(6px, 9999px, 86px, 0);
-            }
-            15% {
-                clip: rect(54px, 9999px, 18px, 0);
-            }
-            20% {
-                clip: rect(22px, 9999px, 63px, 0);
-            }
-            25% {
-                clip: rect(81px, 9999px, 35px, 0);
-            }
-            30% {
-                clip: rect(13px, 9999px, 92px, 0);
-            }
-            35% {
-                clip: rect(65px, 9999px, 49px, 0);
-            }
-            40% {
-                clip: rect(27px, 9999px, 7px, 0);
-            }
-            45% {
-                clip: rect(98px, 9999px, 53px, 0);
-            }
-            50% {
-                clip: rect(44px, 9999px, 26px, 0);
-            }
-            55% {
-                clip: rect(15px, 9999px, 88px, 0);
-            }
-            60% {
-                clip: rect(61px, 9999px, 39px, 0);
-            }
-            65% {
-                clip: rect(33px, 9999px, 74px, 0);
-            }
-            70% {
-                clip: rect(89px, 9999px, 12px, 0);
-            }
-            75% {
-                clip: rect(5px, 9999px, 68px, 0);
-            }
-            80% {
-                clip: rect(47px, 9999px, 94px, 0);
-            }
-            85% {
-                clip: rect(76px, 9999px, 21px, 0);
-            }
-            90% {
-                clip: rect(19px, 9999px, 57px, 0);
-            }
-            95% {
-                clip: rect(92px, 9999px, 43px, 0);
-            }
-            100% {
-                clip: rect(58px, 9999px, 81px, 0);
-            }
-        }
-
-        @keyframes glitch-anim2 {
-            0% {
-                clip: rect(12px, 9999px, 91px, 0);
-            }
-            5% {
-                clip: rect(67px, 9999px, 24px, 0);
-            }
-            10% {
-                clip: rect(34px, 9999px, 58px, 0);
-            }
-            15% {
-                clip: rect(88px, 9999px, 15px, 0);
-            }
-            20% {
-                clip: rect(42px, 9999px, 77px, 0);
-            }
-            25% {
-                clip: rect(9px, 9999px, 36px, 0);
-            }
-            30% {
-                clip: rect(55px, 9999px, 83px, 0);
-            }
-            35% {
-                clip: rect(28px, 9999px, 46px, 0);
-            }
-            40% {
-                clip: rect(73px, 9999px, 19px, 0);
-            }
-            45% {
-                clip: rect(16px, 9999px, 62px, 0);
-            }
-            50% {
-                clip: rect(94px, 9999px, 31px, 0);
-            }
-            55% {
-                clip: rect(39px, 9999px, 85px, 0);
-            }
-            60% {
-                clip: rect(82px, 9999px, 48px, 0);
-            }
-            65% {
-                clip: rect(25px, 9999px, 71px, 0);
-            }
-            70% {
-                clip: rect(69px, 9999px, 14px, 0);
-            }
-            75% {
-                clip: rect(46px, 9999px, 97px, 0);
-            }
-            80% {
-                clip: rect(13px, 9999px, 52px, 0);
-            }
-            85% {
-                clip: rect(59px, 9999px, 29px, 0);
-            }
-            90% {
-                clip: rect(96px, 9999px, 66px, 0);
-            }
-            95% {
-                clip: rect(31px, 9999px, 89px, 0);
-            }
-            100% {
-                clip: rect(78px, 9999px, 41px, 0);
-            }
-        }
-
-        .sentence {
-            font-size: 1.4rem;
-            font-weight: 300;
-            font-style: italic;
-            color: var(--light-text);
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-        }
-
-        .typewriter-cursor {
-            display: inline-block;
-            color: var(--light-text);
-            font-weight: 300;
-            margin-left: 2px;
-            opacity: 1;
-        }
-
-        .typewriter-cursor.blink {
-            animation: cursorBlink 0.9s infinite;
-        }
-
-        @keyframes cursorBlink {
-            0%,
-            50% {
-                opacity: 1;
-            }
-            51%,
-            100% {
-                opacity: 0;
-            }
-        }
-
-        /* ========== 分类按钮 ========== */
-        .categories {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .category-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50px;
-            padding: 12px 25px;
-            font-size: 1rem;
-            color: var(--light-text);
-            cursor: pointer;
-            transition: var(--transition);
-            backdrop-filter: blur(5px);
-            font-weight: 600;
-        }
-
-        .category-btn:hover {
-            background: var(--primary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 18px var(--glow-color);
-        }
-
-        .category-btn.active {
-            background: var(--primary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 22px var(--glow-color);
-        }
-
-        /* ========== 文章网格 ========== */
-        .articles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        /* ========== 文章卡片 - hover仅发光不浮动 ========== */
-        .article-card {
-            height: 320px;
-            display: flex;
-            flex-direction: column;
-            transition: var(--transition);
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-        }
-
-        .article-card:hover {
-            /* 移除浮动，仅发光 */
-            box-shadow: var(--glow-strong);
-            border-color: rgba(255, 255, 255, 0.55);
-        }
-
-        /* ========== 卡片悬浮提示 ========== */
-        .card-hint {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.72);
-            color: #fff;
-            padding: 7px 18px;
-            border-radius: 22px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            z-index: 5;
-            white-space: nowrap;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            letter-spacing: 0.5px;
-            transform: translateX(-50%) translateY(8px);
-        }
-
-        .article-card:hover .card-hint {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .article-header {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: background 0.3s ease;
-        }
-
-        .article-card:hover .article-header {
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .article-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--light-text);
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .article-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .article-content {
-            padding: 15px;
-            flex-grow: 1;
-            overflow: hidden;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
-            font-size: 0.95rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 5;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            transition: color 0.3s ease;
-        }
-
-        .article-card:hover .article-content {
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        .read-more {
-            display: block;
-            text-align: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--light-text);
-            text-decoration: none;
-            font-weight: 600;
-            transition: var(--transition);
-            border-radius: 0 0 12px 12px;
-            cursor: pointer;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* ========== 弹窗 - 优化后的磨砂玻璃详情卡片 ========== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.35s ease, visibility 0.35s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: rgba(22, 40, 80, 0.72);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(130, 180, 250, 0.4);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 40px rgba(66, 133, 244, 0.3), 0 0 80px rgba(66, 133, 244, 0.12);
-            width: 90%;
-            max-width: 620px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 35px 30px 28px;
-            position: relative;
-            animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes modalPopIn {
-            from {
-                opacity: 0;
-                transform: translateY(35px) scale(0.88);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* 弹窗顶部装饰线 */
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 30px;
-            right: 30px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, rgba(130, 180, 250, 0.7), rgba(66, 133, 244, 0.9), rgba(130, 180, 250, 0.7), transparent);
-            border-radius: 0 0 3px 3px;
-        }
-
-        .modal-close-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--light-text);
-            font-size: 1.2rem;
-            z-index: 2;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-close-btn:hover {
-            background: var(--primary-color);
-            transform: rotate(90deg);
-            box-shadow: 0 0 20px var(--glow-color);
-            border-color: transparent;
-        }
-
-        .modal-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--light-text);
-            margin-bottom: 15px;
-            word-break: break-word;
-            padding-right: 40px;
-            line-height: 1.3;
-        }
-
-        .modal-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .modal-meta .meta-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.07);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .modal-meta .meta-item i {
-            color: var(--primary-color);
-            font-size: 0.85rem;
-        }
-
-        .modal-excerpt {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.75;
-            font-size: 1rem;
-            white-space: pre-wrap;
-            margin-bottom: 28px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 16px 18px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .modal-read-full {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-weight: 600;
-            transition: var(--transition);
-            text-decoration: none;
-            box-shadow: 0 4px 20px rgba(66, 133, 244, 0.45);
-            font-size: 1rem;
-        }
-
-        .modal-read-full i {
-            transition: transform 0.3s ease;
-        }
-
-        .modal-read-full:hover i {
-            transform: translateX(4px);
-        }
-
-        /* 弹窗滚动条 */
-        .modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: rgba(130, 180, 250, 0.45);
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(130, 180, 250, 0.65);
-        }
-
-        .modal-content {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(130, 180, 250, 0.45) rgba(255, 255, 255, 0.05);
-        }
-
-        /* ========== 关于按钮与卡片 ========== */
-        .about-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-            transition: var(--transition);
-        }
-
-        .about-btn:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 22px var(--glow-color);
-        }
-
-        .about-card {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 300px;
-            z-index: 100;
-            display: none;
-            animation: popIn 0.4s ease;
-        }
-
-        .about-header {
-            display: flex;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            justify-content: space-between;
-        }
-
-        .avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 15px;
-            border: 2px solid white;
-        }
-
-        .about-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--light-text);
-        }
-
-        .contacts {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .contact-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            margin: 5px;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .contact-tooltip {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 101;
-        }
-
-        .contact-btn:hover .contact-tooltip {
-            opacity: 1;
-        }
-
-        .contact-btn:hover {
-            transform: translateY(-5px);
-            background: var(--primary-color);
-            box-shadow: 0 0 14px var(--glow-color);
-        }
-
-        .close-about-btn {
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-            color: var(--light-text);
-        }
-
-        .close-about-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(90deg);
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        /* ========== Footer ========== */
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        footer.glass:hover {
-            box-shadow: var(--glow-strong);
-        }
-
-        footer .footer-content {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ========== Toast ========== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 300px;
-        }
-
-        .toast {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.8);
-            width: 100%;
-            transform-origin: left;
-            animation: progress 3s linear forwards;
-        }
-
-        .toast.error {
-            background: #f44336;
-        }
-
-        .toast.success {
-            background: #4CAF50;
-        }
-
-        @keyframes progress {
-            from {
-                transform: scaleX(1);
-            }
-            to {
-                transform: scaleX(0);
-            }
-        }
-
-        /* ========== Loader ========== */
-        .loader {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 5px solid var(--primary-color);
-            animation: spin 1s linear infinite;
-        }
-
-        .loading-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-            width: 100%;
-        }
-
-        /* ========== 功能按钮与卡片 ========== */
-        .func-btn {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-            transition: var(--transition);
-        }
-
-        .func-btn:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 22px var(--glow-color);
-        }
-
-        .func-card {
-            position: fixed;
-            bottom: 100px;
-            left: 30px;
-            width: 280px;
-            z-index: 100;
-            display: none;
-            animation: popIn 0.4s ease;
-            padding: 15px;
-        }
-
-        .func-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .func-card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--light-text);
-        }
-
-        .close-btn {
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-            color: var(--light-text);
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(90deg);
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        .func-section {
-            margin-bottom: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            transition: var(--transition);
-        }
-
-        .func-section:hover {
-            box-shadow: 0 0 20px var(--glow-color);
-        }
-
-        .func-section h4 {
-            color: var(--light-text);
-            margin-bottom: 8px;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .func-section h4 i {
-            margin-right: 8px;
-            color: var(--primary-color);
-        }
-
-        .counter-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            text-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
-            margin: 5px 0;
-        }
-
-        .luck-btn {
-            background: rgba(66, 133, 244, 0.3);
-            border: none;
-            border-radius: 30px;
-            padding: 8px 15px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .luck-btn:hover {
-            background: var(--primary-color);
-            box-shadow: 0 0 20px var(--glow-color);
-        }
-
-        .luck-result {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 10px 0;
-            color: var(--light-text);
-            text-shadow: 0 0 15px var(--primary-color);
-            transition: all 0.5s ease;
-        }
-
-        .luck-message {
-            text-align: center;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            min-height: 40px;
-        }
-
-        .history-content {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.5;
-        }
-
-        .history-date {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-
-        .history-loading {
-            text-align: center;
-            padding: 10px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .history-error {
-            color: #ff6b6b;
-            text-align: center;
-            padding: 10px;
-        }
-
-        /* ========== 全局 ========== */
-        ::selection {
-            background: rgba(66, 133, 244, 0.3);
-            color: white;
-            text-shadow: none;
-        }
-
-        ::-moz-selection {
-            background: rgba(66, 133, 244, 0.3);
-            color: white;
-            text-shadow: none;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ========== 全局滚动条 ========== */
-        ::-webkit-scrollbar {
-            width: var(--scrollbar-width);
-            height: var(--scrollbar-width);
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(66, 133, 244, 0.5);
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(66, 133, 244, 0.7);
-        }
-
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
-        }
-
-        /* ========== 响应式 ========== */
-        @media (max-width: 768px) {
-            .blog-title {
-                font-size: 2.5rem;
-            }
-
-            .sentence {
-                font-size: 1.1rem;
-            }
-
-            .articles-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .about-card {
-                width: 250px;
-                right: 15px;
-            }
-
-            .func-card {
-                width: 260px;
-                left: 15px;
-            }
-
-            .loading-card {
-                width: 280px;
-                padding: 28px 22px 20px;
-            }
-
-            .modal-content {
-                padding: 28px 20px 22px;
-            }
-
-            .modal-content::before {
-                left: 20px;
-                right: 20px;
-            }
-
-            .modal-title {
-                font-size: 1.5rem;
-            }
-
-            :root {
-                --blur-amount: 8px;
-                --scrollbar-width: 8px;
-            }
-
-            footer .footer-content {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .toast-container {
-                max-width: 250px;
-            }
-
-            .card-hint {
-                bottom: 45px;
-                font-size: 0.8rem;
-                padding: 4px 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .blog-title {
-                font-size: 2rem;
-            }
-
-            .sentence {
-                font-size: 1rem;
-            }
-
-            .category-btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-            }
-
-            .about-card {
-                width: 90%;
-                right: 5%;
-                left: 5%;
-            }
-
-            .func-card {
-                width: 90%;
-                left: 5%;
-            }
-
-            .func-btn {
-                left: 15px;
-                bottom: 15px;
-            }
-
-            .loading-card {
-                width: 260px;
-                padding: 24px 18px 16px;
-            }
-
-            .loading-card .loader {
-                width: 38px;
-                height: 38px;
-                border-width: 3px;
-            }
-
-            .loading-card .loading-text {
-                font-size: 0.95rem;
-            }
-
-            .modal-content {
-                padding: 24px 16px 18px;
-                border-radius: 16px;
-            }
-
-            .modal-content::before {
-                left: 16px;
-                right: 16px;
-            }
-
-            .modal-title {
-                font-size: 1.35rem;
-            }
-
-            .modal-meta .meta-item {
-                font-size: 0.78rem;
-                padding: 4px 10px;
-            }
-        }
-    </style>
-
-    <script src="axios.min.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>xundei's blog</title>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <style>
+    /* ========== 全局链接样式 ========== */
+    a {
+      text-decoration: none;
+      position: relative;
+      background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 200% 100%;
+      background-position: 100% 0;
+      transition: all 0.3s ease;
+    }
+    a:hover {
+      background-position: 0 0;
+      color: transparent;
+    }
+    a::before {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    a:hover::before {
+      opacity: 1;
+    }
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #a1c4fd, #c2e9fb);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    footer a {
+      display: inline-block;
+      padding: 0 3px;
+      margin: 0 2px;
+      border-radius: 4px;
+    }
+    footer a:hover {
+      background: rgba(162, 196, 253, 0.15);
+      box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
+    }
+
+    /* ========== 阅读全文按钮覆盖全局a样式 ========== */
+    .read-more {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: var(--light-text) !important;
+      background-image: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      position: static !important;
+      transition: all 0.35s ease !important;
+    }
+    .read-more:hover {
+      background: var(--primary-color) !important;
+      box-shadow: 0 0 18px var(--glow-color), 0 0 36px rgba(66, 133, 244, 0.35) !important;
+      color: #fff !important;
+      letter-spacing: 1px;
+    }
+    .read-more::after,
+    .read-more::before {
+      content: none !important;
+    }
+    .modal-read-full {
+      background: var(--primary-color) !important;
+      color: white !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      background-image: none !important;
+      transition: all 0.35s ease !important;
+    }
+    .modal-read-full:hover {
+      background: #2b6de0 !important;
+      color: white !important;
+      box-shadow: 0 0 24px var(--glow-color), 0 0 48px rgba(66, 133, 244, 0.4);
+      transform: translateY(-2px);
+      letter-spacing: 1px;
+    }
+    .modal-read-full::before,
+    .modal-read-full::after {
+      content: none !important;
+    }
+
+    /* ========== CSS 变量 ========== */
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.2);
+      --glass-border: rgba(255, 255, 255, 0.3);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --primary-color: #4285F4;
+      --text-color: #333;
+      --light-text: #fff;
+      --transition: all 0.35s ease;
+      --blur-amount: 12px;
+      --glow-color: rgba(66, 133, 244, 0.7);
+      --scrollbar-width: 10px;
+      --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: var(--text-color);
+      position: relative;
+      overflow-x: hidden;
+      background-attachment: fixed;
+      transition: background-image 1.5s ease-in-out;
+      background-color: #121212;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    /* ========== Loading 弹窗 ========== */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+      opacity: 1;
+    }
+    .loading-overlay.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-overlay.hidden {
+      display: none;
+    }
+    .loading-card {
+      background: rgba(30, 60, 120, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(100, 160, 240, 0.45);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(66, 133, 244, 0.35);
+      padding: 35px 30px 25px;
+      width: 320px;
+      max-width: 85vw;
+      text-align: center;
+      transition: all 0.3s ease;
+      animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes loadingPopIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.85); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .loading-card .loader {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      border-top: 4px solid #5badf5;
+      border-right: 4px solid #3d8ef7;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 18px;
+    }
+    .loading-card .loading-text {
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .loading-card .loading-subtext {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+      margin-bottom: 18px;
+      min-height: 18px;
+    }
+    .loading-progress-container {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loading-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #3d8ef7, #5badf5, #7dc8f8);
+      background-size: 200% 100%;
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: progressShimmer 2s linear infinite;
+      box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
+    }
+    @keyframes progressShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ========== 容器 ========== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ========== 磨砂玻璃卡片 ========== */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur-amount));
+      -webkit-backdrop-filter: blur(var(--blur-amount));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: var(--glass-shadow);
+      padding: 20px;
+      transition: var(--transition);
+    }
+    .glass:hover {
+      box-shadow: var(--glow-strong);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* ========== Header ========== */
+    header {
+      text-align: center;
+      margin: 20px 0 40px;
+      animation: fadeInDown 1s ease;
+    }
+    header.glass:hover {
+      box-shadow: var(--glow-strong);
+    }
+    .blog-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+      position: relative;
+    }
+.blog-title .highlight {
+  background: linear-gradient(90deg, #1E90FF, #00BFFF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline;
+}
+    @keyframes rainbow-flow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 600% 50%; }
+    }
+    .glitch-text::before,
+    .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .glitch-text::before {
+      left: 2px;
+      text-shadow: -1px 0 #1E90FF;
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim 5s infinite linear alternate-reverse;
+    }
+    .glitch-text::after {
+      left: -2px;
+      text-shadow: -1px 0 #00BFFF;
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim2 5s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-anim {
+      0% { clip: rect(38px, 9999px, 34px, 0); }
+      5% { clip: rect(72px, 9999px, 11px, 0); }
+      10% { clip: rect(6px, 9999px, 86px, 0); }
+      15% { clip: rect(54px, 9999px, 18px, 0); }
+      20% { clip: rect(22px, 9999px, 63px, 0); }
+      25% { clip: rect(81px, 9999px, 35px, 0); }
+      30% { clip: rect(13px, 9999px, 92px, 0); }
+      35% { clip: rect(65px, 9999px, 49px, 0); }
+      40% { clip: rect(27px, 9999px, 7px, 0); }
+      45% { clip: rect(98px, 9999px, 53px, 0); }
+      50% { clip: rect(44px, 9999px, 26px, 0); }
+      55% { clip: rect(15px, 9999px, 88px, 0); }
+      60% { clip: rect(61px, 9999px, 39px, 0); }
+      65% { clip: rect(33px, 9999px, 74px, 0); }
+      70% { clip: rect(89px, 9999px, 12px, 0); }
+      75% { clip: rect(5px, 9999px, 68px, 0); }
+      80% { clip: rect(47px, 9999px, 94px, 0); }
+      85% { clip: rect(76px, 9999px, 21px, 0); }
+      90% { clip: rect(19px, 9999px, 57px, 0); }
+      95% { clip: rect(92px, 9999px, 43px, 0); }
+      100% { clip: rect(58px, 9999px, 81px, 0); }
+    }
+    @keyframes glitch-anim2 {
+      0% { clip: rect(12px, 9999px, 91px, 0); }
+      5% { clip: rect(67px, 9999px, 24px, 0); }
+      10% { clip: rect(34px, 9999px, 58px, 0); }
+      15% { clip: rect(88px, 9999px, 15px, 0); }
+      20% { clip: rect(42px, 9999px, 77px, 0); }
+      25% { clip: rect(9px, 9999px, 36px, 0); }
+      30% { clip: rect(55px, 9999px, 83px, 0); }
+      35% { clip: rect(28px, 9999px, 46px, 0); }
+      40% { clip: rect(73px, 9999px, 19px, 0); }
+      45% { clip: rect(16px, 9999px, 62px, 0); }
+      50% { clip: rect(94px, 9999px, 31px, 0); }
+      55% { clip: rect(39px, 9999px, 85px, 0); }
+      60% { clip: rect(82px, 9999px, 48px, 0); }
+      65% { clip: rect(25px, 9999px, 71px, 0); }
+      70% { clip: rect(69px, 9999px, 14px, 0); }
+      75% { clip: rect(46px, 9999px, 97px, 0); }
+      80% { clip: rect(13px, 9999px, 52px, 0); }
+      85% { clip: rect(59px, 9999px, 29px, 0); }
+      90% { clip: rect(96px, 9999px, 66px, 0); }
+      95% { clip: rect(31px, 9999px, 89px, 0); }
+      100% { clip: rect(78px, 9999px, 41px, 0); }
+    }
+    .sentence {
+      font-size: 1.4rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--light-text);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+    }
+    .typewriter-cursor {
+      display: inline-block;
+      color: var(--light-text);
+      font-weight: 300;
+      margin-left: 2px;
+      opacity: 1;
+    }
+    .typewriter-cursor.blink {
+      animation: cursorBlink 0.9s infinite;
+    }
+    @keyframes cursorBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    .categories {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .category-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      color: var(--light-text);
+      cursor: pointer;
+      transition: var(--transition);
+      backdrop-filter: blur(5px);
+      font-weight: 600;
+    }
+    .category-btn:hover {
+      background: var(--primary-color);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 18px var(--glow-color);
+    }
+    .category-btn.active {
+      background: var(--primary-color);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 22px var(--glow-color);
+    }
+
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+    }
+    .article-card {
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .article-card:hover {
+      box-shadow: var(--glow-strong);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+    .card-hint {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.55);
+      color: rgba(255, 255, 255, 0.9);
+      padding: 6px 16px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 400;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 5;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.3px;
+      transform: translateX(-50%) translateY(6px);
+    }
+    .article-card:hover .card-hint {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .article-header {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.3s ease;
+    }
+    .article-card:hover .article-header {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .article-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--light-text);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .article-content {
+      padding: 15px;
+      flex-grow: 1;
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+      font-size: 0.95rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      transition: color 0.3s ease;
+    }
+    .article-card:hover .article-content {
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .read-more {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      border-radius: 0 0 12px 12px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ========== 弹窗 - 透明磨砂玻璃风格 ========== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-content {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 22px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(66, 133, 244, 0.3), 0 0 80px rgba(66, 133, 244, 0.12);
+      width: 90%;
+      max-width: 620px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 35px 30px 28px;
+      position: relative;
+      animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    @keyframes modalPopIn {
+      from { opacity: 0; transform: translateY(35px) scale(0.88); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 30px;
+      right: 30px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(130, 180, 250, 0.7), rgba(66, 133, 244, 0.9), rgba(130, 180, 250, 0.7), transparent);
+      border-radius: 0 0 3px 3px;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--light-text);
+      font-size: 1.2rem;
+      z-index: 2;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .modal-close-btn:hover {
+      background: var(--primary-color);
+      transform: rotate(90deg);
+      box-shadow: 0 0 20px var(--glow-color);
+      border-color: transparent;
+    }
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--light-text);
+      margin-bottom: 15px;
+      word-break: break-word;
+      padding-right: 40px;
+      line-height: 1.3;
+    }
+    .modal-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .modal-meta .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .modal-meta .meta-item i {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+    }
+    .modal-excerpt {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.75;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      margin-bottom: 28px;
+      background: rgba(0, 0, 0, 0.12);
+      padding: 16px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .modal-read-full {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(66, 133, 244, 0.45);
+      font-size: 1rem;
+    }
+    .modal-read-full i {
+      transition: transform 0.3s ease;
+    }
+    .modal-read-full:hover i {
+      transform: translateX(4px);
+    }
+    .modal-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .modal-content::-webkit-scrollbar-thumb {
+      background: rgba(130, 180, 250, 0.45);
+      border-radius: 10px;
+    }
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(130, 180, 250, 0.65);
+    }
+    .modal-content {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(130, 180, 250, 0.45) rgba(255, 255, 255, 0.05);
+    }
+
+    /* ========== 关于按钮与卡片 ========== */
+    .about-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      transition: var(--transition);
+    }
+    .about-btn:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 0 22px var(--glow-color);
+    }
+    .about-card {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 300px;
+      z-index: 100;
+      display: none;
+      animation: popIn 0.4s ease;
+    }
+    .about-header {
+      display: flex;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      justify-content: space-between;
+    }
+    .avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 2px solid white;
+    }
+    .about-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--light-text);
+    }
+    .contacts {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .contact-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      margin: 5px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .contact-tooltip {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 101;
+    }
+    .contact-btn:hover .contact-tooltip {
+      opacity: 1;
+    }
+    .contact-btn:hover {
+      transform: translateY(-5px);
+      background: var(--primary-color);
+      box-shadow: 0 0 14px var(--glow-color);
+    }
+    .close-about-btn {
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: var(--transition);
+      color: var(--light-text);
+    }
+    .close-about-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(90deg);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    footer.glass:hover {
+      box-shadow: var(--glow-strong);
+    }
+    footer .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+    }
+    .toast {
+      background: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.8);
+      width: 100%;
+      transform-origin: left;
+      animation: progress 3s linear forwards;
+    }
+    .toast.error {
+      background: #f44336;
+    }
+    .toast.success {
+      background: #4CAF50;
+    }
+    @keyframes progress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    .loader {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 5px solid var(--primary-color);
+      animation: spin 1s linear infinite;
+    }
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      width: 100%;
+    }
+
+    .func-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      transition: var(--transition);
+    }
+    .func-btn:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 0 22px var(--glow-color);
+    }
+    .func-card {
+      position: fixed;
+      bottom: 100px;
+      left: 30px;
+      width: 280px;
+      z-index: 100;
+      display: none;
+      animation: popIn 0.4s ease;
+      padding: 15px;
+    }
+    .func-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .func-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--light-text);
+    }
+    .close-btn {
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: var(--transition);
+      color: var(--light-text);
+    }
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(90deg);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+    .func-section {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: var(--transition);
+    }
+    .func-section:hover {
+      box-shadow: 0 0 20px var(--glow-color);
+    }
+    .func-section h4 {
+      color: var(--light-text);
+      margin-bottom: 8px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    .func-section h4 i {
+      margin-right: 8px;
+      color: var(--primary-color);
+    }
+    .counter-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
+      margin: 5px 0;
+    }
+    .luck-btn {
+      background: rgba(66, 133, 244, 0.3);
+      border: none;
+      border-radius: 30px;
+      padding: 8px 15px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+    }
+    .luck-btn:hover {
+      background: var(--primary-color);
+      box-shadow: 0 0 20px var(--glow-color);
+    }
+    .luck-result {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 10px 0;
+      color: var(--light-text);
+      text-shadow: 0 0 15px var(--primary-color);
+      transition: all 0.5s ease;
+    }
+    .luck-message {
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+      min-height: 40px;
+    }
+    .history-content {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+    }
+    .history-date {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+    .history-loading {
+      text-align: center;
+      padding: 10px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .history-error {
+      color: #ff6b6b;
+      text-align: center;
+      padding: 10px;
+    }
+
+    ::selection {
+      background: rgba(66, 133, 244, 0.3);
+      color: white;
+      text-shadow: none;
+    }
+    ::-moz-selection {
+      background: rgba(66, 133, 244, 0.3);
+      color: white;
+      text-shadow: none;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    ::-webkit-scrollbar {
+      width: var(--scrollbar-width);
+      height: var(--scrollbar-width);
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(66, 133, 244, 0.5);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(66, 133, 244, 0.7);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .blog-title { font-size: 2.5rem; }
+      .sentence { font-size: 1.1rem; }
+      .articles-grid { grid-template-columns: 1fr; }
+      .about-card { width: 250px; right: 15px; }
+      .func-card { width: 260px; left: 15px; }
+      .loading-card { width: 280px; padding: 28px 22px 20px; }
+      .modal-content { padding: 28px 20px 22px; }
+      .modal-content::before { left: 20px; right: 20px; }
+      .modal-title { font-size: 1.5rem; }
+      :root { --blur-amount: 8px; --scrollbar-width: 8px; }
+      footer .footer-content { flex-direction: column; gap: 5px; }
+      .toast-container { max-width: 250px; }
+      .card-hint { bottom: 45px; font-size: 0.8rem; padding: 4px 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .blog-title { font-size: 2rem; }
+      .sentence { font-size: 1rem; }
+      .category-btn { padding: 10px 15px; font-size: 0.9rem; }
+      .about-card { width: 90%; right: 5%; left: 5%; }
+      .func-card { width: 90%; left: 5%; }
+      .func-btn { left: 15px; bottom: 15px; }
+      .loading-card { width: 260px; padding: 24px 18px 16px; }
+      .loading-card .loader { width: 38px; height: 38px; border-width: 3px; }
+      .loading-card .loading-text { font-size: 0.95rem; }
+      .modal-content { padding: 24px 16px 18px; border-radius: 16px; }
+      .modal-content::before { left: 16px; right: 16px; }
+      .modal-title { font-size: 1.35rem; }
+      .modal-meta .meta-item { font-size: 0.78rem; padding: 4px 10px; }
+    }
+  </style>
+  <script src="axios.min.js" defer></script>
 </head>
 <body>
-
-    <!-- Loading 弹窗 -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-card">
-            <div class="loader"></div>
-            <div class="loading-text">加载中...</div>
-            <div class="loading-subtext" id="loading-subtext">正在加载(๑•̀ㅂ•́)و✧</div>
-            <div class="loading-progress-container">
-                <div class="loading-progress-bar" id="loading-progress-bar"></div>
-            </div>
-        </div>
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-card">
+      <div class="loader"></div>
+      <div class="loading-text">加载中...</div>
+      <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待(๑•̀ㅂ•́)و✧</div>
+      <div class="loading-progress-container">
+        <div class="loading-progress-bar" id="loading-progress-bar"></div>
+      </div>
     </div>
+  </div>
 
-    <div class="container">
-        <header class="glass">
-            <h1 class="blog-title glitch-text" data-text="xundei's blog">
-                <span class="highlight">xundei</span>'s blog
-            </h1>
-            <div class="sentence" id="sentence">加载中...</div>
-            <div class="categories">
-                <button class="category-btn active" data-category="all">全部</button>
-                <button class="category-btn" data-category="technology">技术</button>
-                <button class="category-btn" data-category="diary">日记</button>
-                <button class="category-btn" data-category="something">杂碎</button>
-            </div>
-        </header>
+  <div class="container">
+    <header class="glass">
+      <h1 class="blog-title glitch-text" data-text="xundei's blog">
+        <span class="highlight">xundei</span>'s blog
+      </h1>
+      <div class="sentence" id="sentence">加载中...</div>
+      <div class="categories">
+        <button class="category-btn active" data-category="all">全部</button>
+        <button class="category-btn" data-category="technology">技术</button>
+        <button class="category-btn" data-category="diary">日记</button>
+        <button class="category-btn" data-category="something">杂碎</button>
+      </div>
+    </header>
 
-        <main>
-            <div class="articles-grid" id="articles-grid">
-                <div class="loading-container">
-                    <div class="loader"></div>
-                </div>
-            </div>
-        </main>
+    <main>
+      <div class="articles-grid" id="articles-grid">
+        <div class="loading-container">
+          <div class="loader"></div>
+        </div>
+      </div>
+    </main>
 
-        <footer class="glass">
-            <div class="footer-content">
-                <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.8.3">xundei-blog V2.8.3</a>
-                <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
-            </div>
-        </footer>
+    <footer class="glass">
+      <div class="footer-content">
+        <span>made by <strong>xundei</strong> with ❤️ |</span>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.0">xundei-blog V2.9.0</a>
+        <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="article-modal">
+    <div class="modal-content">
+      <div class="modal-close-btn" id="modal-close-btn">
+        <i class="fas fa-times"></i>
+      </div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <div class="modal-meta">
+        <span class="meta-item"><i class="far fa-calendar-alt"></i> <span id="modal-date"></span></span>
+        <span class="meta-item"><i class="fas fa-folder"></i> <span id="modal-category"></span></span>
+      </div>
+      <div class="modal-excerpt" id="modal-excerpt"></div>
+      <a href="#" class="modal-read-full" id="modal-read-link">
+        <span>阅读全文</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
     </div>
+  </div>
 
-    <!-- 文章详情弹窗（优化后的磨砂玻璃详细信息卡片） -->
-    <div class="modal-overlay" id="article-modal">
-        <div class="modal-content">
-            <div class="modal-close-btn" id="modal-close-btn">
-                <i class="fas fa-times"></i>
-            </div>
-            <h2 class="modal-title" id="modal-title"></h2>
-            <div class="modal-meta">
-                <span class="meta-item"><i class="far fa-calendar-alt"></i> <span id="modal-date"></span></span>
-                <span class="meta-item"><i class="fas fa-folder"></i> <span id="modal-category"></span></span>
-            </div>
-            <div class="modal-excerpt" id="modal-excerpt"></div>
-            <a href="#" class="modal-read-full" id="modal-read-link">
-                <span>阅读全文</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
+  <div class="about-btn" id="about-btn">
+    <i class="fas fa-user"></i>
+  </div>
+
+  <div class="about-card glass" id="about-card">
+    <div class="about-header">
+      <div style="display: flex; align-items: center;">
+        <img src="./portrait.png" alt="Avatar" class="avatar" />
+        <div class="about-name">迅dei</div>
+      </div>
+      <div class="close-about-btn" id="close-about-btn">
+        <i class="fas fa-times"></i>
+      </div>
     </div>
+    <div class="contacts" id="contacts-container"></div>
+    <p style="text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 10px;">
+      点击图标复制联系方式
+    </p>
+  </div>
 
-    <!-- 关于按钮 -->
-    <div class="about-btn" id="about-btn">
-        <i class="fas fa-user"></i>
+  <div class="func-btn" id="func-btn">
+    <i class="fas fa-star"></i>
+  </div>
+
+  <div class="func-card glass" id="func-card">
+    <div class="func-card-header">
+      <div class="func-card-title">功能小窗</div>
+      <div class="close-btn" id="close-func-card">
+        <i class="fas fa-times"></i>
+      </div>
     </div>
-
-    <!-- 关于卡片 -->
-    <div class="about-card glass" id="about-card">
-        <div class="about-header">
-            <div style="display: flex; align-items: center;">
-                <img src="./portrait.png" alt="Avatar" class="avatar">
-                <div class="about-name">迅dei</div>
-            </div>
-            <div class="close-about-btn" id="close-about-btn">
-                <i class="fas fa-times"></i>
-            </div>
-        </div>
-        <div class="contacts">
-            <div class="contact-btn" data-contact="github" data-value="https://github.com/XUNDEI">
-                <i class="fab fa-github"></i>
-                <div class="contact-tooltip">GitHub</div>
-            </div>
-            <div class="contact-btn" data-contact="qq" data-value="503275418">
-                <i class="fab fa-qq"></i>
-                <div class="contact-tooltip">QQ</div>
-            </div>
-            <div class="contact-btn" data-contact="wechat" data-value="xie503275418">
-                <i class="fab fa-weixin"></i>
-                <div class="contact-tooltip">微信</div>
-            </div>
-            <div class="contact-btn" data-contact="bilibili" data-value="518218011">
-                <i class="fab fa-bilibili"></i>
-                <div class="contact-tooltip">B站</div>
-            </div>
-            <div class="contact-btn" data-contact="email" data-value="xundei_awa@outlook.com">
-                <i class="fas fa-envelope"></i>
-                <div class="contact-tooltip">邮箱</div>
-            </div>
-        </div>
-        <p style="text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 10px;">
-            点击图标复制联系方式
-        </p>
+    <div class="func-section">
+      <h4><i class="fas fa-clock"></i> 博客运行时间</h4>
+      <div class="counter-value" id="runtime-display">0天0时0分0秒</div>
     </div>
-
-    <!-- 功能按钮 -->
-    <div class="func-btn" id="func-btn">
-        <i class="fas fa-star"></i>
+    <div class="func-section">
+      <h4><i class="fas fa-dice"></i> 今日运气</h4>
+      <button class="luck-btn" id="luck-btn">试试手气</button>
+      <div class="luck-result" id="luck-result">?</div>
+      <div class="luck-message" id="luck-message">结果仅供参考，切勿迷信</div>
     </div>
-
-    <!-- 功能卡片 -->
-    <div class="func-card glass" id="func-card">
-        <div class="func-card-header">
-            <div class="func-card-title">功能小窗</div>
-            <div class="close-btn" id="close-func-card">
-                <i class="fas fa-times"></i>
-            </div>
+    <div class="func-section">
+      <h4><i class="fas fa-history"></i> 历史上的今天</h4>
+      <div class="history-content" id="history-content">
+        <div class="history-loading">
+          <i class="fas fa-spinner fa-spin"></i> 加载中...
         </div>
-
-        <div class="func-section">
-            <h4><i class="fas fa-clock"></i> 博客运行时间</h4>
-            <div class="counter-value" id="runtime-display">0天0时0分0秒</div>
-        </div>
-
-        <div class="func-section">
-            <h4><i class="fas fa-dice"></i> 今日运气</h4>
-            <button class="luck-btn" id="luck-btn">试试手气</button>
-            <div class="luck-result" id="luck-result">?</div>
-            <div class="luck-message" id="luck-message">结果仅供参考，切勿迷信</div>
-        </div>
-
-        <div class="func-section">
-            <h4><i class="fas fa-history"></i> 历史上的今天</h4>
-            <div class="history-content" id="history-content">
-                <div class="history-loading">
-                    <i class="fas fa-spinner fa-spin"></i> 加载中...
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Toast 容器 -->
-    <div class="toast-container" id="toast-container"></div>
+  <div class="toast-container" id="toast-container"></div>
 
-    <script>
-        const luckMessages = {
-            0: "Σ (・□・;)",
-            100: "欧皇就是你辣(≧∀≦)ゞ",
-            range: [
-                { min: 1, max: 20, message: "运气不是很好呢(´･_･`)" },
-                { min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )" },
-                { min: 45, max: 55, message: "普普通通呢(´･ω･`)" },
-                { min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)" },
-                { min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧" },
-                { min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )" }
-            ]
-        };
+  <script>
+    (function() {
+      const luckMessages = {
+        0: "Σ (・□・;)",
+        100: "欧皇就是你辣(≧∀≦)ゞ",
+        range: [
+          { min: 1, max: 20, message: "运气不是很好呢(´･_･`)" },
+          { min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )" },
+          { min: 45, max: 55, message: "普普通通呢(´･ω･`)" },
+          { min: 56, max: 69, message: "又是小幸运的一天~(,,・ω・,,)" },
+          { min: 70, max: 89, message: "运气很好呢(๑•̀ㅂ•́)و✧" },
+          { min: 90, max: 99, message: "离欧皇只差一点点啦ヽ( ^ω^ ゞ )" }
+        ]
+      };
 
-        let articlesData = [];
+      let articlesData = [];
+      const loadingErrors = [];
 
-        function updateLoadingProgress(percentage, subtext) {
-            const progressBar = document.getElementById('loading-progress-bar');
-            const subtextEl = document.getElementById('loading-subtext');
-            if (progressBar) progressBar.style.width = percentage + '%';
-            if (subtextEl && subtext) subtextEl.textContent = subtext;
+      function updateLoadingProgress(percentage, subtext) {
+        const progressBar = document.getElementById('loading-progress-bar');
+        const subtextEl = document.getElementById('loading-subtext');
+        if (progressBar) progressBar.style.width = percentage + '%';
+        if (subtextEl && subtext) subtextEl.textContent = subtext;
+      }
+
+      function hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (!overlay) return;
+        updateLoadingProgress(100, '加载完成(ゝ∀･)b');
+        setTimeout(() => {
+          overlay.classList.add('fade-out');
+          setTimeout(() => {
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+          }, 500);
+        }, 350);
+      }
+
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const progress = document.createElement('div');
+        progress.className = 'toast-progress';
+        const msg = document.createElement('div');
+        msg.textContent = message;
+        toast.appendChild(progress);
+        toast.appendChild(msg);
+        container.appendChild(toast);
+
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            if (container.contains(toast)) container.removeChild(toast);
+          }, 400);
+        }, 3000);
+      }
+
+      function flushLoadingErrors() {
+        if (loadingErrors.length === 0) return;
+        const unique = [...new Set(loadingErrors)];
+        unique.forEach(err => showToast(err, 'error'));
+        loadingErrors.length = 0;
+      }
+
+      function addLoadingError(msg) {
+        loadingErrors.push(msg);
+      }
+
+      function loadWithTimeout(promise, timeoutMs, errorMsg) {
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), timeoutMs))
+        ]);
+      }
+
+      function updateRuntime() {
+        const start = new Date('2025-07-12T11:04:41');
+        const now = new Date();
+        const diff = now - start;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById('runtime-display').textContent = `${days}天${hours}时${minutes}分${seconds}秒`;
+      }
+
+      function initLuckResult() {
+        const today = new Date().toDateString();
+        const stored = localStorage.getItem('dailyLuck');
+        if (stored) {
+          const data = JSON.parse(stored);
+          if (data.date === today) {
+            displayLuckResult(data.value);
+            return;
+          }
         }
+        document.getElementById('luck-result').textContent = '?';
+      }
 
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (!overlay) return;
-            updateLoadingProgress(100, '加载完成(ゝ∀･)b');
-            setTimeout(() => {
-                overlay.classList.add('fade-out');
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                    overlay.style.display = 'none';
-                }, 500);
-            }, 350);
+      function getDailyLuck() {
+        const today = new Date().toDateString();
+        const stored = localStorage.getItem('dailyLuck');
+        if (stored) {
+          const data = JSON.parse(stored);
+          if (data.date === today) {
+            displayLuckResult(data.value);
+            return;
+          }
         }
+        const value = Math.floor(Math.random() * 101);
+        localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value }));
+        displayLuckResult(value);
+      }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            updateLoadingProgress(8, '正在连接...');
-            try {
-                updateLoadingProgress(15, '正在获取文章列表...');
-                const response = await fetch('./articles.json');
-                if (!response.ok) throw new Error('文章列表加载失败');
-                articlesData = await response.json();
-                updateLoadingProgress(25, '文章列表已就绪');
-            } catch (err) {
-                console.error(err);
-                showToast('文章列表加载失败，请刷新', 'error');
-                articlesData = [];
-                updateLoadingProgress(25, '文章列表加载失败，继续中...');
+      function displayLuckResult(value) {
+        const resultEl = document.getElementById('luck-result');
+        const messageEl = document.getElementById('luck-message');
+        resultEl.textContent = value;
+        resultEl.style.transform = 'scale(1.5)';
+        setTimeout(() => resultEl.style.transform = 'scale(1)', 500);
+
+        if (value === 0) messageEl.textContent = luckMessages[0];
+        else if (value === 100) messageEl.textContent = luckMessages[100];
+        else {
+          for (const range of luckMessages.range) {
+            if (value >= range.min && value <= range.max) {
+              messageEl.textContent = range.message;
+              break;
             }
+          }
+        }
+      }
 
-            initFuncPanel();
-            updateRuntime();
-            setInterval(updateRuntime, 1000);
-            await initializePage();
+      function typeWriter(element, text, speed = 80) {
+        element.innerHTML = '';
+        const wrapper = document.createElement('span');
+        const textSpan = document.createElement('span');
+        const cursor = document.createElement('span');
+        cursor.className = 'typewriter-cursor';
+        cursor.textContent = '|';
+        wrapper.appendChild(textSpan);
+        wrapper.appendChild(cursor);
+        element.appendChild(wrapper);
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            textSpan.textContent += text.charAt(i);
+            i++;
+            const variation = Math.random() * 0.6 + 0.7;
+            setTimeout(type, speed * variation);
+          } else {
+            cursor.classList.add('blink');
+          }
+        }
+        type();
+      }
+
+      async function loadSentences() {
+        const el = document.getElementById('sentence');
+        try {
+          const res = await axios.get('./sentences.txt', { timeout: 8000 });
+          const sentences = res.data.split('\n').filter(line => line.trim());
+          if (sentences.length) {
+            const random = sentences[Math.floor(Math.random() * sentences.length)];
+            typeWriter(el, random, 80);
+          } else throw new Error('空文件');
+        } catch (e) {
+          console.error('加载美句失败:', e);
+          addLoadingError('美句加载失败');
+          el.style.display = 'none';
+        }
+      }
+
+      async function loadWallpapers() {
+        try {
+          const res = await axios.get('./wallpaper.json', { timeout: 10000 });
+          const data = res.data;
+          if (data && data.length) {
+            const entry = data[Math.floor(Math.random() * data.length)];
+            const path = entry.path + '?t=' + new Date().getTime();
+            return new Promise(resolve => {
+              const img = new Image();
+              img.onload = () => {
+                document.body.style.backgroundImage = `url(${path})`;
+                resolve(true);
+              };
+              img.onerror = () => resolve(false);
+              img.src = path;
+            });
+          }
+        } catch (e) {
+          console.error('壁纸加载失败:', e);
+        }
+        return false;
+      }
+
+      async function setDefaultWallpaper() {
+        const bingApis = [
+          'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
+          'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
+          'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
+        ];
+
+        for (const api of bingApis) {
+          try {
+            const res = await axios.get(api, { timeout: 8000 });
+            if (res.data && res.data.images && res.data.images[0]) {
+              const imgUrl = 'https://www.bing.com' + res.data.images[0].url;
+              document.body.style.backgroundImage = `url(${imgUrl})`;
+              return true;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+
+        try {
+          await axios.get('https://api.dujin.org/bing/1920.php', {
+            timeout: 8000,
+            responseType: 'text'
+          });
+          document.body.style.backgroundImage = `url(https://api.dujin.org/bing/1920.php)`;
+          return true;
+        } catch (e) {}
+
+        document.body.style.backgroundImage = `url(https://www.yumus.cn/api/?target=img&brand=360&type=3)`;
+        return false;
+      }
+
+      async function loadHistoryToday() {
+        const el = document.getElementById('history-content');
+        try {
+          el.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+          const api = 'https://v2.xxapi.cn/api/history';
+          let data;
+          if (typeof axios !== 'undefined') {
+            const res = await axios.get(api, { timeout: 10000 });
+            data = res.data;
+          } else {
+            const res = await fetch(api);
+            data = await res.json();
+          }
+          if (data && data.code === 200 && Array.isArray(data.data) && data.data.length > 0) {
+            const items = data.data;
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+            const separatorIndex = randomItem.indexOf(' ');
+            let dateStr = '';
+            let eventStr = '';
+            if (separatorIndex !== -1) {
+              dateStr = randomItem.substring(0, separatorIndex);
+              eventStr = randomItem.substring(separatorIndex + 1);
+            } else {
+              dateStr = randomItem;
+              eventStr = '';
+            }
+            el.innerHTML = `<div class="history-date">${dateStr}</div><div class="history-event">${eventStr}</div>`;
+          } else if (data && data.msg) {
+            throw new Error(data.msg);
+          } else {
+            throw new Error('未知错误');
+          }
+          window.historyLoaded = true;
+        } catch (e) {
+          el.innerHTML = `<div class="history-error">加载失败: ${e.message}</div>`;
+        }
+      }
+
+      async function loadContacts() {
+        const container = document.getElementById('contacts-container');
+        if (!container) return;
+        try {
+          const res = await fetch('/api/contacts');
+          if (!res.ok) throw new Error('获取联系方式失败');
+          const contacts = await res.json();
+          const iconMap = {
+            email: { icon: 'fas fa-envelope', label: '邮箱' },
+            qq: { icon: 'fab fa-qq', label: 'QQ' },
+            github: { icon: 'fab fa-github', label: 'GitHub' },
+            wechat: { icon: 'fab fa-weixin', label: '微信' },
+            bilibili: { icon: 'fab fa-bilibili', label: 'B站' }
+          };
+          let html = '';
+          for (const [key, value] of Object.entries(contacts)) {
+            if (!value || !iconMap[key]) continue;
+            const { icon, label } = iconMap[key];
+            html += `
+              <div class="contact-btn" data-contact="${key}" data-value="${value}">
+                <i class="${icon}"></i>
+                <div class="contact-tooltip">${label}</div>
+              </div>
+            `;
+          }
+          container.innerHTML = html || '<p style="color:rgba(255,255,255,0.5);text-align:center;">暂无联系方式</p>';
+          document.querySelectorAll('.contact-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              copyToClipboard(btn.dataset.value);
+              showToast('已复制到剪贴板', 'success');
+            });
+          });
+        } catch (e) {
+          console.error('联系方式加载失败:', e);
+          container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">联系方式暂不可用</p>';
+        }
+      }
+
+      function getSlug(filename) {
+        return filename.split('/').pop().replace(/\.md$/, '');
+      }
+
+      function openArticleModal(article) {
+        const modal = document.getElementById('article-modal');
+        document.getElementById('modal-title').textContent = article.title;
+        document.getElementById('modal-date').textContent = article.date;
+        document.getElementById('modal-category').textContent = getCategoryName(article.category);
+        document.getElementById('modal-excerpt').textContent = article.excerpt;
+        document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}.html`;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeArticleModal() {
+        document.getElementById('article-modal').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      function renderArticles(category) {
+        if (!articlesData) return;
+        const grid = document.getElementById('articles-grid');
+        grid.innerHTML = '';
+
+        let filtered = category === 'all' ? [...articlesData] : articlesData.filter(a => a.category === category);
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (!filtered.length) {
+          grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
+          return;
+        }
+
+        filtered.forEach(article => {
+          const slug = getSlug(article.filename);
+          const card = document.createElement('div');
+          card.className = 'article-card glass';
+          card.innerHTML = `
+            <div class="article-header">
+              <h3 class="article-title">${article.title}</h3>
+              <div class="article-meta">
+                <span>${article.date}</span>
+                <span>${getCategoryName(article.category)}</span>
+              </div>
+            </div>
+            <div class="article-content">${article.excerpt}</div>
+            <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
+            <div class="card-hint">查看详细</div>
+          `;
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.read-more')) return;
+            openArticleModal(article);
+          });
+          grid.appendChild(card);
         });
 
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const progress = document.createElement('div');
-            progress.className = 'toast-progress';
-            const msg = document.createElement('div');
-            msg.textContent = message;
-            toast.appendChild(progress);
-            toast.appendChild(msg);
-            container.appendChild(toast);
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.category === category);
+        });
+      }
 
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (container.contains(toast)) container.removeChild(toast);
-                }, 400);
-            }, 3000);
-        }
+      function getCategoryName(cat) {
+        return { technology: '技术', diary: '日记', something: '杂碎' }[cat] || cat;
+      }
 
-        function updateRuntime() {
-            const start = new Date('2025-07-12T11:04:41');
-            const now = new Date();
-            const diff = now - start;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById('runtime-display').textContent = `${days}天${hours}时${minutes}分${seconds}秒`;
-        }
+      function bindEvents() {
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.addEventListener('click', () => renderArticles(btn.dataset.category));
+        });
 
-        function initLuckResult() {
-            const today = new Date().toDateString();
-            const stored = localStorage.getItem('dailyLuck');
-            if (stored) {
-                const data = JSON.parse(stored);
-                if (data.date === today) {
-                    displayLuckResult(data.value);
-                    return;
-                }
-            }
-            document.getElementById('luck-result').textContent = '?';
-        }
+        document.getElementById('about-btn').addEventListener('click', () => {
+          const card = document.getElementById('about-card');
+          card.style.display = card.style.display === 'block' ? 'none' : 'block';
+        });
 
-        function getDailyLuck() {
-            const today = new Date().toDateString();
-            const stored = localStorage.getItem('dailyLuck');
-            if (stored) {
-                const data = JSON.parse(stored);
-                if (data.date === today) {
-                    displayLuckResult(data.value);
-                    return;
-                }
-            }
-            const value = Math.floor(Math.random() * 101);
-            localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value }));
-            displayLuckResult(value);
-        }
+        document.getElementById('article-modal').addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) closeArticleModal();
+        });
+        document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
 
-        function displayLuckResult(value) {
-            const resultEl = document.getElementById('luck-result');
-            const messageEl = document.getElementById('luck-message');
-            resultEl.textContent = value;
-            resultEl.style.transform = 'scale(1.5)';
-            setTimeout(() => resultEl.style.transform = 'scale(1)', 500);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains('active')) {
+            closeArticleModal();
+          }
+        });
 
-            if (value === 0) messageEl.textContent = luckMessages[0];
-            else if (value === 100) messageEl.textContent = luckMessages[100];
-            else {
-                for (const range of luckMessages.range) {
-                    if (value >= range.min && value <= range.max) {
-                        messageEl.textContent = range.message;
-                        break;
-                    }
-                }
-            }
-        }
+        document.addEventListener('click', (e) => {
+          const about = document.getElementById('about-card');
+          if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest('#about-btn')) {
+            about.style.display = 'none';
+          }
+          const func = document.getElementById('func-card');
+          if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest('#func-btn')) {
+            func.style.display = 'none';
+          }
+        });
 
-        function typeWriter(element, text, speed = 80) {
-            element.innerHTML = '';
-            const cursor = document.createElement('span');
-            cursor.className = 'typewriter-cursor';
-            cursor.textContent = '|';
-            element.appendChild(cursor);
-            let i = 0;
-            function type() {
-                if (i < text.length) {
-                    const char = text.charAt(i);
-                    const node = document.createTextNode(char);
-                    element.insertBefore(node, cursor);
-                    i++;
-                    const variation = Math.random() * 0.6 + 0.7;
-                    setTimeout(type, speed * variation);
-                } else {
-                    cursor.classList.add('blink');
-                }
-            }
-            type();
-        }
+        document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
+      }
 
-        async function loadSentences() {
-            const el = document.getElementById('sentence');
+      function copyToClipboard(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      async function initializePage() {
+        try {
+          updateLoadingProgress(8, '正在连接...');
+          const articlesPromise = (async () => {
             try {
-                const res = await axios.get('./sentences.txt');
-                const sentences = res.data.split('\n').filter(line => line.trim());
-                if (sentences.length) {
-                    const random = sentences[Math.floor(Math.random() * sentences.length)];
-                    typeWriter(el, random, 80);
-                } else throw new Error('空文件');
+              const res = await loadWithTimeout(
+                fetch('./articles.json').then(r => { if (!r.ok) throw new Error('文章列表加载失败'); return r.json(); }),
+                12000,
+                '文章列表加载超时'
+              );
+              articlesData = res;
+              updateLoadingProgress(25, '文章列表已就绪');
             } catch (e) {
-                console.error('加载美句失败:', e);
-                el.style.display = 'none';
-                showToast('美句加载失败', 'error');
+              addLoadingError('文章列表加载失败: ' + e.message);
+              articlesData = [];
+              updateLoadingProgress(25, '文章列表加载失败，继续中...');
             }
-        }
+          })();
 
-        async function loadWallpapers() {
+          await articlesPromise;
+
+          updateLoadingProgress(30, '正在加载壁纸...');
+          let wallOk = false;
+          try {
+            wallOk = await loadWithTimeout(loadWallpapers(), 12000, '壁纸加载超时');
+          } catch (e) {
+            addLoadingError('壁纸加载失败');
+          }
+          updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用Bing壁纸...');
+          if (!wallOk) {
             try {
-                const res = await axios.get('./wallpaper.json');
-                const data = res.data;
-                if (data && data.length) {
-                    const entry = data[Math.floor(Math.random() * data.length)];
-                    const path = entry.path + '?t=' + new Date().getTime();
-                    return new Promise(resolve => {
-                        const img = new Image();
-                        img.onload = () => {
-                            document.body.style.backgroundImage = `url(${path})`;
-                            resolve(true);
-                        };
-                        img.onerror = () => resolve(false);
-                        img.src = path;
-                    });
-                }
+              const bingOk = await loadWithTimeout(setDefaultWallpaper(), 10000, 'Bing壁纸加载超时');
+              if (!bingOk) addLoadingError('壁纸加载失败，使用默认壁纸');
             } catch (e) {
-                console.error('壁纸加载失败:', e);
+              addLoadingError('壁纸加载失败');
             }
-            return false;
+          }
+
+          updateLoadingProgress(75, '正在加载美句...');
+          await loadWithTimeout(loadSentences(), 10000, '美句加载超时').catch(e => addLoadingError('美句加载失败'));
+          updateLoadingProgress(88, '正在渲染文章...');
+          renderArticles('all');
+          updateLoadingProgress(95, '即将完成...');
+          bindEvents();
+          initLuckResult();
+          updateRuntime();
+          setInterval(updateRuntime, 1000);
+          loadContacts();
+
+          document.getElementById('func-btn').addEventListener('click', () => {
+            const card = document.getElementById('func-card');
+            card.style.display = card.style.display === 'block' ? 'none' : 'block';
+            if (card.style.display === 'block' && !window.historyLoaded) loadHistoryToday();
+          });
+          document.getElementById('close-func-card').addEventListener('click', () => {
+            document.getElementById('func-card').style.display = 'none';
+          });
+          document.getElementById('close-about-btn').addEventListener('click', () => {
+            document.getElementById('about-card').style.display = 'none';
+          });
+
+          hideLoadingOverlay();
+          flushLoadingErrors();
+        } catch (e) {
+          console.error(e);
+          showToast('初始化失败: ' + e.message, 'error');
+          hideLoadingOverlay();
+          flushLoadingErrors();
         }
+      }
 
-        async function setDefaultWallpaper() {
-            // 多个Bing源备选
-            const bingApis = [
-                'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
-                'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
-                'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
-            ];
-
-            for (const api of bingApis) {
-                try {
-                    const res = await axios.get(api, { timeout: 8000 });
-                    if (res.data && res.data.images && res.data.images[0]) {
-                        const imgUrl = 'https://www.bing.com' + res.data.images[0].url;
-                        document.body.style.backgroundImage = `url(${imgUrl})`;
-                        return true;
-                    }
-                } catch (e) {
-                    continue;
-                }
-            }
-
-            // 最终兜底：使用直接返回图片的API
-            try {
-                const fallbackRes = await axios.get('https://api.dujin.org/bing/1920.php', {
-                    timeout: 8000,
-                    responseType: 'text'
-                });
-                if (fallbackRes.data) {
-                    document.body.style.backgroundImage = `url(https://api.dujin.org/bing/1920.php)`;
-                    return true;
-                }
-            } catch (e) {}
-
-            // 最后的最后
-            document.body.style.backgroundImage = `url(https://www.yumus.cn/api/?target=img&brand=360&type=3)`;
-            return false;
-        }
-
-        function initFuncPanel() {
-            document.getElementById('func-btn').addEventListener('click', () => {
-                const card = document.getElementById('func-card');
-                card.style.display = card.style.display === 'block' ? 'none' : 'block';
-                if (card.style.display === 'block' && !window.historyLoaded) loadHistoryToday();
-            });
-            document.getElementById('close-func-card').addEventListener('click', () => {
-                document.getElementById('func-card').style.display = 'none';
-            });
-            document.getElementById('close-about-btn').addEventListener('click', () => {
-                document.getElementById('about-card').style.display = 'none';
-            });
-            initLuckResult();
-        }
-
-        async function loadHistoryToday() {
-            const el = document.getElementById('history-content');
-            try {
-                el.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-                const api = 'https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888';
-                let data;
-                if (typeof axios !== 'undefined') {
-                    const res = await axios.get(api);
-                    data = res.data;
-                } else {
-                    const res = await fetch(api);
-                    data = await res.json();
-                }
-                if (JSON.stringify(data).toLowerCase().includes('www.apihz.cn') ||
-                    (data.title && data.title.includes('www.apihz.cn'))) {
-                    throw new Error('API负载过高');
-                }
-                if (data.code == 200) {
-                    el.innerHTML =
-                        `<div class="history-date">${data.y}年${data.m}月${data.d}日</div><div class="history-event">${data.title}</div>`;
-                } else throw new Error(data.msg || '未知错误');
-                window.historyLoaded = true;
-            } catch (e) {
-                el.innerHTML = `<div class="history-error">加载失败: ${e.message}</div>`;
-            }
-        }
-
-        async function initializePage() {
-            try {
-                updateLoadingProgress(30, '正在加载壁纸...');
-                const wallOk = await loadWallpapers();
-                updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用Bing壁纸...');
-                if (!wallOk) {
-                    const bingOk = await setDefaultWallpaper();
-                    if (!bingOk) showToast('壁纸加载失败，使用默认壁纸', 'error');
-                }
-                updateLoadingProgress(75, '正在加载美句...');
-                await loadSentences();
-                updateLoadingProgress(88, '正在渲染文章...');
-                renderArticles('all');
-                updateLoadingProgress(95, '即将完成...');
-                bindEvents();
-                hideLoadingOverlay();
-            } catch (e) {
-                console.error(e);
-                showToast('初始化失败: ' + e.message, 'error');
-                hideLoadingOverlay();
-            }
-        }
-
-        function getSlug(filename) {
-            return filename.split('/').pop().replace(/\.md$/, '');
-        }
-
-        function openArticleModal(article) {
-            const modal = document.getElementById('article-modal');
-            document.getElementById('modal-title').textContent = article.title;
-            document.getElementById('modal-date').textContent = article.date;
-            document.getElementById('modal-category').textContent = getCategoryName(article.category);
-            document.getElementById('modal-excerpt').textContent = article.excerpt;
-            document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}.html`;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeArticleModal() {
-            document.getElementById('article-modal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function renderArticles(category) {
-            if (!articlesData) return;
-            const grid = document.getElementById('articles-grid');
-            grid.innerHTML = '';
-
-            let filtered = category === 'all' ? [...articlesData] : articlesData.filter(a => a.category === category);
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            if (!filtered.length) {
-                grid.innerHTML =
-                    `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
-                return;
-            }
-
-            filtered.forEach(article => {
-                const slug = getSlug(article.filename);
-                const card = document.createElement('div');
-                card.className = 'article-card glass';
-                card.innerHTML = `
-                    <div class="article-header">
-                        <h3 class="article-title">${article.title}</h3>
-                        <div class="article-meta">
-                            <span>${article.date}</span>
-                            <span>${getCategoryName(article.category)}</span>
-                        </div>
-                    </div>
-                    <div class="article-content">${article.excerpt}</div>
-                    <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
-                    <div class="card-hint">✨ 点击卡片查看详细</div>
-                `;
-                // 点击卡片任意区域（除"阅读全文"按钮外）打开弹窗
-                card.addEventListener('click', (e) => {
-                    if (e.target.closest('.read-more')) return;
-                    openArticleModal(article);
-                });
-                grid.appendChild(card);
-            });
-
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.category === category);
-            });
-        }
-
-        function getCategoryName(cat) {
-            return { technology: '技术', diary: '日记', something: '杂碎' }[cat] || cat;
-        }
-
-        function bindEvents() {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.addEventListener('click', () => renderArticles(btn.dataset.category));
-            });
-
-            document.getElementById('about-btn').addEventListener('click', () => {
-                const card = document.getElementById('about-card');
-                card.style.display = card.style.display === 'block' ? 'none' : 'block';
-            });
-
-            document.querySelectorAll('.contact-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    copyToClipboard(btn.dataset.value);
-                    showToast('已复制到剪贴板', 'success');
-                });
-            });
-
-            document.getElementById('article-modal').addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) closeArticleModal();
-            });
-            document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains(
-                        'active')) {
-                    closeArticleModal();
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                const about = document.getElementById('about-card');
-                if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest(
-                        '#about-btn')) {
-                    about.style.display = 'none';
-                }
-                const func = document.getElementById('func-card');
-                if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest(
-                        '#func-btn')) {
-                    func.style.display = 'none';
-                }
-            });
-
-            document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
-        }
-
-        function copyToClipboard(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-        }
-    </script>
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+      } else {
+        initializePage();
+      }
+    })();
+  </script>
 </body>
 </html>
