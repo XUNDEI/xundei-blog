@@ -119,7 +119,7 @@ function build() {
     }
   }
 
-  // 复制根目录必要文件
+  // 复制根目录必要文件（新增 _redirects）
   const rootFiles = [
     'index.html',
     'axios.min.js',
@@ -128,7 +128,8 @@ function build() {
     'sentences.txt',
     'portrait.png',
     'favicon.ico',
-    'robots.txt'
+    'robots.txt',
+    '_redirects'          // <-- 添加这一行
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
