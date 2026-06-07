@@ -14,5 +14,13 @@
         "excerpt": "零基础带你入坑python不走弯路，从安装python到写出第一行代码全程图文解释",
         "filename": "blog/technology/2/2.md",
         "license":"CC BY"
+    },
+    {
+        "title": "更新时的一点小趣事",
+        "date": "2026-06-07",
+        "category": "something",
+        "excerpt": "暂无简介",
+        "filename": "blog/technology/3/3.md",
+        "license":false
     }
 ]
