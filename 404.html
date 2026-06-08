@@ -1,0 +1,144 @@
+<!-- 404.html 错误页面 -->
+<!-- 放置于项目根目录，构建时会复制到 dist/ 目录 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面未找到 - xundei's blog</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --primary-color: #4285F4;
+            --light-text: #fff;
+            --transition: all 0.3s ease;
+            --blur-amount: 12px;
+            --glow-color: rgba(66, 133, 244, 0.7);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb4d);
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+        .error-container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 20px;
+            text-align: center;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 50px 40px;
+            transition: var(--transition);
+            color: var(--light-text);
+        }
+        .glass-card:hover {
+            box-shadow: 0 0 22px var(--glow-color), 0 0 45px rgba(66, 133, 244, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #a1c4fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .home-btn:hover {
+            background: #2b6de0;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--glow-color);
+            letter-spacing: 0.5px;
+        }
+        .footer-links {
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        .footer-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: var(--transition);
+        }
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .glass-card { padding: 35px 25px; }
+            .error-code { font-size: 4rem; }
+            .error-title { font-size: 1.5rem; }
+            .error-message { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="glass-card">
+            <div class="error-code">404</div>
+            <h1 class="error-title">页面走丢了</h1>
+            <p class="error-message">抱歉，您访问的页面不存在或已被移除。<br>请检查链接是否正确，或返回首页。</p>
+            <a href="/" class="home-btn">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+            <div class="footer-links">
+                <a href="/articles/friend_link.html">友情链接</a>
+                <a href="https://github.com/XUNDEI/xundei-blog">GitHub</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

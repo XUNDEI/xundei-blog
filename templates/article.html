@@ -1,3 +1,9 @@
+<!-- article.html（文章页模板） -->
+<!-- 修改说明：
+     1. 增加内联脚本判断文章分类是否为 'friend_link'，若是则隐藏文章协议区域（.article-footer）
+     2. 确保友链页面不显示协议，其他页面正常显示
+     3. 其余功能（代码高亮、复制、目录、灯箱等）保持不变
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1182,7 +1188,8 @@
                 <div class="article-meta">
                     <div>
                         <span>{{ARTICLE_DATE}}</span>
-                        <span>{{ARTICLE_CATEGORY}}</span>
+                        <span> | </span>
+                        <span id="article-category">{{ARTICLE_CATEGORY}}</span>
                     </div>
                     <div class="reading-time">预计阅读时间: {{READING_TIME}}</div>
                 </div>
@@ -1207,8 +1214,7 @@
 
     <script src="../axios.min.js" defer></script>
     <script>
-        // JavaScript 部分与之前完全相同，此处省略（实际使用时需保留完整脚本）
-        // 为节省篇幅，此处只展示诗词卡片相关代码已修改，完整脚本请参考前文
+        // 页面加载时判断文章分类，如果是友链则隐藏协议 footer
         const loadingErrors = [];
 
         function showToast(message, type = 'info') {
@@ -1511,6 +1517,11 @@
                 });
                 const footer = document.getElementById('article-footer');
                 const licenseText = document.getElementById('license-text');
+                // 如果是友链分类，直接隐藏 footer 并返回
+                if (article && article.category === 'friend_link') {
+                    footer.style.display = 'none';
+                    return;
+                }
                 if (article && article.license && article.license !== false) {
                     const license = article.license;
                     const licenseUrls = {
@@ -1528,6 +1539,8 @@
                 }
             } catch (error) {
                 addLoadingError('协议信息加载失败');
+                const footer = document.getElementById('article-footer');
+                footer.style.display = 'none';
             }
         }
 
