@@ -1,3 +1,9 @@
+<!-- index.html -->
+<!-- 修改说明：
+     1. 页脚新增“友情链接”入口，指向 /articles/friend_link.html
+     2. 文章渲染函数 renderArticles 始终过滤掉 category === 'friend_link' 的条目，确保友链不出现在主页任何列表
+     3. 保持原有样式和功能不变
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1096,7 +1102,7 @@
       .modal-meta .meta-item { font-size: 0.78rem; padding: 4px 10px; }
     }
   </style>
-  <script src="axios.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
 </head>
 <body>
   <div class="loading-overlay" id="loading-overlay">
@@ -1135,8 +1141,10 @@
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.0">xundei-blog V2.9.0</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.1">xundei-blog V2.9.1</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
+        <!-- 新增友链入口 -->
+        <span>| <a href="/articles/friend_link.html" data-text="友链">友链</a></span>
       </div>
     </footer>
   </div>
@@ -1539,13 +1547,31 @@
         document.body.style.overflow = '';
       }
 
+      // 获取文章排序时间戳（优先使用datetime字段，支持精确到时分秒排序）
+      function getArticleTimestamp(article) {
+        if (article.datetime) {
+          const ts = Date.parse(article.datetime);
+          if (!isNaN(ts)) return ts;
+        }
+        // 降级：使用date字段并设为当天00:00:00，保持同一天文章按原始顺序
+        return Date.parse(article.date + 'T00:00:00');
+      }
+
+      // 修改：始终过滤掉 friend_link 分类的文章
       function renderArticles(category) {
         if (!articlesData) return;
         const grid = document.getElementById('articles-grid');
         grid.innerHTML = '';
 
-        let filtered = category === 'all' ? [...articlesData] : articlesData.filter(a => a.category === category);
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        let filtered = [...articlesData];
+        // 永远排除友链分类
+        filtered = filtered.filter(a => a.category !== 'friend_link');
+        if (category !== 'all') {
+          filtered = filtered.filter(a => a.category === category);
+        }
+        
+        // 核心排序：按时间戳倒序（最新在前），精确到时分秒
+        filtered.sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a));
 
         if (!filtered.length) {
           grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
@@ -1558,13 +1584,13 @@
           card.className = 'article-card glass';
           card.innerHTML = `
             <div class="article-header">
-              <h3 class="article-title">${article.title}</h3>
+              <h3 class="article-title">${escapeHtml(article.title)}</h3>
               <div class="article-meta">
                 <span>${article.date}</span>
                 <span>${getCategoryName(article.category)}</span>
               </div>
             </div>
-            <div class="article-content">${article.excerpt}</div>
+            <div class="article-content">${escapeHtml(article.excerpt)}</div>
             <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
             <div class="card-hint">查看详细</div>
           `;
@@ -1580,8 +1606,21 @@
         });
       }
 
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+          return c;
+        });
+      }
+
       function getCategoryName(cat) {
-        return { technology: '技术', diary: '日记', something: '杂碎' }[cat] || cat;
+        const map = { technology: '技术', diary: '日记', something: '杂碎', friend_link: '友链' };
+        return map[cat] || cat;
       }
 
       function bindEvents() {

@@ -69,19 +69,24 @@ ${urls}
 </urlset>`;
 }
 
-// ========== 确保 robots.txt 包含 Sitemap 引用 ==========
-function ensureRobotsTxtHasSitemap(distDir, siteUrl) {
+// ========== 确保 robots.txt 存在并包含 Sitemap 引用 ==========
+function ensureRobotsTxt(distDir, siteUrl) {
   const robotsPath = path.join(distDir, 'robots.txt');
+  
+  // 如果 robots.txt 不存在，创建一个基础版本
   if (!fs.existsSync(robotsPath)) {
-    console.warn('⚠️ robots.txt 不存在，请手动创建并添加 Sitemap 指令');
-    return;
+    const defaultRobots = `User-agent: *
+Allow: /
+Disallow: /api/
+`;
+    fs.writeFileSync(robotsPath, defaultRobots);
+    console.log('✅ 创建默认 robots.txt');
   }
 
   let content = fs.readFileSync(robotsPath, 'utf-8');
   const sitemapLine = `Sitemap: ${siteUrl}/sitemap.xml`;
 
   if (!content.includes(sitemapLine)) {
-    // 如果末尾没有换行，先加上
     if (!content.endsWith('\n')) content += '\n';
     content += sitemapLine + '\n';
     fs.writeFileSync(robotsPath, content);
@@ -119,7 +124,7 @@ function build() {
     }
   }
 
-  // 复制根目录必要文件
+  // ========== 复制根目录必要文件（包含 _redirects 和 404.html） ==========
   const rootFiles = [
     'index.html',
     'axios.min.js',
@@ -128,12 +133,14 @@ function build() {
     'sentences.txt',
     'portrait.png',
     'favicon.ico',
-    'robots.txt'
+    '404.html',        // 自定义 404 页面
+    '_redirects'       // Cloudflare Pages 重定向配置文件（用于自定义 404）
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, path.join(distDir, file));
+      console.log(`✅ 复制 ${file}`);
     } else {
       console.warn(`文件 ${file} 不存在，跳过复制`);
     }
@@ -143,6 +150,7 @@ function build() {
   const bingAuthSrc = path.join(__dirname, 'BingSiteAuth.xml');
   if (fs.existsSync(bingAuthSrc)) {
     fs.copyFileSync(bingAuthSrc, path.join(distDir, 'BingSiteAuth.xml'));
+    console.log('✅ 复制 BingSiteAuth.xml');
   }
 
   // 生成文章 HTML
@@ -177,8 +185,8 @@ function build() {
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
   console.log('✅ 生成 sitemap.xml');
 
-  // 确保 robots.txt 包含 Sitemap 引用
-  ensureRobotsTxtHasSitemap(distDir, SITE_URL);
+  // 确保 robots.txt 存在并包含 Sitemap 引用
+  ensureRobotsTxt(distDir, SITE_URL);
 
   console.log(`构建完成！共 ${articles.length} 篇文章，输出目录: dist/`);
 }
