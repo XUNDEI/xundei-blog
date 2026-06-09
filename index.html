@@ -1,9 +1,3 @@
-<!-- index.html -->
-<!-- 修改说明：
-     1. 页脚新增“友情链接”入口，指向 /articles/friend_link.html
-     2. 文章渲染函数 renderArticles 始终过滤掉 category === 'friend_link' 的条目，确保友链不出现在主页任何列表
-     3. 保持原有样式和功能不变
--->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1102,7 +1096,7 @@
       .modal-meta .meta-item { font-size: 0.78rem; padding: 4px 10px; }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
   <div class="loading-overlay" id="loading-overlay">
@@ -1143,7 +1137,6 @@
         <span>made by <strong>xundei</strong> with ❤️ |</span>
         <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.1">xundei-blog V2.9.1</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
-        <!-- 新增友链入口 -->
         <span>| <a href="/articles/friend_link.html" data-text="友链">友链</a></span>
       </div>
     </footer>
@@ -1395,60 +1388,89 @@
         }
       }
 
+      // ========== 方案一：加载 wallpapers.json ==========
       async function loadWallpapers() {
         try {
           const res = await axios.get('./wallpaper.json', { timeout: 10000 });
           const data = res.data;
           if (data && data.length) {
             const entry = data[Math.floor(Math.random() * data.length)];
-            const path = entry.path + '?t=' + new Date().getTime();
-            return new Promise(resolve => {
+            let imgUrl = entry.path;
+            if (!/^https?:\/\//i.test(imgUrl)) {
+              imgUrl = './' + imgUrl;
+            }
+            imgUrl += '?t=' + new Date().getTime();
+            return new Promise((resolve) => {
               const img = new Image();
               img.onload = () => {
-                document.body.style.backgroundImage = `url(${path})`;
+                document.body.style.backgroundImage = `url(${imgUrl})`;
+                resolve(true);
+              };
+              img.onerror = () => {
+                console.warn('壁纸图片加载失败:', imgUrl);
+                resolve(false);
+              };
+              img.src = imgUrl;
+            });
+          }
+          return false;
+        } catch (e) {
+          console.error('壁纸配置加载失败:', e);
+          return false;
+        }
+      }
+
+      // ========== 备用方案 1：Bing 每日壁纸 ==========
+      async function setBingWallpaper() {
+        // 使用支持 CORS 的 API 代理获取 Bing 图片地址
+        const proxyUrl = 'https://api.allorigins.win/raw?url=';
+        const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
+        try {
+          const response = await fetch(proxyUrl + encodeURIComponent(bingApiUrl));
+          const data = await response.json();
+          if (data.images && data.images[0]) {
+            const imgUrl = 'https://www.bing.com' + data.images[0].url;
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.onload = () => {
+                document.body.style.backgroundImage = `url(${imgUrl})`;
                 resolve(true);
               };
               img.onerror = () => resolve(false);
-              img.src = path;
+              img.src = imgUrl;
             });
           }
-        } catch (e) {
-          console.error('壁纸加载失败:', e);
+          return false;
+        } catch (error) {
+          console.warn('Bing 壁纸加载失败:', error);
+          return false;
         }
-        return false;
       }
 
-      async function setDefaultWallpaper() {
-        const bingApis = [
-          'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
-          'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
-          'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
-        ];
-
-        for (const api of bingApis) {
-          try {
-            const res = await axios.get(api, { timeout: 8000 });
-            if (res.data && res.data.images && res.data.images[0]) {
-              const imgUrl = 'https://www.bing.com' + res.data.images[0].url;
-              document.body.style.backgroundImage = `url(${imgUrl})`;
-              return true;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-
+      // ========== 备用方案 2：360 壁纸（风景分类） ==========
+      async function set360Wallpaper() {
+        const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
         try {
-          await axios.get('https://api.dujin.org/bing/1920.php', {
-            timeout: 8000,
-            responseType: 'text'
-          });
-          document.body.style.backgroundImage = `url(https://api.dujin.org/bing/1920.php)`;
-          return true;
-        } catch (e) {}
-
-        document.body.style.backgroundImage = `url(https://www.yumus.cn/api/?target=img&brand=360&type=3)`;
-        return false;
+          const response = await fetch(url);
+          const data = await response.json();
+          if (data && data.data && data.data.length > 0) {
+            const randomIndex = Math.floor(Math.random() * data.data.length);
+            const imgUrl = data.data[randomIndex].url;
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.onload = () => {
+                document.body.style.backgroundImage = `url(${imgUrl})`;
+                resolve(true);
+              };
+              img.onerror = () => resolve(false);
+              img.src = imgUrl;
+            });
+          }
+          return false;
+        } catch (error) {
+          console.warn('360 壁纸加载失败:', error);
+          return false;
+        }
       }
 
       async function loadHistoryToday() {
@@ -1547,30 +1569,27 @@
         document.body.style.overflow = '';
       }
 
-      // 获取文章排序时间戳（优先使用datetime字段，支持精确到时分秒排序）
+      // 获取文章排序时间戳（优先使用datetime字段）
       function getArticleTimestamp(article) {
         if (article.datetime) {
           const ts = Date.parse(article.datetime);
           if (!isNaN(ts)) return ts;
         }
-        // 降级：使用date字段并设为当天00:00:00，保持同一天文章按原始顺序
         return Date.parse(article.date + 'T00:00:00');
       }
 
-      // 修改：始终过滤掉 friend_link 分类的文章
+      // 始终过滤掉 friend_link 分类
       function renderArticles(category) {
         if (!articlesData) return;
         const grid = document.getElementById('articles-grid');
         grid.innerHTML = '';
 
         let filtered = [...articlesData];
-        // 永远排除友链分类
         filtered = filtered.filter(a => a.category !== 'friend_link');
         if (category !== 'all') {
           filtered = filtered.filter(a => a.category === category);
         }
         
-        // 核心排序：按时间戳倒序（最新在前），精确到时分秒
         filtered.sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a));
 
         if (!filtered.length) {
@@ -1691,19 +1710,23 @@
           updateLoadingProgress(30, '正在加载壁纸...');
           let wallOk = false;
           try {
-            wallOk = await loadWithTimeout(loadWallpapers(), 12000, '壁纸加载超时');
+            wallOk = await loadWallpapers();
           } catch (e) {
             addLoadingError('壁纸加载失败');
           }
-          updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '使用Bing壁纸...');
+          
           if (!wallOk) {
-            try {
-              const bingOk = await loadWithTimeout(setDefaultWallpaper(), 10000, 'Bing壁纸加载超时');
-              if (!bingOk) addLoadingError('壁纸加载失败，使用默认壁纸');
-            } catch (e) {
-              addLoadingError('壁纸加载失败');
-            }
+            updateLoadingProgress(45, '使用备用壁纸 Bing...');
+            wallOk = await setBingWallpaper();
           }
+          if (!wallOk) {
+            updateLoadingProgress(55, '使用备用壁纸 360...');
+            wallOk = await set360Wallpaper();
+          }
+          if (!wallOk) {
+            addLoadingError('所有壁纸源均加载失败');
+          }
+          updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '壁纸加载失败，使用默认背景');
 
           updateLoadingProgress(75, '正在加载美句...');
           await loadWithTimeout(loadSentences(), 10000, '美句加载超时').catch(e => addLoadingError('美句加载失败'));
