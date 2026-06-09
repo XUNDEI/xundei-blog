@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
-        /* 超链接基础样式 */
         .article-full-content a:not(:has(img)) {
             text-decoration: none;
             position: relative;
@@ -45,9 +44,8 @@
             transform-origin: left;
         }
 
-        /* 排除特定区域链接样式 */
         .toc-list a {
-            color: rgba(255,255,255,0.8) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             background: none !important;
             -webkit-background-clip: unset !important;
             background-clip: unset !important;
@@ -141,7 +139,6 @@
             z-index: -1;
         }
 
-        /* 加载弹窗 */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -251,8 +248,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .container {
@@ -334,7 +335,6 @@
             font-size: 1.1rem;
         }
 
-        /* ========== 标题层级样式 ========== */
         .article-full-content h2 {
             font-size: 1.7rem;
             margin: 30px 0 20px 0;
@@ -461,10 +461,9 @@
             margin: 25px 0;
             font-size: 0.95rem;
             line-height: 1.6;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
-        /* 美化后的内联代码样式 */
         .article-full-content code {
             font-family: 'Fira Code', 'Courier New', monospace;
             background: rgba(66, 133, 244, 0.12);
@@ -482,7 +481,6 @@
             border-color: rgba(66, 133, 244, 0.45);
         }
 
-        /* 代码块内部的 code 重置样式，确保高亮颜色正常显示 */
         .article-full-content pre code {
             background: none;
             padding: 0;
@@ -543,11 +541,53 @@
             max-width: 100%;
             border-radius: 10px;
             margin: 25px 0;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            background: rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.2);
             padding: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease, opacity 0.5s ease;
+            display: block;
+        }
+
+        .article-full-content img.lazy-img {
+            min-height: 180px;
+            opacity: 0.35;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            animation: placeholderPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes placeholderPulse {
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .article-full-content img.lazy-loaded {
+            opacity: 1;
+            animation: imgReveal 0.55s ease-out forwards;
+        }
+
+        @keyframes imgReveal {
+            from {
+                opacity: 0.35;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .article-full-content img.lazy-error {
+            min-height: 120px;
+            opacity: 0.7;
+            background: rgba(244, 67, 54, 0.15);
+            border: 1px dashed rgba(244, 67, 54, 0.4);
         }
 
         .article-full-content img:hover {
@@ -650,7 +690,7 @@
             color: var(--light-text);
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .toc-list {
@@ -678,7 +718,7 @@
         }
 
         .toc-list a {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: var(--transition);
             display: block;
@@ -846,11 +886,14 @@
         }
 
         @keyframes progress {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
+            from {
+                transform: scaleX(1);
+            }
+            to {
+                transform: scaleX(0);
+            }
         }
 
-        /* 滚动条样式 */
         ::-webkit-scrollbar {
             width: var(--scrollbar-width);
             height: var(--scrollbar-width);
@@ -936,8 +979,12 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideInRight {
@@ -951,7 +998,6 @@
             }
         }
 
-        /* ========== 古诗词小窗（按钮与作者同行，无旋转无文字） ========== */
         .poetry-card {
             position: fixed;
             bottom: 30px;
@@ -984,14 +1030,14 @@
 
         .poetry-author {
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             text-align: right;
         }
 
         .poetry-refresh-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             padding: 4px 6px;
             border-radius: 20px;
@@ -1003,11 +1049,10 @@
         }
 
         .poetry-refresh-btn:hover {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
         }
 
-        /* 屏幕较小时隐藏诗词卡片 */
         @media (max-width: 640px) {
             .poetry-card {
                 display: none;
@@ -1071,6 +1116,12 @@
             .article-full-content h6 {
                 margin-left: 24px;
             }
+            .article-full-content img.lazy-img {
+                min-height: 140px;
+            }
+            .article-full-content img.lazy-error {
+                min-height: 100px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1118,13 +1169,19 @@
             .article-full-content h6 {
                 margin-left: 16px;
             }
+            .article-full-content img.lazy-img {
+                min-height: 110px;
+            }
+            .article-full-content img.lazy-error {
+                min-height: 80px;
+            }
         }
 
         .article-footer {
             margin-top: 30px;
             padding: 15px;
             text-align: center;
-            color: rgba(255,255,255,0.85);
+            color: rgba(255, 255, 255, 0.85);
             font-size: 0.9rem;
             backdrop-filter: blur(var(--blur-amount));
             background: var(--glass-bg);
@@ -1134,7 +1191,6 @@
     </style>
 </head>
 <body>
-    <!-- 加载弹窗 -->
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-card">
             <div class="loader"></div>
@@ -1179,7 +1235,6 @@
         <i class="fas fa-arrow-up"></i>
     </div>
 
-    <!-- 古诗词小窗卡片（按钮与作者同行，无旋转无文字） -->
     <div class="poetry-card glass" id="poetry-card">
         <div class="poetry-content" id="poetry-content">加载中...</div>
         <div class="poetry-meta">
@@ -1224,6 +1279,7 @@
     <script src="../axios.min.js" defer></script>
     <script>
         const loadingErrors = [];
+        let articleImageObserver = null;
 
         function showToast(message, type = 'info') {
             const toastContainer = document.getElementById('toast-container');
@@ -1286,15 +1342,13 @@
         function loadImageWithSpeedCheck(imgUrl, options = {}) {
             const {
                 initialCheckMs = 3000,
-                maxWaitMs = 60000
+                    maxWaitMs = 60000
             } = options;
-
             return new Promise((resolve) => {
                 const img = new Image();
                 let initialTimer = null;
                 let maxTimer = null;
                 let resolved = false;
-
                 const finish = (success) => {
                     if (resolved) return;
                     resolved = true;
@@ -1305,15 +1359,12 @@
                     }
                     resolve(success);
                 };
-
                 img.onload = () => finish(true);
                 img.onerror = () => {
                     console.warn('图片加载失败（onerror）:', imgUrl);
                     finish(false);
                 };
-
                 img.src = imgUrl;
-
                 initialTimer = setTimeout(() => {
                     if (resolved) return;
                     if (!img.complete) {
@@ -1381,6 +1432,57 @@
             });
         }
 
+        function prepareArticleImagesForLazyLoading() {
+            const images = document.querySelectorAll('.article-full-content img');
+            if (images.length === 0) return false;
+            images.forEach(img => {
+                if (img.complete && img.naturalWidth > 0) return;
+                const src = img.getAttribute('src');
+                if (src && !img.hasAttribute('data-src')) {
+                    img.setAttribute('data-src', src);
+                    img.removeAttribute('src');
+                    img.classList.add('lazy-img');
+                }
+            });
+            return document.querySelectorAll('.article-full-content img[data-src]').length > 0;
+        }
+
+        function startArticleImageLazyLoading() {
+            const lazyImages = document.querySelectorAll('.article-full-content img[data-src]');
+            if (lazyImages.length === 0) return;
+            if (articleImageObserver) {
+                articleImageObserver.disconnect();
+            }
+            articleImageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const dataSrc = img.getAttribute('data-src');
+                        if (dataSrc) {
+                            img.src = dataSrc;
+                            img.removeAttribute('data-src');
+                            img.onload = () => {
+                                img.classList.remove('lazy-img');
+                                img.classList.add('lazy-loaded');
+                            };
+                            img.onerror = () => {
+                                img.classList.remove('lazy-img');
+                                img.classList.add('lazy-error');
+                            };
+                        }
+                        articleImageObserver.unobserve(img);
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '250px',
+                threshold: 0
+            });
+            lazyImages.forEach(img => {
+                articleImageObserver.observe(img);
+            });
+        }
+
         function preventTocScrollPropagation() {
             const tocContainer = document.getElementById('toc-container');
             if (tocContainer) {
@@ -1436,12 +1538,17 @@
             const target = e.target;
             if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
                 const imgSrc = target.src;
-                const lightbox = document.getElementById('lightbox');
-                const lightboxImg = document.getElementById('lightbox-img');
-                lightboxImg.src = imgSrc;
-                lightbox.style.display = 'flex';
-                document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-                lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+                if (!imgSrc && target.hasAttribute('data-src')) {
+                    return;
+                }
+                if (imgSrc && !target.closest('a')) {
+                    const lightbox = document.getElementById('lightbox');
+                    const lightboxImg = document.getElementById('lightbox-img');
+                    lightboxImg.src = imgSrc;
+                    lightbox.style.display = 'flex';
+                    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+                    lightbox.addEventListener('click', (ev) => { if (ev.target === lightbox) closeLightbox(); });
+                }
             }
             if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
                 e.preventDefault();
@@ -1624,8 +1731,10 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             updateLoadingProgress(10, '正在准备...');
-            updateLoadingProgress(20, '正在加载壁纸...');
 
+            const hasLazyImages = prepareArticleImagesForLazyLoading();
+
+            updateLoadingProgress(20, '正在加载壁纸...');
             let wallOk = false;
             try {
                 wallOk = await loadWallpapers();
@@ -1642,6 +1751,10 @@
                 if (!wallOk) {
                     addLoadingError('所有壁纸源均加载失败');
                 }
+            }
+
+            if (hasLazyImages) {
+                startArticleImageLazyLoading();
             }
 
             updateLoadingProgress(70, '正在增强文章...');
