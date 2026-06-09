@@ -1,5 +1,4 @@
-<!-- 404.html 错误页面 -->
-<!-- 放置于项目根目录，构建时会复制到 dist/ 目录 -->
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>页面未找到 - xundei's blog</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
@@ -24,15 +24,21 @@
             box-sizing: border-box;
         }
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb4d);
             background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             min-height: 100vh;
+            background-attachment: fixed;
+            transition: background-image 1.5s ease-in-out;
+            /* 默认蓝白渐变背景（最终兜底） */
+            background-image: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
         }
+        /* 仅在背景图片加载后覆盖渐变，但保留动态背景 */
         body::before {
             content: '';
             position: absolute;
@@ -103,20 +109,6 @@
             box-shadow: 0 0 20px var(--glow-color);
             letter-spacing: 0.5px;
         }
-        .footer-links {
-            margin-top: 30px;
-            font-size: 0.9rem;
-        }
-        .footer-links a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            margin: 0 10px;
-            transition: var(--transition);
-        }
-        .footer-links a:hover {
-            color: white;
-            text-decoration: underline;
-        }
         @media (max-width: 768px) {
             .glass-card { padding: 35px 25px; }
             .error-code { font-size: 4rem; }
@@ -129,16 +121,133 @@
     <div class="error-container">
         <div class="glass-card">
             <div class="error-code">404</div>
-            <h1 class="error-title">页面走丢了</h1>
-            <p class="error-message">抱歉，您访问的页面不存在或已被移除。<br>请检查链接是否正确，或返回首页。</p>
+            <h1 class="error-title">你来到了一片未知的领域</h1>
+            <p class="error-message">保持好奇心是好事<br>但不是用在这里啊喂</p>
             <a href="/" class="home-btn">
                 <i class="fas fa-home"></i> 返回首页
             </a>
-            <div class="footer-links">
-                <a href="/articles/friend_link.html">友情链接</a>
-                <a href="https://github.com/XUNDEI/xundei-blog">GitHub</a>
-            </div>
         </div>
     </div>
+
+    <script>
+        // 壁纸加载逻辑
+        async function loadWallpapers() {
+            try {
+                const response = await axios.get('./wallpaper.json', { timeout: 10000 });
+                const wallpapersData = response.data;
+                if (wallpapersData && wallpapersData.length > 0) {
+                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
+                    const wallpaperPath = randomEntry.path;
+                    const timestamp = new Date().getTime();
+                    let fullPath;
+                    if (/^https?:\/\//i.test(wallpaperPath)) {
+                        fullPath = `${wallpaperPath}?t=${timestamp}`;
+                    } else {
+                        fullPath = `./${wallpaperPath}?t=${timestamp}`;
+                    }
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            document.body.style.backgroundImage = `url(${fullPath})`;
+                            resolve(true);
+                        };
+                        img.onerror = () => resolve(false);
+                        img.src = fullPath;
+                    });
+                }
+                return false;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function loadBingWallpaper() {
+            const bingApis = [
+                'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
+                'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
+                'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
+            ];
+            for (const api of bingApis) {
+                try {
+                    const res = await axios.get(api, { timeout: 8000 });
+                    if (res.data && res.data.images && res.data.images[0]) {
+                        const imgUrl = 'https://www.bing.com' + res.data.images[0].url;
+                        document.body.style.backgroundImage = `url(${imgUrl})`;
+                        return true;
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+            return false;
+        }
+
+        async function load360Wallpaper() {
+            // 360壁纸API（国内常用，返回图片直接URL，随机壁纸）
+            const apiList = [
+                'https://www.yumus.cn/api/?target=img&brand=360&type=3',
+                'https://api.xygeng.cn/Bing/rand.php?type=json', // 备选
+                'https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images' // 备选
+            ];
+            for (const api of apiList) {
+                try {
+                    // 如果是直接返回图片的API，可以尝试fetch并判断Content-Type
+                    const res = await axios.get(api, { timeout: 8000, responseType: 'blob' });
+                    if (res.status === 200 && res.data.type.startsWith('image/')) {
+                        const blobUrl = URL.createObjectURL(res.data);
+                        document.body.style.backgroundImage = `url(${blobUrl})`;
+                        // 可选：稍后释放blob URL，但没必要，因为页面一直存在
+                        return true;
+                    }
+                    // 如果API返回的是json包含图片地址
+                    try {
+                        const text = await res.data.text();
+                        const json = JSON.parse(text);
+                        if (json.imgurl || json.url) {
+                            const imgUrl = json.imgurl || json.url;
+                            document.body.style.backgroundImage = `url(${imgUrl})`;
+                            return true;
+                        }
+                    } catch (e) {
+                        // 忽略解析错误
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+            return false;
+        }
+
+        (async function initWallpaper() {
+            // 第一层：自定义壁纸库
+            let wallOk = false;
+            try {
+                wallOk = await loadWallpapers();
+            } catch (e) {
+                console.warn('自定义壁纸加载异常', e);
+            }
+            // 第二层：Bing 每日壁纸
+            if (!wallOk) {
+                try {
+                    wallOk = await loadBingWallpaper();
+                } catch (e) {
+                    console.warn('Bing壁纸加载异常', e);
+                }
+            }
+            // 第三层：360 壁纸
+            if (!wallOk) {
+                try {
+                    wallOk = await load360Wallpaper();
+                } catch (e) {
+                    console.warn('360壁纸加载异常', e);
+                }
+            }
+            // 如果所有壁纸都失败，保持默认的蓝白渐变背景（已在CSS中定义）
+            if (!wallOk) {
+                console.log('使用默认蓝白渐变背景');
+                // body的背景已通过CSS设置为蓝白渐变，无需额外操作
+            }
+        })();
+    </script>
 </body>
 </html>
