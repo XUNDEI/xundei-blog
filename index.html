@@ -1135,7 +1135,7 @@
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.3">xundei-blog V2.9.3</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.4">xundei-blog V2.9.4</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
         <span>| <a href="/articles/friend_link.html" data-text="友链">友链</a></span>
       </div>
@@ -1319,7 +1319,7 @@
       //   4. 兜底超时到了再检查一次，尽可能不误判
       function loadImageWithSpeedCheck(imgUrl, options = {}) {
         const {
-          initialCheckMs = 8000,   // 初始检测窗口：8 秒
+          initialCheckMs = 3000,   // 初始检测窗口：3 秒
           maxWaitMs = 60000        // 最大等待时间：60 秒（兜底）
         } = options;
 
@@ -1490,9 +1490,9 @@
               imgUrl = './' + imgUrl;
             }
             imgUrl += '?t=' + new Date().getTime();
-            // 使用速度检测加载：初始检测 8s，最大等待 60s
+            // 使用速度检测加载：初始检测 3s，最大等待 60s
             return await loadImageWithSpeedCheck(imgUrl, {
-              initialCheckMs: 8000,
+              initialCheckMs: 3000,
               maxWaitMs: 60000
             });
           }
@@ -1517,9 +1517,9 @@
           const data = await response.json();
           if (data.images && data.images[0]) {
             const imgUrl = 'https://www.bing.com' + data.images[0].url;
-            // 使用速度检测加载：初始检测 6s，最大等待 30s（备用源更激进）
+            // 使用速度检测加载：初始检测 3s，最大等待 30s（备用源更激进）
             return await loadImageWithSpeedCheck(imgUrl, {
-              initialCheckMs: 6000,
+              initialCheckMs: 3000,
               maxWaitMs: 30000
             });
           }
@@ -1540,9 +1540,9 @@
           if (data && data.data && data.data.length > 0) {
             const randomIndex = Math.floor(Math.random() * data.data.length);
             const imgUrl = data.data[randomIndex].url;
-            // 使用速度检测加载：初始检测 6s，最大等待 30s
+            // 使用速度检测加载：初始检测 3s，最大等待 30s
             return await loadImageWithSpeedCheck(imgUrl, {
-              initialCheckMs: 6000,
+              initialCheckMs: 3000,
               maxWaitMs: 30000
             });
           }
