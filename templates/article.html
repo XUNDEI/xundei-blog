@@ -1,9 +1,3 @@
-<!-- article.html（文章页模板） -->
-<!-- 修改说明：
-     1. 增加内联脚本判断文章分类是否为 'friend_link'，若是则隐藏文章协议区域（.article-footer）
-     2. 确保友链页面不显示协议，其他页面正常显示
-     3. 其余功能（代码高亮、复制、目录、灯箱等）保持不变
--->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1214,7 +1208,6 @@
 
     <script src="../axios.min.js" defer></script>
     <script>
-        // 页面加载时判断文章分类，如果是友链则隐藏协议 footer
         const loadingErrors = [];
 
         function showToast(message, type = 'info') {
@@ -1275,32 +1268,79 @@
             ]);
         }
 
+        function loadImageWithSpeedCheck(imgUrl, options = {}) {
+            const {
+                initialCheckMs = 8000,
+                maxWaitMs = 60000
+            } = options;
+
+            return new Promise((resolve) => {
+                const img = new Image();
+                let initialTimer = null;
+                let maxTimer = null;
+                let resolved = false;
+
+                const finish = (success) => {
+                    if (resolved) return;
+                    resolved = true;
+                    clearTimeout(initialTimer);
+                    clearTimeout(maxTimer);
+                    if (success) {
+                        document.body.style.backgroundImage = `url(${imgUrl})`;
+                    }
+                    resolve(success);
+                };
+
+                img.onload = () => finish(true);
+                img.onerror = () => {
+                    console.warn('图片加载失败（onerror）:', imgUrl);
+                    finish(false);
+                };
+
+                img.src = imgUrl;
+
+                initialTimer = setTimeout(() => {
+                    if (resolved) return;
+                    if (!img.complete) {
+                        const remainingMs = maxWaitMs - initialCheckMs;
+                        maxTimer = setTimeout(() => {
+                            if (resolved) return;
+                            if (!img.complete) {
+                                console.warn('图片加载超过最大等待时间（仍在下载中，速度极慢）:', imgUrl);
+                            }
+                            finish(img.naturalWidth > 0);
+                        }, remainingMs);
+                    } else {
+                        if (img.naturalWidth > 0) {
+                            finish(true);
+                        } else {
+                            console.warn('图片加载失败（速度为0，naturalWidth=0）:', imgUrl);
+                            finish(false);
+                        }
+                    }
+                }, initialCheckMs);
+            });
+        }
+
         async function loadWallpapers() {
             try {
                 const response = await axios.get('../wallpaper.json', { timeout: 10000 });
-                const wallpapersData = response.data;
-                if (wallpapersData && wallpapersData.length > 0) {
-                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
-                    const wallpaperPath = randomEntry.path;
-                    const timestamp = new Date().getTime();
-                    let fullPath;
-                    if (/^https?:\/\//i.test(wallpaperPath)) {
-                        fullPath = `${wallpaperPath}?t=${timestamp}`;
-                    } else {
-                        fullPath = `../${wallpaperPath}?t=${timestamp}`;
+                const data = response.data;
+                if (data && data.length) {
+                    const entry = data[Math.floor(Math.random() * data.length)];
+                    let imgUrl = entry.path;
+                    if (!/^https?:\/\//i.test(imgUrl)) {
+                        imgUrl = '../' + imgUrl;
                     }
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            document.body.style.backgroundImage = `url(${fullPath})`;
-                            resolve(true);
-                        };
-                        img.onerror = () => resolve(false);
-                        img.src = fullPath;
+                    imgUrl += '?t=' + new Date().getTime();
+                    return await loadImageWithSpeedCheck(imgUrl, {
+                        initialCheckMs: 8000,
+                        maxWaitMs: 60000
                     });
                 }
                 return false;
-            } catch (error) {
+            } catch (e) {
+                console.error('壁纸配置加载失败:', e);
                 return false;
             }
         }
@@ -1310,16 +1350,20 @@
                 const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN', { timeout: 8000 });
                 const bingData = bingResponse.data;
                 if (bingData.images && bingData.images[0]) {
-                    const bingUrl = `https://bing.com${bingData.images[0].url}`;
-                    document.body.style.backgroundImage = `url(${bingUrl})`;
-                    return true;
+                    const bingUrl = 'https://bing.com' + bingData.images[0].url;
+                    return await loadImageWithSpeedCheck(bingUrl, {
+                        initialCheckMs: 6000,
+                        maxWaitMs: 30000
+                    });
                 }
             } catch (error) {
                 console.error('获取必应壁纸失败:', error);
             }
             const defaultWallpaper = 'https://www.yumus.cn/api/?target=img&brand=360&type=3';
-            document.body.style.backgroundImage = `url(${defaultWallpaper})`;
-            return false;
+            return await loadImageWithSpeedCheck(defaultWallpaper, {
+                initialCheckMs: 6000,
+                maxWaitMs: 30000
+            });
         }
 
         function preventTocScrollPropagation() {
@@ -1517,7 +1561,6 @@
                 });
                 const footer = document.getElementById('article-footer');
                 const licenseText = document.getElementById('license-text');
-                // 如果是友链分类，直接隐藏 footer 并返回
                 if (article && article.category === 'friend_link') {
                     footer.style.display = 'none';
                     return;
@@ -1567,23 +1610,25 @@
         document.addEventListener('DOMContentLoaded', async () => {
             updateLoadingProgress(10, '正在准备...');
             updateLoadingProgress(20, '正在加载壁纸...');
-            
+
             let wallOk = false;
             try {
-                wallOk = await loadWithTimeout(loadWallpapers(), 12000, '壁纸加载超时');
+                wallOk = await loadWallpapers();
             } catch (e) {
                 addLoadingError('壁纸加载失败');
             }
             updateLoadingProgress(55, wallOk ? '壁纸加载完成' : '使用默认壁纸...');
             if (!wallOk) {
                 try {
-                    const bingOk = await loadWithTimeout(setDefaultWallpaper(), 10000, 'Bing壁纸加载超时');
-                    if (!bingOk) addLoadingError('壁纸加载失败，使用默认壁纸');
+                    wallOk = await setDefaultWallpaper();
                 } catch (e) {
                     addLoadingError('壁纸加载失败');
                 }
+                if (!wallOk) {
+                    addLoadingError('所有壁纸源均加载失败');
+                }
             }
-            
+
             updateLoadingProgress(70, '正在增强文章...');
             addCopyButtonsToCodeBlocks();
             document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
@@ -1606,13 +1651,13 @@
             });
             preventTocScrollPropagation();
             document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
-            
+
             updateLoadingProgress(85, '正在加载协议信息...');
             await loadWithTimeout(loadLicenseInfo(), 8000, '协议加载超时').catch(e => addLoadingError('协议信息加载失败'));
-            
+
             loadPoetry();
             document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
-            
+
             hideLoadingOverlay();
             flushLoadingErrors();
         });
