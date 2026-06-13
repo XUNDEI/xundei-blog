@@ -1135,7 +1135,7 @@
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.5">xundei-blog V2.9.5</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.6">xundei-blog V2.9.6</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
         <span>| <a href="/articles/friend_link.html" data-text="友链">友链</a></span>
       </div>
@@ -1290,7 +1290,6 @@
         ]);
       }
 
-      // ========== 带超时的 fetch 封装 ==========
       async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -1307,20 +1306,10 @@
         }
       }
 
-      // ========== 带速度检测的图片加载（核心优化） ==========
-      // 原理：
-      //   1. 使用 new Image() 加载（不改变加载方式）
-      //   2. 设置初始检测窗口（initialCheckMs），到期后检查 img.complete：
-      //      - onload 已触发 → 成功
-      //      - onerror 已触发 → 速度为 0，失败
-      //      - !img.complete（仍在加载中）→ 说明有下载速度，继续等待
-      //      - img.complete && naturalWidth === 0 → 速度为 0，失败
-      //   3. 如果检测到有速度，设置兜底超时继续等待（maxWaitMs 减去已等待时间）
-      //   4. 兜底超时到了再检查一次，尽可能不误判
       function loadImageWithSpeedCheck(imgUrl, options = {}) {
         const {
-          initialCheckMs = 3000,   // 初始检测窗口：3 秒
-          maxWaitMs = 60000        // 最大等待时间：60 秒（兜底）
+          initialCheckMs = 3000,
+          maxWaitMs = 60000
         } = options;
 
         return new Promise((resolve) => {
@@ -1346,30 +1335,23 @@
             finish(false);
           };
 
-          // 先绑定事件，再设置 src
           img.src = imgUrl;
 
-          // 初始检测：检查是否有下载速度
           initialTimer = setTimeout(() => {
             if (resolved) return;
 
             if (!img.complete) {
-              // 仍在加载中 → 有速度，设置兜底超时继续等待
               const remainingMs = maxWaitMs - initialCheckMs;
               console.log('图片下载中，速度不为0，继续等待...', imgUrl);
               maxTimer = setTimeout(() => {
                 if (resolved) return;
-                // 兜底超时到了
                 if (!img.complete) {
                   console.warn('图片加载超过最大等待时间（仍在下载中，速度极慢）:', imgUrl);
                 }
                 finish(img.naturalWidth > 0);
               }, remainingMs);
-              // 注意：不触发 finish，继续等待
             } else {
-              // 已加载完成（无论成功或失败）
               if (img.naturalWidth > 0) {
-                // 实际上 onload 应该已经触发了，这里是兜底
                 finish(true);
               } else {
                 console.warn('图片加载失败（速度为0，naturalWidth=0）:', imgUrl);
@@ -1478,7 +1460,6 @@
         }
       }
 
-      // ========== 方案一：加载 wallpapers.json（个人壁纸，最长等待） ==========
       async function loadWallpapers() {
         try {
           const res = await axios.get('./wallpaper.json', { timeout: 10000 });
@@ -1490,7 +1471,6 @@
               imgUrl = './' + imgUrl;
             }
             imgUrl += '?t=' + new Date().getTime();
-            // 使用速度检测加载：初始检测 3s，最大等待 60s
             return await loadImageWithSpeedCheck(imgUrl, {
               initialCheckMs: 3000,
               maxWaitMs: 60000
@@ -1503,12 +1483,10 @@
         }
       }
 
-      // ========== 备用方案 1：Bing 每日壁纸 ==========
       async function setBingWallpaper() {
         const proxyUrl = 'https://api.allorigins.win/raw?url=';
         const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
         try {
-          // fetch 阶段给予 12 秒超时
           const response = await fetchWithTimeout(
             proxyUrl + encodeURIComponent(bingApiUrl),
             {},
@@ -1517,7 +1495,6 @@
           const data = await response.json();
           if (data.images && data.images[0]) {
             const imgUrl = 'https://www.bing.com' + data.images[0].url;
-            // 使用速度检测加载：初始检测 3s，最大等待 30s（备用源更激进）
             return await loadImageWithSpeedCheck(imgUrl, {
               initialCheckMs: 3000,
               maxWaitMs: 30000
@@ -1530,17 +1507,14 @@
         }
       }
 
-      // ========== 备用方案 2：360 壁纸（风景分类） ==========
       async function set360Wallpaper() {
         const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
         try {
-          // fetch 阶段给予 10 秒超时
           const response = await fetchWithTimeout(url, {}, 10000);
           const data = await response.json();
           if (data && data.data && data.data.length > 0) {
             const randomIndex = Math.floor(Math.random() * data.data.length);
             const imgUrl = data.data[randomIndex].url;
-            // 使用速度检测加载：初始检测 3s，最大等待 30s
             return await loadImageWithSpeedCheck(imgUrl, {
               initialCheckMs: 3000,
               maxWaitMs: 30000
@@ -1591,42 +1565,41 @@
         }
       }
 
-      async function loadContacts() {
+      function loadContacts() {
         const container = document.getElementById('contacts-container');
         if (!container) return;
-        try {
-          const res = await fetch('/api/contacts');
-          if (!res.ok) throw new Error('获取联系方式失败');
-          const contacts = await res.json();
-          const iconMap = {
-            email: { icon: 'fas fa-envelope', label: '邮箱' },
-            qq: { icon: 'fab fa-qq', label: 'QQ' },
-            github: { icon: 'fab fa-github', label: 'GitHub' },
-            wechat: { icon: 'fab fa-weixin', label: '微信' },
-            bilibili: { icon: 'fab fa-bilibili', label: 'B站' }
-          };
-          let html = '';
-          for (const [key, value] of Object.entries(contacts)) {
-            if (!value || !iconMap[key]) continue;
-            const { icon, label } = iconMap[key];
-            html += `
-              <div class="contact-btn" data-contact="${key}" data-value="${value}">
-                <i class="${icon}"></i>
-                <div class="contact-tooltip">${label}</div>
-              </div>
-            `;
-          }
-          container.innerHTML = html || '<p style="color:rgba(255,255,255,0.5);text-align:center;">暂无联系方式</p>';
-          document.querySelectorAll('.contact-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-              copyToClipboard(btn.dataset.value);
-              showToast('已复制到剪贴板', 'success');
-            });
-          });
-        } catch (e) {
-          console.error('联系方式加载失败:', e);
-          container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">联系方式暂不可用</p>';
+        const contacts = {
+          email: 'xundei_awa@outlook.com',
+          qq: '503275418',
+          wechat: 'xie503275418',
+          github: 'https://github.com/XUNDEI',
+          bilibili: 'https://space.bilibili.com/518218011'
+        };
+        const iconMap = {
+          email: { icon: 'fas fa-envelope', label: '邮箱' },
+          qq: { icon: 'fab fa-qq', label: 'QQ' },
+          github: { icon: 'fab fa-github', label: 'GitHub' },
+          wechat: { icon: 'fab fa-weixin', label: '微信' },
+          bilibili: { icon: 'fab fa-bilibili', label: 'B站' }
+        };
+        let html = '';
+        for (const [key, value] of Object.entries(contacts)) {
+          if (!value || !iconMap[key]) continue;
+          const { icon, label } = iconMap[key];
+          html += `
+            <div class="contact-btn" data-contact="${key}" data-value="${value}">
+              <i class="${icon}"></i>
+              <div class="contact-tooltip">${label}</div>
+            </div>
+          `;
         }
+        container.innerHTML = html;
+        document.querySelectorAll('.contact-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            copyToClipboard(btn.dataset.value);
+            showToast('已复制到剪贴板', 'success');
+          });
+        });
       }
 
       function getSlug(filename) {
@@ -1649,7 +1622,6 @@
         document.body.style.overflow = '';
       }
 
-      // 获取文章排序时间戳（优先使用datetime字段）
       function getArticleTimestamp(article) {
         if (article.datetime) {
           const ts = Date.parse(article.datetime);
@@ -1658,7 +1630,6 @@
         return Date.parse(article.date + 'T00:00:00');
       }
 
-      // 始终过滤掉 friend_link 分类
       function renderArticles(category) {
         if (!articlesData) return;
         const grid = document.getElementById('articles-grid');
@@ -1787,7 +1758,6 @@
 
           await articlesPromise;
 
-          // ========== 壁纸加载（三级回退 + 速度检测） ==========
           updateLoadingProgress(30, '正在加载壁纸...');
           let wallOk = false;
           try {
