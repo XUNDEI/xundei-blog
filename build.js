@@ -194,6 +194,9 @@ function generateRSS(articles, siteUrl, siteName, siteDescription) {
 
   let items = '';
   for (const article of articles) {
+    // 跳过友链文章，不加入 RSS
+    if (article.category === 'friend_link') continue;
+
     const slug = path.basename(article.filename, '.md');
     const url = `${siteUrl}/articles/${slug}`;
     const pubDate = article.datetime
