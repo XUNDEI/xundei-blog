@@ -1,10 +1,10 @@
-[
+ [
     {
         "title": "友链",
         "date": "2026-06-08",
         "datetime": "2026-06-08T10:00:00",
         "category": "friend_link",
-        "filename": "blog/friend_link/friend_link.md"
+        "filename": "blog/friend_link.md"
     },
     {
         "title": "Hello,world！",
@@ -12,7 +12,7 @@
         "datetime": "2026-05-03T10:00:00",
         "category": "diary",
         "excerpt": "新的一年，无限进步",
-        "filename": "blog/diary/1/1.md",
+        "filename": "blog/1.md",
         "license": false
     },
     {
@@ -21,7 +21,7 @@
         "datetime": "2026-05-16T09:30:00",
         "category": "technology",
         "excerpt": "零基础带你入坑python不走弯路，从安装python到写出第一行代码全程图文解释",
-        "filename": "blog/technology/2/2.md",
+        "filename": "blog/2.md",
         "license": "CC BY"
     },
     {
@@ -30,7 +30,7 @@
         "datetime": "2026-06-07T13:30:00",
         "category": "something",
         "excerpt": "暂无简介",
-        "filename": "blog/something/3/3.md",
+        "filename": "blog/3.md",
         "license": false
     },
     {
@@ -39,7 +39,7 @@
         "datetime": "2026-06-07T22:10:00",
         "category": "technology",
         "excerpt": "本文讲述如何关闭cloudflare pages默认url（xxx.pages.dev）的方法",
-        "filename": "blog/technology/4/4.md",
+        "filename": "blog/4.md",
         "license": "CC BY"
     }
 ]

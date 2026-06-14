@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>xundei's blog</title>
+  <meta name="description" content="xundei的个人博客——仰望星空，脚踏实地">
+  <link rel="canonical" href="https://xundei.qzz.io/">
+  <meta property="og:title" content="xundei's blog">
+  <meta property="og:description" content="xundei的个人博客——仰望星空，脚踏实地">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://xundei.qzz.io/">
+  <meta property="og:site_name" content="xundei's blog">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"xundei's blog","url":"https://xundei.qzz.io/"}</script>
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   <style>
@@ -1135,9 +1144,10 @@
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.9.6">xundei-blog V2.9.6</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.0">xundei-blog V2.10.0</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
-        <span>| <a href="/articles/friend_link.html" data-text="友链">友链</a></span>
+        <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
+        <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
       </div>
     </footer>
   </div>
@@ -1612,7 +1622,7 @@
         document.getElementById('modal-date').textContent = article.date;
         document.getElementById('modal-category').textContent = getCategoryName(article.category);
         document.getElementById('modal-excerpt').textContent = article.excerpt;
-        document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}.html`;
+        document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}`;
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
       }
@@ -1661,7 +1671,7 @@
               </div>
             </div>
             <div class="article-content">${escapeHtml(article.excerpt)}</div>
-            <a href="/articles/${slug}.html" class="read-more">阅读全文</a>
+            <a href="/articles/${slug}" class="read-more">阅读全文</a>
             <div class="card-hint">查看详细</div>
           `;
           card.addEventListener('click', (e) => {
@@ -1726,6 +1736,14 @@
         });
 
         document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
+
+        // RSS 链接：点击复制到剪贴板
+        document.getElementById('rss-link')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          const rssUrl = window.location.origin + '/rss.xml';
+          copyToClipboard(rssUrl);
+          showToast('RSS 链接已复制到剪贴板！', 'success');
+        });
       }
 
       function copyToClipboard(text) {
@@ -1740,23 +1758,9 @@
       async function initializePage() {
         try {
           updateLoadingProgress(8, '正在连接...');
-          const articlesPromise = (async () => {
-            try {
-              const res = await loadWithTimeout(
-                fetch('./articles.json').then(r => { if (!r.ok) throw new Error('文章列表加载失败'); return r.json(); }),
-                12000,
-                '文章列表加载超时'
-              );
-              articlesData = res;
-              updateLoadingProgress(25, '文章列表已就绪');
-            } catch (e) {
-              addLoadingError('文章列表加载失败: ' + e.message);
-              articlesData = [];
-              updateLoadingProgress(25, '文章列表加载失败，继续中...');
-            }
-          })();
-
-          await articlesPromise;
+          // 使用构建时内联的文章数据，无需异步加载
+          articlesData = window.__ARTICLES__ || [];
+          updateLoadingProgress(25, articlesData.length ? '文章列表已就绪' : '无文章数据');
 
           updateLoadingProgress(30, '正在加载壁纸...');
           let wallOk = false;

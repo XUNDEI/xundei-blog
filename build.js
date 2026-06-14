@@ -3,22 +3,85 @@ const path = require('path');
 const { marked } = require('marked');
 
 // ========== 配置区 ==========
-const SITE_URL = 'https://xundei.qzz.io';   // 你的网站域名，记得修改
+const SITE_URL = 'https://xundei.qzz.io';
+const SITE_NAME = "xundei's blog";
+const SITE_DESCRIPTION = 'xundei的个人博客——仰望星空，脚踏实地';
 // ===========================
-
-function loadArticles() {
-  const filePath = path.join(__dirname, 'articles.json');
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-}
 
 const categoryNames = {
   technology: '技术',
   diary: '日记',
-  something: '杂碎'
+  something: '杂碎',
+  friend_link: '友链'
 };
 
 function getCategoryName(cat) {
   return categoryNames[cat] || cat;
+}
+
+// ========== Front Matter 解析 ==========
+function parseFrontMatter(content) {
+  // 移除可能的 UTF-8 BOM
+  content = content.replace(/^\uFEFF/, '');
+
+  // 匹配 YAML front matter（容忍 --- 前后有空白字符）
+  const match = content.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n([\s\S]*))?$/);
+  if (!match) return null;
+
+  const yamlBlock = match[1];
+  const body = match[2] || '';
+
+  const meta = {};
+  for (const line of yamlBlock.split(/\r?\n/)) {
+    const kv = line.match(/^([a-zA-Z_]+):\s*(.*)$/);
+    if (kv) {
+      let val = kv[2].trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (val === 'true') val = true;
+      else if (val === 'false') val = false;
+      meta[kv[1]] = val;
+    }
+  }
+  return { meta, body };
+}
+
+// ========== 扫描 blog 目录 ==========
+function scanArticles() {
+  const blogDir = path.join(__dirname, 'blog');
+  const files = fs.readdirSync(blogDir).filter(f => f.endsWith('.md'));
+  const articles = [];
+
+  for (const file of files) {
+    const filePath = path.join(blogDir, file);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const parsed = parseFrontMatter(content);
+
+    if (!parsed) {
+      console.warn(`⚠ 警告: ${file} 缺少 front matter，跳过`);
+      continue;
+    }
+
+    if (!parsed.meta.title) {
+      console.warn(`⚠ 警告: ${file} 的 front matter 缺少 title，跳过`);
+      continue;
+    }
+
+    articles.push({
+      ...parsed.meta,
+      filename: `blog/${file}`,
+      body: parsed.body
+    });
+  }
+
+  articles.sort((a, b) => {
+    if (a.datetime && b.datetime) return b.datetime.localeCompare(a.datetime);
+    if (a.date && b.date) return b.date.localeCompare(a.date);
+    return 0;
+  });
+
+  return articles;
 }
 
 function calcReadingTime(text) {
@@ -37,11 +100,68 @@ function fixRelativePaths(markdown, mdFilePath, htmlOutputPath) {
   });
 }
 
+// ========== SEO 标签生成 ==========
+function generateSEOTags(article, slug) {
+  const url = `${SITE_URL}/articles/${slug}`;
+  const title = `${article.title} - ${SITE_NAME}`;
+  const description = article.excerpt || SITE_DESCRIPTION;
+
+  const jsonLD = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    'headline': article.title,
+    'description': description,
+    'datePublished': article.datetime || article.date,
+    'url': url,
+    'author': {
+      '@type': 'Person',
+      'name': 'xundei'
+    }
+  };
+
+  return {
+    metaDescription: description,
+    canonicalUrl: url,
+    ogTitle: title,
+    ogDescription: description,
+    ogUrl: url,
+    jsonLD: JSON.stringify(jsonLD)
+  };
+}
+
+// ========== 生成协议硬编码 HTML ==========
+function getLicenseDisplayAndHtml(article) {
+  // 友链文章不显示协议信息
+  if (article.category === 'friend_link') {
+    return { display: 'style="display: none;"', html: '' };
+  }
+
+  const license = article.license;
+  if (license && license !== false) {
+    const licenseUrls = {
+      'CC BY': 'https://creativecommons.org/licenses/by/4.0/',
+      'CC BY-SA': 'https://creativecommons.org/licenses/by-sa/4.0/',
+      'CC BY-NC': 'https://creativecommons.org/licenses/by-nc/4.0/',
+      'CC BY-ND': 'https://creativecommons.org/licenses/by-nd/4.0/'
+    };
+    const url = licenseUrls[license] || '#';
+    return {
+      display: '',
+      html: `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`
+    };
+  }
+
+  // 未声明协议
+  return {
+    display: '',
+    html: '本文未使用任何知识共享协议'
+  };
+}
+
 // ========== 生成 sitemap.xml ==========
 function generateSitemap(articles, siteUrl) {
-  const now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const now = new Date().toISOString().split('T')[0];
 
-  // 首页
   let urls = `
   <url>
     <loc>${siteUrl}/</loc>
@@ -50,13 +170,12 @@ function generateSitemap(articles, siteUrl) {
     <priority>1.0</priority>
   </url>`;
 
-  // 文章页
   for (const article of articles) {
     const slug = path.basename(article.filename, '.md');
-    const lastmod = article.date || now;  // 使用文章的日期，若没有则用当天
+    const lastmod = article.date || now;
     urls += `
   <url>
-    <loc>${siteUrl}/articles/${slug}.html</loc>
+    <loc>${siteUrl}/articles/${slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -69,18 +188,58 @@ ${urls}
 </urlset>`;
 }
 
-// ========== 确保 robots.txt 存在并包含 Sitemap 引用 ==========
-function ensureRobotsTxt(distDir, siteUrl) {
+// ========== 生成 RSS ==========
+function generateRSS(articles, siteUrl, siteName, siteDescription) {
+  const now = new Date().toUTCString();
+
+  let items = '';
+  for (const article of articles) {
+    const slug = path.basename(article.filename, '.md');
+    const url = `${siteUrl}/articles/${slug}`;
+    const pubDate = article.datetime
+      ? new Date(article.datetime).toUTCString()
+      : now;
+
+    if (!article.title) {
+      console.warn(`⚠ 警告: ${article.filename} 缺少 title，跳过 RSS 条目`);
+      continue;
+    }
+
+    const desc = (article.excerpt || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+    items += `
+    <item>
+      <title>${article.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
+      <link>${url}</link>
+      <guid isPermaLink="true">${url}</guid>
+      <description>${desc}</description>
+      <pubDate>${pubDate}</pubDate>
+      <author>xundei</author>
+    </item>`;
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${siteName}</title>
+    <link>${siteUrl}/</link>
+    <description>${siteDescription}</description>
+    <language>zh-CN</language>
+    <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>${now}</lastBuildDate>${items}
+  </channel>
+</rss>`;
+}
+
+// ========== 追加 sitemap 到 robots.txt（仅追加，不创建） ==========
+function appendSitemapToRobots(distDir, siteUrl) {
   const robotsPath = path.join(distDir, 'robots.txt');
-  
-  // 如果 robots.txt 不存在，创建一个基础版本
   if (!fs.existsSync(robotsPath)) {
-    const defaultRobots = `User-agent: *
-Allow: /
-Disallow: /api/
-`;
-    fs.writeFileSync(robotsPath, defaultRobots);
-    console.log('✅ 创建默认 robots.txt');
+    return; // robots.txt 由 Cloudflare 托管，不存在则跳过
   }
 
   let content = fs.readFileSync(robotsPath, 'utf-8');
@@ -90,15 +249,29 @@ Disallow: /api/
     if (!content.endsWith('\n')) content += '\n';
     content += sitemapLine + '\n';
     fs.writeFileSync(robotsPath, content);
-    console.log('✅ 已自动添加 Sitemap 引用到 robots.txt');
-  } else {
-    console.log('✅ robots.txt 已包含 Sitemap 引用');
+    console.log('✅ 已追加 Sitemap 引用到 robots.txt');
   }
+}
+
+// ========== 注入文章数据到 index.html（爬虫友好） ==========
+function injectArticlesIntoIndex(articlesIndex, distDir) {
+  const indexPath = path.join(distDir, 'index.html');
+  let html = fs.readFileSync(indexPath, 'utf-8');
+
+  const scriptTag = `<script>window.__ARTICLES__ = ${JSON.stringify(articlesIndex)};</script>`;
+
+  html = html.replace('</head>', `  ${scriptTag}\n</head>`);
+
+  fs.writeFileSync(indexPath, html);
+  console.log('✅ 已注入文章数据到 index.html');
 }
 
 // ========== 主构建函数 ==========
 function build() {
-  const articles = loadArticles();
+  console.log('🔍 扫描 blog 目录...');
+  const articles = scanArticles();
+  console.log(`📄 发现 ${articles.length} 篇文章`);
+
   const articleTemplate = fs.readFileSync(
     path.join(__dirname, 'templates', 'article.html'),
     'utf-8'
@@ -107,13 +280,12 @@ function build() {
   const distDir = path.join(__dirname, 'dist');
   const articlesDir = path.join(distDir, 'articles');
 
-  // 清空旧目录
   if (fs.existsSync(distDir)) {
     fs.rmSync(distDir, { recursive: true });
   }
   fs.mkdirSync(articlesDir, { recursive: true });
 
-  // 复制静态资源目录（不包含 Music）
+  // 复制静态资源目录
   const staticDirs = ['blog', 'wallpaper'];
   for (const dir of staticDirs) {
     const src = path.join(__dirname, dir);
@@ -124,17 +296,11 @@ function build() {
     }
   }
 
-  // ========== 复制根目录必要文件（包含 _redirects 和 404.html） ==========
+  // 复制根目录文件（index.html 单独处理以注入文章数据）
   const rootFiles = [
-    'index.html',
-    'axios.min.js',
-    'wallpaper.json',
-    'articles.json',
-    'sentences.txt',
-    'portrait.png',
-    'favicon.ico',
-    '404.html',        // 自定义 404 页面
-    '_redirects'       // Cloudflare Pages 重定向配置文件（用于自定义 404）
+    'axios.min.js', 'wallpaper.json',
+    'sentences.txt', 'portrait.png', 'favicon.ico',
+    '404.html', '_redirects'
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
@@ -146,49 +312,91 @@ function build() {
     }
   }
 
-  // 检测并复制 BingSiteAuth.xml（若存在，静默忽略不存在的情况）
+  // 复制 index.html（后续会注入内联数据）
+  const indexSrc = path.join(__dirname, 'index.html');
+  if (fs.existsSync(indexSrc)) {
+    fs.copyFileSync(indexSrc, path.join(distDir, 'index.html'));
+    console.log('✅ 复制 index.html');
+  }
+
+  // BingSiteAuth.xml
   const bingAuthSrc = path.join(__dirname, 'BingSiteAuth.xml');
   if (fs.existsSync(bingAuthSrc)) {
     fs.copyFileSync(bingAuthSrc, path.join(distDir, 'BingSiteAuth.xml'));
     console.log('✅ 复制 BingSiteAuth.xml');
   }
 
-  // 生成文章 HTML
+  // 生成文章 HTML（含 SEO 标签、硬编码协议信息）
   for (const article of articles) {
     const mdPath = path.join(__dirname, article.filename);
-    if (!fs.existsSync(mdPath)) {
-      console.warn(`跳过不存在的文件: ${mdPath}`);
-      continue;
-    }
-
-    let markdown = fs.readFileSync(mdPath, 'utf-8');
     const slug = path.basename(article.filename, '.md');
     const htmlOutputPath = path.join(articlesDir, slug + '.html');
 
+    if (!article.title || !article.body) {
+      console.warn(`⚠ 警告: ${article.filename} 缺少必要字段，跳过生成`);
+      continue;
+    }
+
+    let markdown = article.body;
     markdown = fixRelativePaths(markdown, mdPath, htmlOutputPath);
     const htmlContent = marked.parse(markdown);
     const readingTime = calcReadingTime(markdown);
+    const seo = generateSEOTags(article, slug);
+    const license = getLicenseDisplayAndHtml(article);
 
     let page = articleTemplate
       .replace(/{{ARTICLE_TITLE}}/g, article.title)
       .replace(/{{ARTICLE_DATE}}/g, article.date)
       .replace(/{{ARTICLE_CATEGORY}}/g, getCategoryName(article.category))
       .replace(/{{READING_TIME}}/g, readingTime + ' 分钟')
-      .replace('{{ARTICLE_CONTENT}}', htmlContent);
+      .replace(/{{META_DESCRIPTION}}/g, seo.metaDescription)
+      .replace(/{{CANONICAL_URL}}/g, seo.canonicalUrl)
+      .replace(/{{OG_TITLE}}/g, seo.ogTitle)
+      .replace(/{{OG_DESCRIPTION}}/g, seo.ogDescription)
+      .replace(/{{OG_URL}}/g, seo.ogUrl)
+      .replace(/{{JSON_LD}}/g, seo.jsonLD)
+      .replace('{{ARTICLE_CONTENT}}', htmlContent)
+      .replace('{{LICENSE_DISPLAY}}', license.display)
+      .replace('{{LICENSE_HTML}}', license.html);
 
     fs.writeFileSync(htmlOutputPath, page);
-    console.log(`生成: articles/${slug}.html`);
+    console.log(`✅ 生成: articles/${slug}.html`);
   }
+
+  // 构建文章索引（不含 body）
+  const articlesIndex = articles.map(({ body, ...rest }) => rest);
+
+  // 生成 articles.json（供文章页面读取 license 等信息）
+  fs.writeFileSync(
+    path.join(distDir, 'articles.json'),
+    JSON.stringify(articlesIndex, null, 2)
+  );
+  console.log('✅ 生成 articles.json');
+
+  // 同时写入源目录（方便 git 追踪文章元数据变化）
+  fs.writeFileSync(
+    path.join(__dirname, 'articles.json'),
+    JSON.stringify(articlesIndex, null, 2)
+  );
+  console.log('✅ 更新源目录 articles.json');
+
+  // 注入文章数据到 index.html（硬编码，爬虫可直接抓取）
+  injectArticlesIntoIndex(articlesIndex, distDir);
 
   // 生成 sitemap.xml
   const sitemap = generateSitemap(articles, SITE_URL);
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
   console.log('✅ 生成 sitemap.xml');
 
-  // 确保 robots.txt 存在并包含 Sitemap 引用
-  ensureRobotsTxt(distDir, SITE_URL);
+  // 生成 RSS
+  const rss = generateRSS(articles, SITE_URL, SITE_NAME, SITE_DESCRIPTION);
+  fs.writeFileSync(path.join(distDir, 'rss.xml'), rss);
+  console.log('✅ 生成 rss.xml');
 
-  console.log(`构建完成！共 ${articles.length} 篇文章，输出目录: dist/`);
+  // 追加 sitemap 到 robots.txt（如果存在）
+  appendSitemapToRobots(distDir, SITE_URL);
+
+  console.log(`\n🎉 构建完成！共 ${articles.length} 篇文章，输出目录: dist/`);
 }
 
 build();

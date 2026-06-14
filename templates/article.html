@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ARTICLE_TITLE}} - xundei's blog</title>
+    <meta name="description" content="{{META_DESCRIPTION}}">
+    <link rel="canonical" href="{{CANONICAL_URL}}">
+    <meta property="og:title" content="{{OG_TITLE}}">
+    <meta property="og:description" content="{{OG_DESCRIPTION}}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{OG_URL}}">
+    <meta property="og:site_name" content="xundei's blog">
+    <meta name="twitter:card" content="summary">
+    <script type="application/ld+json">{{JSON_LD}}</script>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
@@ -475,8 +484,6 @@
             transition: all 0.3s ease;
             white-space: nowrap;
         }
-
-        /* 已移除 .article-full-content code:hover 规则，鼠标悬浮时不再发亮 */
 
         .article-full-content pre code {
             background: none;
@@ -1199,7 +1206,7 @@
         </div>
     </div>
 
-    <a href="../index.html" class="back-btn glass">
+    <a href="/" class="back-btn glass">
         <i class="fas fa-arrow-left"></i>
     </a>
 
@@ -1260,8 +1267,8 @@
             </div>
         </div>
 
-        <footer class="article-footer" id="article-footer" style="display: none;">
-            <div class="footer-content" id="license-text"></div>
+        <footer class="article-footer" id="article-footer" {{LICENSE_DISPLAY}}>
+            <div class="footer-content">{{LICENSE_HTML}}</div>
         </footer>
     </div>
 
@@ -1666,46 +1673,6 @@
             }
         }
 
-        async function loadLicenseInfo() {
-            try {
-                const response = await axios.get('../articles.json', { timeout: 8000 });
-                const articles = response.data;
-                const currentPath = window.location.pathname;
-                const filename = currentPath.split('/').pop();
-                const slug = filename.replace(/\.html$/, '');
-                const article = articles.find(a => {
-                    const aFilename = a.filename.split('/').pop();
-                    const aSlug = aFilename.replace(/\.md$/, '');
-                    return aSlug === slug;
-                });
-                const footer = document.getElementById('article-footer');
-                const licenseText = document.getElementById('license-text');
-                if (article && article.category === 'friend_link') {
-                    footer.style.display = 'none';
-                    return;
-                }
-                if (article && article.license && article.license !== false) {
-                    const license = article.license;
-                    const licenseUrls = {
-                        'CC BY': 'https://creativecommons.org/licenses/by/4.0/',
-                        'CC BY-SA': 'https://creativecommons.org/licenses/by-sa/4.0/',
-                        'CC BY-NC': 'https://creativecommons.org/licenses/by-nc/4.0/',
-                        'CC BY-ND': 'https://creativecommons.org/licenses/by-nd/4.0/'
-                    };
-                    const url = licenseUrls[license] || '#';
-                    licenseText.innerHTML = `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`;
-                    footer.style.display = 'block';
-                } else {
-                    licenseText.innerHTML = '本文未使用任何知识共享协议';
-                    footer.style.display = 'block';
-                }
-            } catch (error) {
-                addLoadingError('协议信息加载失败');
-                const footer = document.getElementById('article-footer');
-                footer.style.display = 'none';
-            }
-        }
-
         async function loadPoetry() {
             const contentEl = document.getElementById('poetry-content');
             const authorEl = document.getElementById('poetry-author');
@@ -1777,8 +1744,8 @@
             preventTocScrollPropagation();
             document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
 
-            updateLoadingProgress(85, '正在加载协议信息...');
-            await loadWithTimeout(loadLicenseInfo(), 8000, '协议加载超时').catch(e => addLoadingError('协议信息加载失败'));
+            // 协议信息已在构建时硬编码，无需运行时加载
+            updateLoadingProgress(85, '即将完成...');
 
             loadPoetry();
             document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
