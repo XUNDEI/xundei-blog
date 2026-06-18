@@ -71,11 +71,15 @@ function scanArticles() {
     articles.push({
       ...parsed.meta,
       filename: `blog/${file}`,
-      body: parsed.body
+      body: parsed.body,
+      latest: parsed.meta.latest !== undefined ? parsed.meta.latest : false
     });
   }
 
   articles.sort((a, b) => {
+    const aLatest = a.latest ? a.latest : a.datetime || a.date;
+    const bLatest = b.latest ? b.latest : b.datetime || b.date;
+    if (aLatest && bLatest) return bLatest.localeCompare(aLatest);
     if (a.datetime && b.datetime) return b.datetime.localeCompare(a.datetime);
     if (a.date && b.date) return b.date.localeCompare(a.date);
     return 0;
@@ -172,7 +176,7 @@ function generateSitemap(articles, siteUrl) {
 
   for (const article of articles) {
     const slug = path.basename(article.filename, '.md');
-    const lastmod = article.date || now;
+    const lastmod = article.latest || article.date || now;
     urls += `
   <url>
     <loc>${siteUrl}/articles/${slug}</loc>
@@ -288,8 +292,8 @@ function build() {
   }
   fs.mkdirSync(articlesDir, { recursive: true });
 
-  // 复制静态资源目录
-  const staticDirs = ['blog', 'wallpaper'];
+  // 复制静态资源目录（已移除 'blog'，不再复制整个 blog 文件夹）
+  const staticDirs = ['wallpaper'];  // 原先为 ['blog', 'wallpaper']
   for (const dir of staticDirs) {
     const src = path.join(__dirname, dir);
     if (fs.existsSync(src)) {
@@ -350,6 +354,7 @@ function build() {
     let page = articleTemplate
       .replace(/{{ARTICLE_TITLE}}/g, article.title)
       .replace(/{{ARTICLE_DATE}}/g, article.date)
+      .replace(/{{ARTICLE_LATEST}}/g, article.latest ? article.latest : '')
       .replace(/{{ARTICLE_CATEGORY}}/g, getCategoryName(article.category))
       .replace(/{{READING_TIME}}/g, readingTime + ' 分钟')
       .replace(/{{META_DESCRIPTION}}/g, seo.metaDescription)

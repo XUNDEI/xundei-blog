@@ -495,6 +495,8 @@
       justify-content: space-between;
       font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.8);
+      flex-wrap: wrap;
+      gap: 4px 8px;
     }
     .article-content {
       padding: 15px;
@@ -1160,6 +1162,7 @@
       <h2 class="modal-title" id="modal-title"></h2>
       <div class="modal-meta">
         <span class="meta-item"><i class="far fa-calendar-alt"></i> <span id="modal-date"></span></span>
+        <span class="meta-item" id="modal-latest-item" style="display:none;"><i class="fas fa-sync-alt"></i> <span id="modal-latest"></span></span>
         <span class="meta-item"><i class="fas fa-folder"></i> <span id="modal-category"></span></span>
       </div>
       <div class="modal-excerpt" id="modal-excerpt"></div>
@@ -1623,6 +1626,14 @@
         document.getElementById('modal-category').textContent = getCategoryName(article.category);
         document.getElementById('modal-excerpt').textContent = article.excerpt;
         document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}`;
+        const latestItem = document.getElementById('modal-latest-item');
+        const latestEl = document.getElementById('modal-latest');
+        if (article.latest) {
+          latestEl.textContent = formatRelativeTime(article.latest);
+          latestItem.style.display = '';
+        } else {
+          latestItem.style.display = 'none';
+        }
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
       }
@@ -1630,6 +1641,30 @@
       function closeArticleModal() {
         document.getElementById('article-modal').classList.remove('active');
         document.body.style.overflow = '';
+      }
+
+      function formatRelativeTime(dateStr) {
+        if (!dateStr) return '';
+        const now = new Date();
+        const date = new Date(dateStr);
+        const diffMs = now - date;
+        const diffMinutes = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMinutes < 1) return '刚刚';
+        if (diffMinutes < 60) return `${diffMinutes} 分钟前`;
+        if (diffHours < 24) return `${diffHours} 小时前`;
+        if (diffDays <= 30) return `${diffDays} 天前`;
+
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function getLatestSortKey(article) {
+        return article.latest ? article.latest : (article.datetime || article.date);
       }
 
       function getArticleTimestamp(article) {
@@ -1651,7 +1686,12 @@
           filtered = filtered.filter(a => a.category === category);
         }
         
-        filtered.sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a));
+        filtered.sort((a, b) => {
+          const keyA = getLatestSortKey(a);
+          const keyB = getLatestSortKey(b);
+          if (keyA && keyB) return keyB.localeCompare(keyA);
+          return getArticleTimestamp(b) - getArticleTimestamp(a);
+        });
 
         if (!filtered.length) {
           grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
@@ -1666,7 +1706,7 @@
             <div class="article-header">
               <h3 class="article-title">${escapeHtml(article.title)}</h3>
               <div class="article-meta">
-                <span>${article.date}</span>
+                <span>${article.latest ? article.latest.substring(0, 10) : article.date}</span>
                 <span>${getCategoryName(article.category)}</span>
               </div>
             </div>

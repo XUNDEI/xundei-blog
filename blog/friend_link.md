@@ -7,4 +7,7 @@ excerpt: 欢迎交换友链！
 license: false
 ---
 
-暂无友链，欢迎提交！
+欢迎交换友链！目前已有以下小伙伴：
+
+- [**NewMaths-gjm的博客**](https://neolguo.top/) – 分享数学，又不只是分享数学。  
+

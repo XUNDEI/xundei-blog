@@ -1256,6 +1256,10 @@
                 <div class="article-meta">
                     <div>
                         <span>{{ARTICLE_DATE}}</span>
+                        <span id="article-latest" data-latest="{{ARTICLE_LATEST}}" style="display:none;">
+                            <span> | </span>
+                            <span class="latest-label">更新于 <span id="article-latest-time"></span></span>
+                        </span>
                         <span> | </span>
                         <span id="article-category">{{ARTICLE_CATEGORY}}</span>
                     </div>
@@ -1585,6 +1589,71 @@
             setTimeout(() => { confirmEl.style.display = 'none'; }, 400);
         }
 
+        function formatRelativeTime(dateStr) {
+            if (!dateStr) return '';
+            const now = new Date();
+            const date = new Date(dateStr);
+            const diffMs = now - date;
+            const diffMinutes = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMinutes < 1) return '刚刚';
+            if (diffMinutes < 60) return `${diffMinutes} 分钟前`;
+            if (diffHours < 24) return `${diffHours} 小时前`;
+            if (diffDays <= 30) return `${diffDays} 天前`;
+
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function displayLatestInfo() {
+            const latestEl = document.getElementById('article-latest');
+            const latestTimeEl = document.getElementById('article-latest-time');
+            const latestStr = latestEl ? latestEl.dataset.latest : '';
+            if (latestStr) {
+                latestEl.style.display = 'inline';
+                latestTimeEl.textContent = formatRelativeTime(latestStr);
+            }
+        }
+
+        function adjustTocSize() {
+            const tocContainer = document.getElementById('toc-container');
+            const tocToggle = document.getElementById('toc-toggle');
+            const articleContainer = document.querySelector('.article-container');
+            if (!tocContainer || !articleContainer) return;
+
+            const windowWidth = window.innerWidth;
+
+            // 移动端（≤1024）：隐藏目录，保留切换按钮
+            if (windowWidth <= 1024) {
+                tocContainer.style.display = 'none';
+                if (tocToggle) tocToggle.style.display = 'flex';
+                return;
+            }
+
+            // 桌面端（>1024）：显示目录
+            tocContainer.style.display = 'block';
+            if (tocToggle) tocToggle.style.display = 'flex';
+
+            // 根据文章区右边界动态调整目录宽度，确保不覆盖文章内容
+            const articleRect = articleContainer.getBoundingClientRect();
+            const articleRight = articleRect.right;
+            const rightMargin = 30;
+            const gap = 20;
+            const availableWidth = windowWidth - articleRight - gap - rightMargin;
+
+            if (availableWidth < 300) {
+                const maxW = Math.max(180, Math.floor(availableWidth));
+                tocContainer.style.maxWidth = maxW + 'px';
+            } else {
+                tocContainer.style.maxWidth = '300px';
+            }
+            tocContainer.style.right = rightMargin + 'px';
+        }
+
         function generateTOC() {
             const tocContainer = document.getElementById('toc-container');
             const tocList = document.getElementById('toc-list');
@@ -1594,7 +1663,7 @@
                 document.getElementById('toc-toggle').style.display = 'none';
                 return;
             }
-            if (window.innerWidth > 1024) tocContainer.style.display = 'block';
+            adjustTocSize();
             tocList.innerHTML = '';
             headings.forEach((heading, index) => {
                 if (!heading.id) heading.id = `heading-${index}`;
@@ -1725,8 +1794,11 @@
             addCopyButtonsToCodeBlocks();
             document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
             generateTOC();
+            displayLatestInfo();
+            adjustTocSize();
             document.addEventListener('click', handleImageClick);
             window.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', adjustTocSize);
             document.getElementById('back-to-top').addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -1736,6 +1808,7 @@
                     tocContainer.style.display = 'none';
                 } else {
                     tocContainer.style.display = 'block';
+                    adjustTocSize();
                     highlightTOC();
                     const activeItem = document.querySelector('.toc-list li.active');
                     if (activeItem) activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
