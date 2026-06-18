@@ -1619,41 +1619,6 @@
             }
         }
 
-        function adjustTocSize() {
-            const tocContainer = document.getElementById('toc-container');
-            const tocToggle = document.getElementById('toc-toggle');
-            const articleContainer = document.querySelector('.article-container');
-            if (!tocContainer || !articleContainer) return;
-
-            const windowWidth = window.innerWidth;
-
-            // 移动端（≤1024）：隐藏目录，保留切换按钮
-            if (windowWidth <= 1024) {
-                tocContainer.style.display = 'none';
-                if (tocToggle) tocToggle.style.display = 'flex';
-                return;
-            }
-
-            // 桌面端（>1024）：显示目录
-            tocContainer.style.display = 'block';
-            if (tocToggle) tocToggle.style.display = 'flex';
-
-            // 根据文章区右边界动态调整目录宽度，确保不覆盖文章内容
-            const articleRect = articleContainer.getBoundingClientRect();
-            const articleRight = articleRect.right;
-            const rightMargin = 30;
-            const gap = 20;
-            const availableWidth = windowWidth - articleRight - gap - rightMargin;
-
-            if (availableWidth < 300) {
-                const maxW = Math.max(180, Math.floor(availableWidth));
-                tocContainer.style.maxWidth = maxW + 'px';
-            } else {
-                tocContainer.style.maxWidth = '300px';
-            }
-            tocContainer.style.right = rightMargin + 'px';
-        }
-
         function generateTOC() {
             const tocContainer = document.getElementById('toc-container');
             const tocList = document.getElementById('toc-list');
@@ -1663,7 +1628,12 @@
                 document.getElementById('toc-toggle').style.display = 'none';
                 return;
             }
-            adjustTocSize();
+            // 旧版本逻辑：只在桌面端显示目录，移动端隐藏（由CSS控制，但这里显式设置）
+            if (window.innerWidth > 1024) {
+                tocContainer.style.display = 'block';
+            } else {
+                tocContainer.style.display = 'none';
+            }
             tocList.innerHTML = '';
             headings.forEach((heading, index) => {
                 if (!heading.id) heading.id = `heading-${index}`;
@@ -1795,10 +1765,9 @@
             document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
             generateTOC();
             displayLatestInfo();
-            adjustTocSize();
             document.addEventListener('click', handleImageClick);
             window.addEventListener('scroll', handleScroll);
-            window.addEventListener('resize', adjustTocSize);
+            // 移除了 resize 监听，因为旧版本没有动态调整宽度
             document.getElementById('back-to-top').addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -1808,7 +1777,6 @@
                     tocContainer.style.display = 'none';
                 } else {
                     tocContainer.style.display = 'block';
-                    adjustTocSize();
                     highlightTOC();
                     const activeItem = document.querySelector('.toc-list li.active');
                     if (activeItem) activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
