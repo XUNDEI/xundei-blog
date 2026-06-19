@@ -4,8 +4,6 @@ date: 2026-06-08
 datetime: 2026-06-08T10:00:00
 category: friend_link
 excerpt: 欢迎交换友链！
-license: CC BY-NC-ND
-code-license: MIT
 ---
 
 欢迎交换友链！目前已有以下小伙伴：
