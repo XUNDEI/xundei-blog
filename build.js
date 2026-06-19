@@ -225,8 +225,8 @@ ${urls}
 </urlset>`;
 }
 
-// ========== 生成 RSS ==========
-function generateRSS(articles, siteUrl, siteName, siteDescription) {
+// ========== 生成 RSS（已注入完整文章内容） ==========
+function generateRSS(articles, siteUrl, siteName, siteDescription, distDir) {
   const now = new Date().toUTCString();
 
   let items = '';
@@ -251,19 +251,30 @@ function generateRSS(articles, siteUrl, siteName, siteDescription) {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
+    // 生成完整文章 HTML（修正图片相对路径）
+    const mdPath = path.join(__dirname, article.filename);
+    const htmlOutputPath = path.join(distDir, 'articles', slug + '.html');
+    let contentMarkdown = article.body;
+    contentMarkdown = fixRelativePaths(contentMarkdown, mdPath, htmlOutputPath);
+    const htmlContent = marked.parse(contentMarkdown);
+
+    // CDATA 段安全转义（避免出现 ]]> 截断）
+    const safeHtml = htmlContent.replace(/]]>/g, ']]]]><![CDATA[>');
+
     items += `
     <item>
       <title>${article.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <description>${desc}</description>
+      <content:encoded><![CDATA[${safeHtml}]]></content:encoded>
       <pubDate>${pubDate}</pubDate>
       <author>xundei</author>
     </item>`;
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${siteName}</title>
     <link>${siteUrl}/</link>
@@ -429,10 +440,10 @@ function build() {
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
   console.log('✅ 生成 sitemap.xml');
 
-  // 生成 RSS
-  const rss = generateRSS(articles, SITE_URL, SITE_NAME, SITE_DESCRIPTION);
+  // 生成 RSS（现在已包含完整文章内容）
+  const rss = generateRSS(articles, SITE_URL, SITE_NAME, SITE_DESCRIPTION, distDir);
   fs.writeFileSync(path.join(distDir, 'rss.xml'), rss);
-  console.log('✅ 生成 rss.xml');
+  console.log('✅ 生成 rss.xml（已注入完整文章内容）');
 
   // 追加 sitemap 到 robots.txt（如果存在）
   appendSitemapToRobots(distDir, SITE_URL);
