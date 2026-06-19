@@ -1,45 +1,79 @@
- [
-    {
-        "title": "友链",
-        "date": "2026-06-08",
-        "datetime": "2026-06-08T10:00:00",
-        "category": "friend_link",
-        "filename": "blog/friend_link.md"
-    },
-    {
-        "title": "Hello,world！",
-        "date": "2026-05-03",
-        "datetime": "2026-05-03T10:00:00",
-        "category": "diary",
-        "excerpt": "新的一年，无限进步",
-        "filename": "blog/1.md",
-        "license": false
-    },
-    {
-        "title": "全程图文！保姆级带你入坑python",
-        "date": "2026-05-16",
-        "datetime": "2026-05-16T09:30:00",
-        "category": "technology",
-        "excerpt": "零基础带你入坑python不走弯路，从安装python到写出第一行代码全程图文解释",
-        "filename": "blog/2.md",
-        "license": "CC BY"
-    },
-    {
-        "title": "更新时的一点小趣事",
-        "date": "2026-06-07",
-        "datetime": "2026-06-07T13:30:00",
-        "category": "something",
-        "excerpt": "暂无简介",
-        "filename": "blog/3.md",
-        "license": false
-    },
-    {
-        "title": "如何关闭cloudflare pages的默认url（xxx.pages.dev）",
-        "date": "2026-06-07",
-        "datetime": "2026-06-07T22:10:00",
-        "category": "technology",
-        "excerpt": "本文讲述如何关闭cloudflare pages默认url（xxx.pages.dev）的方法",
-        "filename": "blog/4.md",
-        "license": "CC BY"
-    }
+[
+  {
+    "title": "全程图文！保姆级带你入坑python",
+    "date": "2026-05-16",
+    "datetime": "2026-05-16 09:30:00",
+    "latest": "2026-06-18T22:51:33",
+    "category": "technology",
+    "excerpt": "零基础带你入坑python不走弯路，从安装python到写出第一行代码全程图文解释",
+    "license": "CC BY",
+    "codeLicense": "MIT",
+    "filename": "blog/2.md"
+  },
+  {
+    "title": "现在网上讲道理越来越难了",
+    "date": "2026-06-18",
+    "datetime": "2026-06-18T22:39:28",
+    "category": "something",
+    "excerpt": "暂无简介",
+    "license": "CC BY-NC-ND",
+    "codeLicense": "MIT",
+    "filename": "blog/6.md",
+    "latest": false
+  },
+  {
+    "title": "要中考了",
+    "date": "2026-06-14",
+    "datetime": "2026-06-14T17:10:00",
+    "category": "something",
+    "excerpt": "还剩一周中考",
+    "license": "CC BY-NC-ND",
+    "codeLicense": "MIT",
+    "filename": "blog/5.md",
+    "latest": false
+  },
+  {
+    "title": "友链",
+    "date": "2026-06-08",
+    "datetime": "2026-06-08T10:00:00",
+    "category": "friend_link",
+    "excerpt": "欢迎交换友链！",
+    "license": "CC BY-NC-ND",
+    "codeLicense": "MIT",
+    "filename": "blog/friend_link.md",
+    "latest": false
+  },
+  {
+    "title": "如何关闭cloudflare pages的默认url（xxx.pages.dev）",
+    "date": "2026-06-07",
+    "datetime": "2026-06-07T22:10:00",
+    "category": "technology",
+    "excerpt": "本文讲述如何关闭cloudflare pages默认url（xxx.pages.dev）的方法",
+    "license": "CC BY",
+    "codeLicense": "MIT",
+    "filename": "blog/4.md",
+    "latest": false
+  },
+  {
+    "title": "更新时的一点小趣事",
+    "date": "2026-06-07",
+    "datetime": "2026-06-07T13:30:00",
+    "category": "something",
+    "excerpt": "暂无简介",
+    "license": "CC BY-NC-ND",
+    "codeLicense": "MIT",
+    "filename": "blog/3.md",
+    "latest": false
+  },
+  {
+    "title": "Hello,world！",
+    "date": "2026-05-03",
+    "datetime": "2026-05-03T10:00:00",
+    "category": "diary",
+    "excerpt": "新的一年，无限进步",
+    "license": "CC BY-NC-ND",
+    "codeLicense": "MIT",
+    "filename": "blog/1.md",
+    "latest": false
+  }
 ]

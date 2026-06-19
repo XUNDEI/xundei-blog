@@ -642,11 +642,12 @@
             color: var(--primary-color);
         }
 
+        /* 目录容器 - 桌面端fixed定位，通过JS动态调整right值确保不越过文章框 */
         .toc-container {
             position: fixed;
             top: 100px;
             right: 30px;
-            max-width: 300px;
+            max-width: 240px;
             max-height: 70vh;
             overflow-y: auto;
             padding: 20px;
@@ -744,23 +745,23 @@
             font-size: 0.95rem;
         }
 
+        /* 返回顶部按钮 - 带圆圈进度条（已美化） */
         .back-to-top {
             position: fixed;
             bottom: 30px;
             right: 30px;
             width: 50px;
             height: 50px;
-            background: var(--primary-color);
+            background: transparent;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
             color: white;
             cursor: pointer;
             opacity: 0;
             transition: var(--transition);
             z-index: 98;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: none;
         }
 
         .back-to-top.visible {
@@ -770,6 +771,42 @@
         .back-to-top:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 20px var(--glow-color);
+        }
+
+        .back-to-top .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            /* 将起点从3点钟旋转至12点钟 */
+            transform: rotate(-90deg);
+        }
+
+        .back-to-top .progress-ring-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 4;
+        }
+
+        .back-to-top .progress-ring-progress {
+            fill: none;
+            stroke: url(#progressGradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 125.66;
+            stroke-dashoffset: 125.66;
+            transition: stroke-dashoffset 0.15s linear;
+            filter: drop-shadow(0 0 6px rgba(66,133,244,0.8));
+        }
+
+        .back-to-top .back-to-top-icon {
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+            pointer-events: none;
+            text-shadow: 0 0 8px rgba(255,255,255,0.6);
         }
 
         .link-confirm {
@@ -1235,8 +1272,19 @@
         <ul class="toc-list" id="toc-list"></ul>
     </div>
 
-    <div class="back-to-top glass" id="back-to-top">
-        <i class="fas fa-arrow-up"></i>
+    <!-- 返回顶部按钮 - 带SVG圆圈进度条（12点钟起点 + 渐变） -->
+    <div class="back-to-top" id="back-to-top">
+        <svg class="progress-ring" viewBox="0 0 50 50">
+            <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a1c4fd"/>
+                    <stop offset="100%" stop-color="#c2e9fb"/>
+                </linearGradient>
+            </defs>
+            <circle class="progress-ring-track" cx="25" cy="25" r="20"/>
+            <circle class="progress-ring-progress" cx="25" cy="25" r="20" id="progress-circle"/>
+        </svg>
+        <i class="fas fa-arrow-up back-to-top-icon"></i>
     </div>
 
     <div class="poetry-card glass" id="poetry-card">
@@ -1289,6 +1337,7 @@
         const loadingErrors = [];
         let articleImageObserver = null;
 
+        // 显示Toast通知
         function showToast(message, type = 'info') {
             const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1347,6 +1396,7 @@
             ]);
         }
 
+        // 加载壁纸图片并检测速度
         function loadImageWithSpeedCheck(imgUrl, options = {}) {
             const {
                 initialCheckMs = 3000,
@@ -1440,6 +1490,7 @@
             });
         }
 
+        // 准备文章图片懒加载
         function prepareArticleImagesForLazyLoading() {
             const images = document.querySelectorAll('.article-full-content img');
             if (images.length === 0) return false;
@@ -1491,6 +1542,7 @@
             });
         }
 
+        // 阻止目录滚动传播到页面
         function preventTocScrollPropagation() {
             const tocContainer = document.getElementById('toc-container');
             if (tocContainer) {
@@ -1506,6 +1558,7 @@
             }
         }
 
+        // 为代码块添加复制按钮
         function addCopyButtonsToCodeBlocks() {
             const codeBlocks = document.querySelectorAll('.article-full-content pre');
             codeBlocks.forEach((pre) => {
@@ -1619,6 +1672,7 @@
             }
         }
 
+        // 生成目录
         function generateTOC() {
             const tocContainer = document.getElementById('toc-container');
             const tocList = document.getElementById('toc-list');
@@ -1628,7 +1682,6 @@
                 document.getElementById('toc-toggle').style.display = 'none';
                 return;
             }
-            // 旧版本逻辑：只在桌面端显示目录，移动端隐藏（由CSS控制，但这里显式设置）
             if (window.innerWidth > 1024) {
                 tocContainer.style.display = 'block';
             } else {
@@ -1657,11 +1710,50 @@
             });
         }
 
+        // 动态调整目录位置，确保桌面端目录不越过文章框
+        function adjustTocPosition() {
+            if (window.innerWidth <= 1024) return;
+            const tocContainer = document.getElementById('toc-container');
+            const articleContainer = document.querySelector('.article-container');
+            if (!tocContainer || !articleContainer) return;
+            if (tocContainer.style.display === 'none' && window.innerWidth > 1024) return;
+
+            const articleRect = articleContainer.getBoundingClientRect();
+            const tocWidth = tocContainer.offsetWidth;
+            const minGap = 20;
+            const articleRightEdge = articleRect.right;
+            const viewportWidth = window.innerWidth;
+
+            const tocLeftTarget = articleRightEdge + minGap;
+            const tocRightEdge = tocLeftTarget + tocWidth;
+            let newRight = viewportWidth - tocRightEdge;
+
+            // 确保目录至少有50px在视口内
+            const minRight = -(tocWidth - 50);
+            newRight = Math.max(minRight, Math.min(newRight, viewportWidth - 10));
+
+            tocContainer.style.right = newRight + 'px';
+        }
+
+        // 更新返回顶部按钮的圆圈进度条
+        function updateProgressRing() {
+            const progressCircle = document.getElementById('progress-circle');
+            if (!progressCircle) return;
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+            const circumference = 2 * Math.PI * 20; // ≈125.66
+            const offset = circumference * (1 - scrollPercent);
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
         function handleScroll() {
             const backToTopBtn = document.getElementById('back-to-top');
             if (window.scrollY > 300) backToTopBtn.classList.add('visible');
             else backToTopBtn.classList.remove('visible');
             highlightTOC();
+            updateProgressRing();
+            adjustTocPosition();
         }
 
         function highlightTOC() {
@@ -1767,7 +1859,25 @@
             displayLatestInfo();
             document.addEventListener('click', handleImageClick);
             window.addEventListener('scroll', handleScroll);
-            // 移除了 resize 监听，因为旧版本没有动态调整宽度
+
+            // 窗口尺寸变化时修复目录显示状态并调整位置
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const tocContainer = document.getElementById('toc-container');
+                    if (window.innerWidth > 1024) {
+                        // 桌面端：恢复目录显示并调整位置
+                        tocContainer.style.display = 'block';
+                        adjustTocPosition();
+                    } else {
+                        // 移动端：清除内联display样式，让CSS媒体查询处理
+                        tocContainer.style.display = '';
+                    }
+                    updateProgressRing();
+                }, 150);
+            });
+
             document.getElementById('back-to-top').addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -1785,11 +1895,14 @@
             preventTocScrollPropagation();
             document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
 
-            // 协议信息已在构建时硬编码，无需运行时加载
             updateLoadingProgress(85, '即将完成...');
 
             loadPoetry();
             document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
+
+            // 初始化目录位置和进度条
+            adjustTocPosition();
+            updateProgressRing();
 
             hideLoadingOverlay();
             flushLoadingErrors();

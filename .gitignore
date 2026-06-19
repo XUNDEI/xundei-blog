@@ -1,1 +1,7 @@
 article.py
+build.bat
+package-lock.json
+node_modules/
+start.bat
+dist/
+

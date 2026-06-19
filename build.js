@@ -33,7 +33,7 @@ function parseFrontMatter(content) {
 
   const meta = {};
   for (const line of yamlBlock.split(/\r?\n/)) {
-    const kv = line.match(/^([a-zA-Z_]+):\s*(.*)$/);
+    const kv = line.match(/^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$/);
     if (kv) {
       let val = kv[2].trim();
       if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
@@ -44,6 +44,16 @@ function parseFrontMatter(content) {
       meta[kv[1]] = val;
     }
   }
+
+  // 将包含连字符的键映射为驼峰形式（如 code-license -> codeLicense）
+  for (const key of Object.keys(meta)) {
+    if (key.includes('-')) {
+      const camelKey = key.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+      meta[camelKey] = meta[key];
+      delete meta[key];
+    }
+  }
+
   return { meta, body };
 }
 
@@ -141,24 +151,47 @@ function getLicenseDisplayAndHtml(article) {
   }
 
   const license = article.license;
-  if (license && license !== false) {
-    const licenseUrls = {
-      'CC BY': 'https://creativecommons.org/licenses/by/4.0/',
-      'CC BY-SA': 'https://creativecommons.org/licenses/by-sa/4.0/',
-      'CC BY-NC': 'https://creativecommons.org/licenses/by-nc/4.0/',
-      'CC BY-ND': 'https://creativecommons.org/licenses/by-nd/4.0/'
-    };
-    const url = licenseUrls[license] || '#';
-    return {
-      display: '',
-      html: `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`
-    };
+  const codeLicense = article.codeLicense;
+
+  // 正文 License 映射
+  const licenseUrls = {
+    'CC BY': 'https://creativecommons.org/licenses/by/4.0/',
+    'CC BY-SA': 'https://creativecommons.org/licenses/by-sa/4.0/',
+    'CC BY-NC': 'https://creativecommons.org/licenses/by-nc/4.0/',
+    'CC BY-ND': 'https://creativecommons.org/licenses/by-nd/4.0/',
+    'CC BY-NC-SA': 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    'CC BY-NC-ND': 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
+    'CC0': 'https://creativecommons.org/publicdomain/zero/1.0/',
+    '保留所有权利': ''
+  };
+
+  // 代码 License 映射
+  const codeLicenseUrls = {
+    'MIT': 'https://opensource.org/licenses/MIT',
+    'Apache 2.0': 'https://www.apache.org/licenses/LICENSE-2.0',
+    'GPL': 'https://www.gnu.org/licenses/gpl-3.0.html',
+    'LGPL': 'https://www.gnu.org/licenses/lgpl-3.0.html',
+    'BSD': 'https://opensource.org/licenses/BSD-3-Clause'
+  };
+
+  // 正文 License 显示
+  let licenseHtml;
+  if (license === '保留所有权利') {
+    licenseHtml = '本文保留所有权利';
+  } else if (license === 'CC0') {
+    licenseHtml = `本文采用 <a href="${licenseUrls['CC0']}" target="_blank" rel="noopener noreferrer">CC0 1.0 通用 (CC0 1.0) 公共领域贡献</a>`;
+  } else {
+    const url = licenseUrls[license] || '';
+    licenseHtml = `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`;
   }
 
-  // 未声明协议
+  // 代码 License 显示
+  const codeUrl = codeLicenseUrls[codeLicense] || '';
+  const codeHtml = `代码片段（如有）遵循 <a href="${codeUrl}" target="_blank" rel="noopener noreferrer">${codeLicense} 许可协议</a>`;
+
   return {
     display: '',
-    html: '本文未使用任何知识共享协议'
+    html: `${licenseHtml} · ${codeHtml}`
   };
 }
 
