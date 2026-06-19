@@ -351,7 +351,8 @@ function build() {
   const rootFiles = [
     'axios.min.js', 'wallpaper.json',
     'sentences.txt', 'portrait.png', 'favicon.ico',
-    '404.html', '_redirects'
+    '404.html', '_redirects',
+    'robots.txt'
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
