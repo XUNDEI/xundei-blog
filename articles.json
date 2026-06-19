@@ -1,5 +1,27 @@
 [
   {
+    "title": "提取一份老光盘的珍贵文件",
+    "date": "2026-06-19",
+    "datetime": "2026-06-19T15:29:56",
+    "category": "technology",
+    "excerpt": "今天回老家，偶然在柜子里发现一份有年代的光盘，于是我决定提取出里面的内容……",
+    "license": "保留所有权利",
+    "codeLicense": "MIT",
+    "filename": "blog/8.md",
+    "latest": false
+  },
+  {
+    "title": "CodeWhale+DeepSeek，领取性价比最高的个人AI agent！",
+    "date": "2026-06-19",
+    "datetime": "2026-06-19T10:06:20",
+    "category": "technology",
+    "excerpt": "丢掉闭源Claude code，拥抱开源CodeWhale",
+    "license": "CC BY",
+    "codeLicense": "MIT",
+    "filename": "blog/7.md",
+    "latest": false
+  },
+  {
     "title": "全程图文！保姆级带你入坑python",
     "date": "2026-05-16",
     "datetime": "2026-05-16 09:30:00",
@@ -16,7 +38,7 @@
     "datetime": "2026-06-18T22:39:28",
     "category": "something",
     "excerpt": "暂无简介",
-    "license": "CC BY-NC-ND",
+    "license": "CC0",
     "codeLicense": "MIT",
     "filename": "blog/6.md",
     "latest": false
@@ -27,7 +49,7 @@
     "datetime": "2026-06-14T17:10:00",
     "category": "something",
     "excerpt": "还剩一周中考",
-    "license": "CC BY-NC-ND",
+    "license": "CC0",
     "codeLicense": "MIT",
     "filename": "blog/5.md",
     "latest": false
@@ -38,8 +60,6 @@
     "datetime": "2026-06-08T10:00:00",
     "category": "friend_link",
     "excerpt": "欢迎交换友链！",
-    "license": "CC BY-NC-ND",
-    "codeLicense": "MIT",
     "filename": "blog/friend_link.md",
     "latest": false
   },
@@ -60,7 +80,7 @@
     "datetime": "2026-06-07T13:30:00",
     "category": "something",
     "excerpt": "暂无简介",
-    "license": "CC BY-NC-ND",
+    "license": "CC0",
     "codeLicense": "MIT",
     "filename": "blog/3.md",
     "latest": false
@@ -71,7 +91,7 @@
     "datetime": "2026-05-03T10:00:00",
     "category": "diary",
     "excerpt": "新的一年，无限进步",
-    "license": "CC BY-NC-ND",
+    "license": "CC0",
     "codeLicense": "MIT",
     "filename": "blog/1.md",
     "latest": false

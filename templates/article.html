@@ -1904,6 +1904,12 @@
             adjustTocPosition();
             updateProgressRing();
 
+            // ---- 处理“保留所有权利”协议 ----
+            const footerContent = document.querySelector('#article-footer .footer-content');
+            if (footerContent && /保留所有权利/.test(footerContent.textContent)) {
+                footerContent.innerHTML = '<span>作者保留此文章所有权利</span>';
+            }
+
             hideLoadingOverlay();
             flushLoadingErrors();
         });

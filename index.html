@@ -430,7 +430,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 25px;
-      margin-bottom: 50px;
+      margin-bottom: 30px;
     }
     .article-card {
       height: 320px;
@@ -530,6 +530,79 @@
       cursor: pointer;
       position: relative;
       z-index: 2;
+    }
+
+    /* ========== 分页样式 ========== */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 15px 20px;
+      margin-top: 5px;
+      margin-bottom: 20px;
+    }
+    .pagination-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--light-text);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 600;
+      backdrop-filter: blur(5px);
+      min-width: 40px;
+      text-align: center;
+    }
+    .pagination-btn:hover {
+      background: var(--primary-color);
+      box-shadow: 0 0 12px var(--glow-color);
+      border-color: transparent;
+    }
+    .pagination-btn.active {
+      background: var(--primary-color);
+      box-shadow: 0 0 12px var(--glow-color);
+      border-color: transparent;
+    }
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .page-jump {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 12px;
+    }
+    .page-jump-input {
+      width: 65px;
+      padding: 7px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.12);
+      color: var(--light-text);
+      text-align: center;
+      font-size: 0.9rem;
+      backdrop-filter: blur(5px);
+      outline: none;
+    }
+    .page-jump-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      color: var(--light-text);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 600;
+      backdrop-filter: blur(5px);
+    }
+    .page-jump-btn:hover {
+      background: var(--primary-color);
+      box-shadow: 0 0 12px var(--glow-color);
     }
 
     /* ========== 弹窗 - 透明磨砂玻璃风格 ========== */
@@ -1089,6 +1162,8 @@
       footer .footer-content { flex-direction: column; gap: 5px; }
       .toast-container { max-width: 250px; }
       .card-hint { bottom: 45px; font-size: 0.8rem; padding: 4px 14px; }
+      .pagination-container { gap: 5px; padding: 10px; }
+      .page-jump { margin-left: 0; }
     }
 
     @media (max-width: 480px) {
@@ -1141,12 +1216,13 @@
           <div class="loader"></div>
         </div>
       </div>
+      <div class="pagination-container glass" id="pagination-container"></div>
     </main>
 
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.2">xundei-blog V2.10.2</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.3">xundei-blog V2.10.3</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
         <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
         <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1243,6 +1319,9 @@
 
       let articlesData = [];
       const loadingErrors = [];
+      const ARTICLES_PER_PAGE = 6; // 每页显示文章数
+      let currentCategory = 'all';
+      let currentPage = 1;
 
       function updateLoadingProgress(percentage, subtext) {
         const progressBar = document.getElementById('loading-progress-bar');
@@ -1675,15 +1754,82 @@
         return Date.parse(article.date + 'T00:00:00');
       }
 
+      // 渲染分页控件
+      function renderPagination(totalPages, page) {
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+        container.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const createBtn = (text, pageNum, disabled = false, active = false) => {
+          const btn = document.createElement('button');
+          btn.className = 'pagination-btn' + (active ? ' active' : '');
+          btn.textContent = text;
+          if (disabled) btn.disabled = true;
+          else {
+            btn.addEventListener('click', () => {
+              currentPage = pageNum;
+              renderArticles();
+            });
+          }
+          return btn;
+        };
+
+        // 上一页
+        container.appendChild(createBtn('‹', page - 1, page <= 1));
+
+        // 页码（最多显示5个）
+        let startPage = Math.max(1, page - 2);
+        let endPage = Math.min(totalPages, page + 2);
+        if (endPage - startPage < 4) {
+          if (startPage === 1) endPage = Math.min(totalPages, startPage + 4);
+          else if (endPage === totalPages) startPage = Math.max(1, endPage - 4);
+        }
+        for (let i = startPage; i <= endPage; i++) {
+          container.appendChild(createBtn(i, i, false, i === page));
+        }
+
+        // 下一页
+        container.appendChild(createBtn('›', page + 1, page >= totalPages));
+
+        // 跳转
+        const jumpDiv = document.createElement('div');
+        jumpDiv.className = 'page-jump';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = 1;
+        input.max = totalPages;
+        input.className = 'page-jump-input';
+        input.placeholder = '页';
+        const jumpBtn = document.createElement('button');
+        jumpBtn.className = 'page-jump-btn';
+        jumpBtn.textContent = '跳转';
+        jumpBtn.addEventListener('click', () => {
+          let p = parseInt(input.value);
+          if (isNaN(p) || p < 1) p = 1;
+          if (p > totalPages) p = totalPages;
+          currentPage = p;
+          renderArticles();
+        });
+        jumpDiv.appendChild(input);
+        jumpDiv.appendChild(jumpBtn);
+        container.appendChild(jumpDiv);
+      }
+
       function renderArticles(category) {
         if (!articlesData) return;
+        // 更新分类（如有）并重置页码
+        if (category !== undefined) {
+          currentCategory = category;
+          currentPage = 1;
+        }
         const grid = document.getElementById('articles-grid');
         grid.innerHTML = '';
 
         let filtered = [...articlesData];
         filtered = filtered.filter(a => a.category !== 'friend_link');
-        if (category !== 'all') {
-          filtered = filtered.filter(a => a.category === category);
+        if (currentCategory !== 'all') {
+          filtered = filtered.filter(a => a.category === currentCategory);
         }
         
         filtered.sort((a, b) => {
@@ -1693,12 +1839,20 @@
           return getArticleTimestamp(b) - getArticleTimestamp(a);
         });
 
-        if (!filtered.length) {
+        // 分页
+        const totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start = (currentPage - 1) * ARTICLES_PER_PAGE;
+        const pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+
+        if (!pageArticles.length) {
           grid.innerHTML = `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
+          renderPagination(totalPages, currentPage);
+          updateCategoryButtons();
           return;
         }
 
-        filtered.forEach(article => {
+        pageArticles.forEach(article => {
           const slug = getSlug(article.filename);
           const card = document.createElement('div');
           card.className = 'article-card glass';
@@ -1721,8 +1875,13 @@
           grid.appendChild(card);
         });
 
+        renderPagination(totalPages, currentPage);
+        updateCategoryButtons();
+      }
+
+      function updateCategoryButtons() {
         document.querySelectorAll('.category-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.category === category);
+          btn.classList.toggle('active', btn.dataset.category === currentCategory);
         });
       }
 
@@ -1777,7 +1936,6 @@
 
         document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
 
-        // RSS 链接：点击复制到剪贴板
         document.getElementById('rss-link')?.addEventListener('click', (e) => {
           e.preventDefault();
           const rssUrl = window.location.origin + '/rss.xml';
@@ -1798,7 +1956,6 @@
       async function initializePage() {
         try {
           updateLoadingProgress(8, '正在连接...');
-          // 使用构建时内联的文章数据，无需异步加载
           articlesData = window.__ARTICLES__ || [];
           updateLoadingProgress(25, articlesData.length ? '文章列表已就绪' : '无文章数据');
 
