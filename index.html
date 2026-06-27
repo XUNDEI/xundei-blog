@@ -1517,7 +1517,7 @@
         <div class="loading-card">
             <div class="loader"></div>
             <div class="loading-text">加载中...</div>
-            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待˶･֊･˶</div>
+            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待(ゝ∀･)b</div>
             <div class="loading-progress-container">
                 <div class="loading-progress-bar" id="loading-progress-bar"></div>
             </div>
@@ -1550,7 +1550,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.6">xundei-blog V2.10.6</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.7">xundei-blog V2.10.7</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1632,6 +1632,10 @@
 
     <script>
         (function() {
+            // 初始即显示蓝白天空渐变背景，等待壁纸加载成功后替换
+            document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
+            document.body.style.backgroundSize = 'cover';
+
             const luckMessages = {
                 0: "Σ (・□・;)",
                 100: "欧皇就是你辣(ゝ∀･)b",
@@ -1949,10 +1953,6 @@
                     }
                 }
 
-                if (!wallpaperResolved) {
-                    document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
-                    document.body.style.backgroundSize = 'cover';
-                }
                 wallpaperResolved = true;
                 return false;
             }
@@ -2316,7 +2316,7 @@
                     updateLoadingProgress(80, '美句加载完成');
 
                     loadWallpaperBackground().then(function(ok) {
-                        if (!ok) addLoadingError('所有壁纸源均加载失败');
+                        if (!ok) addLoadingError('壁纸加载失败，已使用天空渐变背景');
                     }).catch(function(e) {
                         console.warn('壁纸后台加载异常:', e);
                     });
@@ -2340,7 +2340,7 @@
                         document.getElementById('about-card').style.display = 'none';
                     });
 
-                    updateLoadingProgress(100, '加载完成(ゝ∀･)b');
+                    updateLoadingProgress(100, '加载完成˶>ᗜ<˶');
                     hideLoadingOverlay();
                     flushLoadingErrors();
                     clearTimeout(globalLoadTimer);
