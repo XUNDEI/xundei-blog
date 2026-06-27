@@ -13,8 +13,10 @@
     <meta property="og:site_name" content="xundei's blog">
     <meta name="twitter:card" content="summary">
     <script type="application/ld+json">{{JSON_LD}}</script>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"></noscript>
     <style>
         .article-full-content a:not(:has(img)) {
             text-decoration: none;
@@ -342,6 +344,8 @@
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.8;
             font-size: 1.1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .article-full-content h2 {
@@ -543,6 +547,8 @@
 
         .article-full-content img {
             max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
             border-radius: 10px;
             margin: 25px 0;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
@@ -626,23 +632,48 @@
             max-height: 90%;
             border-radius: 10px;
             box-shadow: 0 0 30px rgba(66, 133, 244, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox-close,
+        .lightbox-rotate-cw,
+        .lightbox-rotate-ccw {
+            position: absolute;
+            top: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
 
         .lightbox-close {
-            position: absolute;
-            top: 20px;
             right: 30px;
-            color: white;
-            font-size: 2.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .lightbox-close:hover {
+        .lightbox-rotate-cw {
+            right: 90px;
+        }
+
+        .lightbox-rotate-ccw {
+            right: 150px;
+        }
+
+        .lightbox-close:hover,
+        .lightbox-rotate-cw:hover,
+        .lightbox-rotate-ccw:hover {
             color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px var(--glow-color);
         }
 
-        /* 目录容器 - 桌面端fixed定位，通过JS动态调整right值确保不越过文章框 */
         .toc-container {
             position: fixed;
             top: 100px;
@@ -745,7 +776,6 @@
             font-size: 0.95rem;
         }
 
-        /* 返回顶部按钮 - 带圆圈进度条（已美化） */
         .back-to-top {
             position: fixed;
             bottom: 30px;
@@ -780,7 +810,6 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            /* 将起点从3点钟旋转至12点钟 */
             transform: rotate(-90deg);
         }
 
@@ -1163,6 +1192,22 @@
             .article-full-content img.lazy-error {
                 min-height: 100px;
             }
+            .lightbox-close,
+            .lightbox-rotate-cw,
+            .lightbox-rotate-ccw {
+                width: 40px;
+                height: 40px;
+                font-size: 1.3rem;
+            }
+            .lightbox-close {
+                right: 15px;
+            }
+            .lightbox-rotate-cw {
+                right: 65px;
+            }
+            .lightbox-rotate-ccw {
+                right: 115px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1216,6 +1261,22 @@
             .article-full-content img.lazy-error {
                 min-height: 80px;
             }
+            .lightbox-close,
+            .lightbox-rotate-cw,
+            .lightbox-rotate-ccw {
+                width: 36px;
+                height: 36px;
+                font-size: 1.2rem;
+            }
+            .lightbox-close {
+                right: 10px;
+            }
+            .lightbox-rotate-cw {
+                right: 55px;
+            }
+            .lightbox-rotate-ccw {
+                right: 100px;
+            }
         }
 
         .article-footer {
@@ -1264,6 +1325,12 @@
 
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <button class="lightbox-rotate-cw" id="lightbox-rotate-cw" title="顺时针旋转">
+            <i class="fas fa-redo"></i>
+        </button>
+        <button class="lightbox-rotate-ccw" id="lightbox-rotate-ccw" title="逆时针旋转">
+            <i class="fas fa-undo"></i>
+        </button>
         <img id="lightbox-img" alt="Lightbox">
     </div>
 
@@ -1272,7 +1339,6 @@
         <ul class="toc-list" id="toc-list"></ul>
     </div>
 
-    <!-- 返回顶部按钮 - 带SVG圆圈进度条（12点钟起点 + 渐变） -->
     <div class="back-to-top" id="back-to-top">
         <svg class="progress-ring" viewBox="0 0 50 50">
             <defs>
@@ -1332,12 +1398,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
 
-    <script src="../axios.min.js" defer></script>
     <script>
         const loadingErrors = [];
         let articleImageObserver = null;
+        let currentRotation = 0;
 
-        // 显示Toast通知
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+                return response;
+            } catch (e) {
+                clearTimeout(timeoutId);
+                if (e.name === 'AbortError') {
+                    throw new Error('请求超时');
+                }
+                throw e;
+            }
+        }
+
         function showToast(message, type = 'info') {
             const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1396,7 +1478,6 @@
             ]);
         }
 
-        // 加载壁纸图片并检测速度
         function loadImageWithSpeedCheck(imgUrl, options = {}) {
             const {
                 initialCheckMs = 3000,
@@ -1448,8 +1529,8 @@
 
         async function loadWallpapers() {
             try {
-                const response = await axios.get('../wallpaper.json', { timeout: 10000 });
-                const data = response.data;
+                const response = await fetchWithTimeout('../wallpaper.json', {}, 10000);
+                const data = await response.json();
                 if (data && data.length) {
                     const entry = data[Math.floor(Math.random() * data.length)];
                     let imgUrl = entry.path;
@@ -1471,10 +1552,10 @@
 
         async function setDefaultWallpaper() {
             try {
-                const bingResponse = await axios.get('https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN', { timeout: 8000 });
-                const bingData = bingResponse.data;
+                const bingResponse = await fetchWithTimeout('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN', {}, 8000);
+                const bingData = await bingResponse.json();
                 if (bingData.images && bingData.images[0]) {
-                    const bingUrl = 'https://bing.com' + bingData.images[0].url;
+                    const bingUrl = 'https://www.bing.com' + bingData.images[0].url;
                     return await loadImageWithSpeedCheck(bingUrl, {
                         initialCheckMs: 3000,
                         maxWaitMs: 30000
@@ -1490,7 +1571,6 @@
             });
         }
 
-        // 准备文章图片懒加载
         function prepareArticleImagesForLazyLoading() {
             const images = document.querySelectorAll('.article-full-content img');
             if (images.length === 0) return false;
@@ -1542,7 +1622,6 @@
             });
         }
 
-        // 阻止目录滚动传播到页面
         function preventTocScrollPropagation() {
             const tocContainer = document.getElementById('toc-container');
             if (tocContainer) {
@@ -1558,7 +1637,6 @@
             }
         }
 
-        // 为代码块添加复制按钮
         function addCopyButtonsToCodeBlocks() {
             const codeBlocks = document.querySelectorAll('.article-full-content pre');
             codeBlocks.forEach((pre) => {
@@ -1606,9 +1684,9 @@
                     const lightbox = document.getElementById('lightbox');
                     const lightboxImg = document.getElementById('lightbox-img');
                     lightboxImg.src = imgSrc;
+                    lightboxImg.style.transform = 'rotate(0deg)';
+                    currentRotation = 0;
                     lightbox.style.display = 'flex';
-                    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-                    lightbox.addEventListener('click', (ev) => { if (ev.target === lightbox) closeLightbox(); });
                 }
             }
             if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
@@ -1621,6 +1699,20 @@
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
             hideLinkConfirm();
+        }
+
+        function rotateCW() {
+            const lightboxImg = document.getElementById('lightbox-img');
+            if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
+            currentRotation += 90;
+            lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
+        }
+
+        function rotateCCW() {
+            const lightboxImg = document.getElementById('lightbox-img');
+            if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
+            currentRotation -= 90;
+            lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
         }
 
         function showLinkConfirm(url) {
@@ -1672,7 +1764,6 @@
             }
         }
 
-        // 生成目录
         function generateTOC() {
             const tocContainer = document.getElementById('toc-container');
             const tocList = document.getElementById('toc-list');
@@ -1710,7 +1801,6 @@
             });
         }
 
-        // 动态调整目录位置，确保桌面端目录不越过文章框
         function adjustTocPosition() {
             if (window.innerWidth <= 1024) return;
             const tocContainer = document.getElementById('toc-container');
@@ -1728,21 +1818,19 @@
             const tocRightEdge = tocLeftTarget + tocWidth;
             let newRight = viewportWidth - tocRightEdge;
 
-            // 确保目录至少有50px在视口内
             const minRight = -(tocWidth - 50);
             newRight = Math.max(minRight, Math.min(newRight, viewportWidth - 10));
 
             tocContainer.style.right = newRight + 'px';
         }
 
-        // 更新返回顶部按钮的圆圈进度条
         function updateProgressRing() {
             const progressCircle = document.getElementById('progress-circle');
             if (!progressCircle) return;
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
             const scrollPercent = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
-            const circumference = 2 * Math.PI * 20; // ≈125.66
+            const circumference = 2 * Math.PI * 20;
             const offset = circumference * (1 - scrollPercent);
             progressCircle.style.strokeDashoffset = offset;
         }
@@ -1810,8 +1898,8 @@
             try {
                 contentEl.textContent = '加载中...';
                 authorEl.textContent = '';
-                const response = await axios.get('https://v1.jinrishici.com/all.json', { timeout: 8000 });
-                const data = response.data;
+                const response = await fetchWithTimeout('https://v1.jinrishici.com/all.json', {}, 8000);
+                const data = await response.json();
                 if (data && data.content) {
                     contentEl.textContent = data.content;
                     authorEl.textContent = `—— ${data.author}`;
@@ -1860,18 +1948,15 @@
             document.addEventListener('click', handleImageClick);
             window.addEventListener('scroll', handleScroll);
 
-            // 窗口尺寸变化时修复目录显示状态并调整位置
             let resizeTimeout;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(() => {
                     const tocContainer = document.getElementById('toc-container');
                     if (window.innerWidth > 1024) {
-                        // 桌面端：恢复目录显示并调整位置
                         tocContainer.style.display = 'block';
                         adjustTocPosition();
                     } else {
-                        // 移动端：清除内联display样式，让CSS媒体查询处理
                         tocContainer.style.display = '';
                     }
                     updateProgressRing();
@@ -1895,16 +1980,21 @@
             preventTocScrollPropagation();
             document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
 
+            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+            document.getElementById('lightbox').addEventListener('click', (ev) => {
+                if (ev.target === document.getElementById('lightbox')) closeLightbox();
+            });
+            document.getElementById('lightbox-rotate-cw').addEventListener('click', rotateCW);
+            document.getElementById('lightbox-rotate-ccw').addEventListener('click', rotateCCW);
+
             updateLoadingProgress(85, '即将完成...');
 
             loadPoetry();
             document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
 
-            // 初始化目录位置和进度条
             adjustTocPosition();
             updateProgressRing();
 
-            // ---- 处理“保留所有权利”协议 ----
             const footerContent = document.querySelector('#article-footer .footer-content');
             if (footerContent && /保留所有权利/.test(footerContent.textContent)) {
                 footerContent.innerHTML = '<span>作者保留此文章所有权利</span>';

@@ -347,9 +347,9 @@ function build() {
     }
   }
 
-  // 复制根目录文件（index.html 单独处理以注入文章数据）
+  // 复制根目录文件（已移除 axios.min.js）
   const rootFiles = [
-    'axios.min.js', 'wallpaper.json',
+    'wallpaper.json',
     'sentences.txt', 'portrait.png', 'favicon.ico',
     '404.html', '_redirects',
     'robots.txt'

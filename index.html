@@ -15,7 +15,8 @@
     <script type="application/ld+json">
         { "@context": "https://schema.org", "@type": "WebSite", "name": "xundei's blog", "url": "https://xundei.qzz.io/" }
     </script>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
     </script>
     <style>
@@ -1523,8 +1524,6 @@
             }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js">
-    </script>
 </head>
 <body>
     <div class="loading-overlay" id="loading-overlay">
@@ -1564,7 +1563,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.4">xundei-blog V2.10.4</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.5">xundei-blog V2.10.5</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1882,8 +1881,10 @@
             async function loadSentences() {
                 const el = document.getElementById('sentence');
                 try {
-                    const res = await axios.get('./sentences.txt', { timeout: 8000 });
-                    const sentences = res.data.split('\n').filter(line => line.trim());
+                    const res = await fetchWithTimeout('./sentences.txt', {}, 8000);
+                    if (!res.ok) throw new Error('请求失败');
+                    const text = await res.text();
+                    const sentences = text.split('\n').filter(line => line.trim());
                     if (sentences.length) {
                         const random = sentences[Math.floor(Math.random() * sentences.length)];
                         typeWriter(el, random, 80);
@@ -1897,8 +1898,9 @@
 
             async function loadWallpapers() {
                 try {
-                    const res = await axios.get('./wallpaper.json', { timeout: 10000 });
-                    const data = res.data;
+                    const res = await fetchWithTimeout('./wallpaper.json', {}, 10000);
+                    if (!res.ok) throw new Error('请求失败');
+                    const data = await res.json();
                     if (data && data.length) {
                         const entry = data[Math.floor(Math.random() * data.length)];
                         let imgUrl = entry.path;
@@ -1967,14 +1969,9 @@
                     el.innerHTML =
                         '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
                     const api = 'https://v2.xxapi.cn/api/history';
-                    let data;
-                    if (typeof axios !== 'undefined') {
-                        const res = await axios.get(api, { timeout: 10000 });
-                        data = res.data;
-                    } else {
-                        const res = await fetch(api);
-                        data = await res.json();
-                    }
+                    const res = await fetchWithTimeout(api, {}, 10000);
+                    if (!res.ok) throw new Error('接口响应异常');
+                    const data = await res.json();
                     if (data && data.code === 200 && Array.isArray(data.data) && data.data.length > 0) {
                         const items = data.data;
                         const randomItem = items[Math.floor(Math.random() * items.length)];
@@ -2098,7 +2095,6 @@
                 return Date.parse(article.date + 'T00:00:00');
             }
 
-            // 渲染分页控件 - 美化版（无边框圆点设计，容器已透明）
             function renderPagination(totalPages, page) {
                 const container = document.getElementById('pagination-container');
                 if (!container) return;
@@ -2124,10 +2120,8 @@
                     return btn;
                 };
 
-                // 上一页
                 container.appendChild(createBtn('<i class="fas fa-chevron-left"></i>', page - 1, page <= 1, false, true));
 
-                // 页码
                 let startPage = Math.max(1, page - 2);
                 let endPage = Math.min(totalPages, page + 2);
                 if (endPage - startPage < 4) {
@@ -2138,11 +2132,9 @@
                     container.appendChild(createBtn(String(i), i, false, i === page, false));
                 }
 
-                // 下一页
                 container.appendChild(createBtn('<i class="fas fa-chevron-right"></i>', page + 1, page >= totalPages, false,
                     true));
 
-                // 跳转
                 const jumpDiv = document.createElement('div');
                 jumpDiv.className = 'page-jump';
                 const input = document.createElement('input');
