@@ -20,7 +20,6 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
     </script>
     <style>
-        /* ========== 全局链接样式 ========== */
         a {
             text-decoration: none;
             position: relative;
@@ -80,7 +79,6 @@
             box-shadow: 0 0 8px rgba(162, 196, 253, 0.4);
         }
 
-        /* ========== 阅读全文按钮覆盖全局a样式 ========== */
         .read-more {
             background: rgba(255, 255, 255, 0.1) !important;
             color: var(--light-text) !important;
@@ -120,7 +118,6 @@
             content: none !important;
         }
 
-        /* ========== CSS 变量 ========== */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.3);
@@ -165,7 +162,6 @@
             z-index: -1;
         }
 
-        /* ========== Loading 弹窗 ========== */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -264,14 +260,12 @@
             }
         }
 
-        /* ========== 容器 ========== */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* ========== 磨砂玻璃卡片 ========== */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -287,7 +281,6 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
 
-        /* ========== Header ========== */
         header {
             text-align: center;
             margin: 20px 0 40px;
@@ -640,7 +633,6 @@
             z-index: 2;
         }
 
-        /* ========== 分页样式 - 无边框圆点设计 (已去除背景模糊容器) ========== */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -714,7 +706,6 @@
             transform: none;
         }
 
-        /* 箭头按钮微调 */
         .pagination-btn.pagination-arrow {
             font-size: 1rem;
             background: rgba(255, 255, 255, 0.1);
@@ -724,7 +715,6 @@
             box-shadow: 0 6px 18px rgba(66, 133, 244, 0.4), 0 0 0 5px rgba(66, 133, 244, 0.06);
         }
 
-        /* 跳转区域 */
         .page-jump {
             display: flex;
             align-items: center;
@@ -759,7 +749,6 @@
             font-weight: 400;
             font-size: 0.8rem;
         }
-        /* 隐藏number输入框的 spinner */
         .page-jump-input::-webkit-inner-spin-button,
         .page-jump-input::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -800,7 +789,6 @@
             transition: all 0.15s ease;
         }
 
-        /* ========== 弹窗 - 透明磨砂玻璃风格 ========== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -967,7 +955,6 @@
             scrollbar-color: rgba(130, 180, 250, 0.45) rgba(255, 255, 255, 0.05);
         }
 
-        /* ========== 关于按钮与卡片 ========== */
         .about-btn {
             position: fixed;
             bottom: 30px;
@@ -1530,7 +1517,7 @@
         <div class="loading-card">
             <div class="loader"></div>
             <div class="loading-text">加载中...</div>
-            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待(๑•̀ㅂ•́)و✧</div>
+            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待˶･֊･˶</div>
             <div class="loading-progress-container">
                 <div class="loading-progress-bar" id="loading-progress-bar"></div>
             </div>
@@ -1563,7 +1550,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.5">xundei-blog V2.10.5</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.6">xundei-blog V2.10.6</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1647,7 +1634,7 @@
         (function() {
             const luckMessages = {
                 0: "Σ (・□・;)",
-                100: "欧皇就是你辣(≧∀≦)ゞ",
+                100: "欧皇就是你辣(ゝ∀･)b",
                 range: [
                     { min: 1, max: 20, message: "运气不是很好呢(´･_･`)" },
                     { min: 21, max: 44, message: "运气略差一点( ¯•ω•¯ )" },
@@ -1658,36 +1645,46 @@
                 ]
             };
 
+            const WALLPAPER_TOTAL_TIMEOUT = 22000;
+            const LOADING_MAX_DISPLAY = 10000;
+            const IMG_TIMEOUT_B2 = 10000;
+            const IMG_TIMEOUT_FALLBACK = 7000;
+            const FETCH_TIMEOUT_CONFIG = 6000;
+            const FETCH_TIMEOUT_BING = 8000;
+            const FETCH_TIMEOUT_360 = 8000;
+
             let articlesData = [];
             const loadingErrors = [];
             const ARTICLES_PER_PAGE = 6;
             let currentCategory = 'all';
             let currentPage = 1;
+            let loadingOverlayHidden = false;
+            let wallpaperResolved = false;
 
             function updateLoadingProgress(percentage, subtext) {
                 const progressBar = document.getElementById('loading-progress-bar');
                 const subtextEl = document.getElementById('loading-subtext');
-                if (progressBar) progressBar.style.width = percentage + '%';
+                if (progressBar) progressBar.style.width = Math.min(percentage, 100) + '%';
                 if (subtextEl && subtext) subtextEl.textContent = subtext;
             }
 
             function hideLoadingOverlay() {
+                if (loadingOverlayHidden) return;
+                loadingOverlayHidden = true;
                 const overlay = document.getElementById('loading-overlay');
                 if (!overlay) return;
-                updateLoadingProgress(100, '加载完成(ゝ∀･)b');
+                updateLoadingProgress(100, '加载完成˶>ᗜ<˶');
+                overlay.classList.add('fade-out');
                 setTimeout(() => {
-                    overlay.classList.add('fade-out');
-                    setTimeout(() => {
-                        overlay.classList.add('hidden');
-                        overlay.style.display = 'none';
-                    }, 500);
-                }, 350);
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }, 500);
             }
 
             function showToast(message, type = 'info') {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
+                toast.className = 'toast ' + type;
                 const progress = document.createElement('div');
                 progress.className = 'toast-progress';
                 const msg = document.createElement('div');
@@ -1695,8 +1692,7 @@
                 toast.appendChild(progress);
                 toast.appendChild(msg);
                 container.appendChild(toast);
-
-                setTimeout(() => toast.classList.add('show'), 10);
+                requestAnimationFrame(() => toast.classList.add('show'));
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => {
@@ -1716,13 +1712,6 @@
                 loadingErrors.push(msg);
             }
 
-            function loadWithTimeout(promise, timeoutMs, errorMsg) {
-                return Promise.race([
-                    promise,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), timeoutMs))
-                ]);
-            }
-
             async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -1732,66 +1721,40 @@
                     return response;
                 } catch (e) {
                     clearTimeout(timeoutId);
-                    if (e.name === 'AbortError') {
-                        throw new Error('请求超时');
-                    }
+                    if (e.name === 'AbortError') throw new Error('请求超时');
                     throw e;
                 }
             }
 
-            function loadImageWithSpeedCheck(imgUrl, options = {}) {
-                const {
-                    initialCheckMs = 3000,
-                        maxWaitMs = 60000
-                } = options;
-
+            function loadImageWithTimeout(imgUrl, timeoutMs) {
                 return new Promise((resolve) => {
                     const img = new Image();
-                    let initialTimer = null;
-                    let maxTimer = null;
-                    let resolved = false;
+                    let settled = false;
 
                     const finish = (success) => {
-                        if (resolved) return;
-                        resolved = true;
-                        clearTimeout(initialTimer);
-                        clearTimeout(maxTimer);
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timer);
                         if (success) {
-                            document.body.style.backgroundImage = `url(${imgUrl})`;
+                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
                         }
                         resolve(success);
                     };
 
-                    img.onload = () => finish(true);
-                    img.onerror = () => {
-                        console.warn('图片加载失败（onerror）:', imgUrl);
-                        finish(false);
-                    };
+                    const timer = setTimeout(() => {
+                        if (!settled && !img.complete) {
+                            console.warn('图片加载超时:', imgUrl);
+                        }
+                        finish(img.naturalWidth > 0);
+                    }, timeoutMs);
 
+                    img.onload = () => finish(true);
+                    img.onerror = () => finish(false);
                     img.src = imgUrl;
 
-                    initialTimer = setTimeout(() => {
-                        if (resolved) return;
-
-                        if (!img.complete) {
-                            const remainingMs = maxWaitMs - initialCheckMs;
-                            console.log('图片下载中，速度不为0，继续等待...', imgUrl);
-                            maxTimer = setTimeout(() => {
-                                if (resolved) return;
-                                if (!img.complete) {
-                                    console.warn('图片加载超过最大等待时间（仍在下载中，速度极慢）:', imgUrl);
-                                }
-                                finish(img.naturalWidth > 0);
-                            }, remainingMs);
-                        } else {
-                            if (img.naturalWidth > 0) {
-                                finish(true);
-                            } else {
-                                console.warn('图片加载失败（速度为0，naturalWidth=0）:', imgUrl);
-                                finish(false);
-                            }
-                        }
-                    }, initialCheckMs);
+                    if (img.complete) {
+                        finish(img.naturalWidth > 0);
+                    }
                 });
             }
 
@@ -1803,7 +1766,8 @@
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                document.getElementById('runtime-display').textContent = `${days}天${hours}时${minutes}分${seconds}秒`;
+                const el = document.getElementById('runtime-display');
+                if (el) el.textContent = days + '天' + hours + '时' + minutes + '分' + seconds + '秒';
             }
 
             function initLuckResult() {
@@ -1816,7 +1780,8 @@
                         return;
                     }
                 }
-                document.getElementById('luck-result').textContent = '?';
+                const el = document.getElementById('luck-result');
+                if (el) el.textContent = '?';
             }
 
             function getDailyLuck() {
@@ -1830,17 +1795,19 @@
                     }
                 }
                 const value = Math.floor(Math.random() * 101);
-                localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value }));
+                localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value: value }));
                 displayLuckResult(value);
             }
 
             function displayLuckResult(value) {
                 const resultEl = document.getElementById('luck-result');
                 const messageEl = document.getElementById('luck-message');
+                if (!resultEl) return;
                 resultEl.textContent = value;
                 resultEl.style.transform = 'scale(1.5)';
-                setTimeout(() => resultEl.style.transform = 'scale(1)', 500);
+                setTimeout(() => { resultEl.style.transform = 'scale(1)'; }, 500);
 
+                if (!messageEl) return;
                 if (value === 0) messageEl.textContent = luckMessages[0];
                 else if (value === 100) messageEl.textContent = luckMessages[100];
                 else {
@@ -1853,7 +1820,7 @@
                 }
             }
 
-            function typeWriter(element, text, speed = 80) {
+            function typeWriter(element, text, speed) {
                 element.innerHTML = '';
                 const wrapper = document.createElement('span');
                 const textSpan = document.createElement('span');
@@ -1884,7 +1851,7 @@
                     const res = await fetchWithTimeout('./sentences.txt', {}, 8000);
                     if (!res.ok) throw new Error('请求失败');
                     const text = await res.text();
-                    const sentences = text.split('\n').filter(line => line.trim());
+                    const sentences = text.split('\n').filter(function(line) { return line.trim(); });
                     if (sentences.length) {
                         const random = sentences[Math.floor(Math.random() * sentences.length)];
                         typeWriter(el, random, 80);
@@ -1896,9 +1863,9 @@
                 }
             }
 
-            async function loadWallpapers() {
+            async function loadWallpaperFromConfig() {
                 try {
-                    const res = await fetchWithTimeout('./wallpaper.json', {}, 10000);
+                    const res = await fetchWithTimeout('./wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
                     if (!res.ok) throw new Error('请求失败');
                     const data = await res.json();
                     if (data && data.length) {
@@ -1907,34 +1874,26 @@
                         if (!/^https?:\/\//i.test(imgUrl)) {
                             imgUrl = './' + imgUrl;
                         }
-                        imgUrl += '?t=' + new Date().getTime();
-                        return await loadImageWithSpeedCheck(imgUrl, {
-                            initialCheckMs: 3000,
-                            maxWaitMs: 60000
-                        });
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_B2);
                     }
                     return false;
                 } catch (e) {
-                    console.error('壁纸配置加载失败:', e);
+                    console.warn('壁纸配置加载失败:', e);
                     return false;
                 }
             }
 
-            async function setBingWallpaper() {
+            async function loadBingWallpaper() {
                 const proxyUrl = 'https://api.allorigins.win/raw?url=';
                 const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
                 try {
                     const response = await fetchWithTimeout(
-                        proxyUrl + encodeURIComponent(bingApiUrl), {},
-                        12000
+                        proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING
                     );
                     const data = await response.json();
                     if (data.images && data.images[0]) {
                         const imgUrl = 'https://www.bing.com' + data.images[0].url;
-                        return await loadImageWithSpeedCheck(imgUrl, {
-                            initialCheckMs: 3000,
-                            maxWaitMs: 30000
-                        });
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
                     }
                     return false;
                 } catch (error) {
@@ -1943,24 +1902,59 @@
                 }
             }
 
-            async function set360Wallpaper() {
+            async function load360Wallpaper() {
                 const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
                 try {
-                    const response = await fetchWithTimeout(url, {}, 10000);
+                    const response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
                     const data = await response.json();
                     if (data && data.data && data.data.length > 0) {
                         const randomIndex = Math.floor(Math.random() * data.data.length);
                         const imgUrl = data.data[randomIndex].url;
-                        return await loadImageWithSpeedCheck(imgUrl, {
-                            initialCheckMs: 3000,
-                            maxWaitMs: 30000
-                        });
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
                     }
                     return false;
                 } catch (error) {
                     console.warn('360 壁纸加载失败:', error);
                     return false;
                 }
+            }
+
+            async function loadWallpaperBackground() {
+                if (wallpaperResolved) return;
+                const deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
+
+                const sources = [
+                    { name: '本地配置', fn: loadWallpaperFromConfig },
+                    { name: 'Bing', fn: loadBingWallpaper },
+                    { name: '360', fn: load360Wallpaper }
+                ];
+
+                for (const source of sources) {
+                    if (Date.now() >= deadline) {
+                        console.warn('壁纸加载总超时，停止尝试');
+                        break;
+                    }
+                    const remaining = deadline - Date.now();
+                    try {
+                        const raceResult = await Promise.race([
+                            source.fn(),
+                            new Promise((resolve) => setTimeout(function() { resolve(false); }, remaining))
+                        ]);
+                        if (raceResult === true) {
+                            wallpaperResolved = true;
+                            return true;
+                        }
+                    } catch (e) {
+                        console.warn(source.name + ' 壁纸源异常:', e);
+                    }
+                }
+
+                if (!wallpaperResolved) {
+                    document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
+                    document.body.style.backgroundSize = 'cover';
+                }
+                wallpaperResolved = true;
+                return false;
             }
 
             async function loadHistoryToday() {
@@ -1986,7 +1980,8 @@
                             eventStr = '';
                         }
                         el.innerHTML =
-                            `<div class="history-date">${dateStr}</div><div class="history-event">${eventStr}</div>`;
+                            '<div class="history-date">' + dateStr +
+                            '</div><div class="history-event">' + eventStr + '</div>';
                     } else if (data && data.msg) {
                         throw new Error(data.msg);
                     } else {
@@ -1994,7 +1989,7 @@
                     }
                     window.historyLoaded = true;
                 } catch (e) {
-                    el.innerHTML = `<div class="history-error">加载失败: ${e.message}</div>`;
+                    el.innerHTML = '<div class="history-error">加载失败: ' + e.message + '</div>';
                 }
             }
 
@@ -2016,19 +2011,18 @@
                     bilibili: { icon: 'fab fa-bilibili', label: 'B站' }
                 };
                 let html = '';
-                for (const [key, value] of Object.entries(contacts)) {
+                for (const key of Object.keys(contacts)) {
+                    const value = contacts[key];
                     if (!value || !iconMap[key]) continue;
-                    const { icon, label } = iconMap[key];
-                    html += `
-            <div class="contact-btn" data-contact="${key}" data-value="${value}">
-              <i class="${icon}"></i>
-              <div class="contact-tooltip">${label}</div>
-            </div>
-          `;
+                    const icon = iconMap[key].icon;
+                    const label = iconMap[key].label;
+                    html +=
+                        '<div class="contact-btn" data-contact="' + key + '" data-value="' + value + '"><i class="' +
+                        icon + '"></i><div class="contact-tooltip">' + label + '</div></div>';
                 }
                 container.innerHTML = html;
-                document.querySelectorAll('.contact-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                document.querySelectorAll('.contact-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
                         copyToClipboard(btn.dataset.value);
                         showToast('已复制到剪贴板', 'success');
                     });
@@ -2045,7 +2039,7 @@
                 document.getElementById('modal-date').textContent = article.date;
                 document.getElementById('modal-category').textContent = getCategoryName(article.category);
                 document.getElementById('modal-excerpt').textContent = article.excerpt;
-                document.getElementById('modal-read-link').href = `/articles/${getSlug(article.filename)}`;
+                document.getElementById('modal-read-link').href = '/articles/' + getSlug(article.filename);
                 const latestItem = document.getElementById('modal-latest-item');
                 const latestEl = document.getElementById('modal-latest');
                 if (article.latest) {
@@ -2071,16 +2065,14 @@
                 const diffMinutes = Math.floor(diffMs / 60000);
                 const diffHours = Math.floor(diffMs / 3600000);
                 const diffDays = Math.floor(diffMs / 86400000);
-
                 if (diffMinutes < 1) return '刚刚';
-                if (diffMinutes < 60) return `${diffMinutes} 分钟前`;
-                if (diffHours < 24) return `${diffHours} 小时前`;
-                if (diffDays <= 30) return `${diffDays} 天前`;
-
+                if (diffMinutes < 60) return diffMinutes + ' 分钟前';
+                if (diffHours < 24) return diffHours + ' 小时前';
+                if (diffDays <= 30) return diffDays + ' 天前';
                 const y = date.getFullYear();
                 const m = String(date.getMonth() + 1).padStart(2, '0');
                 const d = String(date.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
+                return y + '-' + m + '-' + d;
             }
 
             function getLatestSortKey(article) {
@@ -2101,20 +2093,17 @@
                 container.innerHTML = '';
                 if (totalPages <= 1) return;
 
-                const createBtn = (innerHTML, pageNum, disabled = false, active = false, isArrow = false) => {
+                const createBtn = function(innerHTML, pageNum, disabled, active, isArrow) {
                     const btn = document.createElement('button');
-                    btn.className = 'pagination-btn' + (active ? ' active' : '') + (isArrow ? ' pagination-arrow' :
-                        '');
+                    btn.className = 'pagination-btn' + (active ? ' active' : '') + (isArrow ? ' pagination-arrow' : '');
                     btn.innerHTML = innerHTML;
                     if (disabled) btn.disabled = true;
                     else {
-                        btn.addEventListener('click', () => {
+                        btn.addEventListener('click', function() {
                             currentPage = pageNum;
                             renderArticles();
                             const grid = document.getElementById('articles-grid');
-                            if (grid) {
-                                grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
+                            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         });
                     }
                     return btn;
@@ -2132,8 +2121,8 @@
                     container.appendChild(createBtn(String(i), i, false, i === page, false));
                 }
 
-                container.appendChild(createBtn('<i class="fas fa-chevron-right"></i>', page + 1, page >= totalPages, false,
-                    true));
+                container.appendChild(createBtn('<i class="fas fa-chevron-right"></i>', page + 1, page >= totalPages,
+                    false, true));
 
                 const jumpDiv = document.createElement('div');
                 jumpDiv.className = 'page-jump';
@@ -2147,21 +2136,17 @@
                 const jumpBtn = document.createElement('button');
                 jumpBtn.className = 'page-jump-btn';
                 jumpBtn.textContent = '跳转';
-                jumpBtn.addEventListener('click', () => {
+                jumpBtn.addEventListener('click', function() {
                     let p = parseInt(input.value);
                     if (isNaN(p) || p < 1) p = 1;
                     if (p > totalPages) p = totalPages;
                     currentPage = p;
                     renderArticles();
                     const grid = document.getElementById('articles-grid');
-                    if (grid) {
-                        grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        jumpBtn.click();
-                    }
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') jumpBtn.click();
                 });
                 jumpDiv.appendChild(input);
                 jumpDiv.appendChild(jumpBtn);
@@ -2177,13 +2162,13 @@
                 const grid = document.getElementById('articles-grid');
                 grid.innerHTML = '';
 
-                let filtered = [...articlesData];
-                filtered = filtered.filter(a => a.category !== 'friend_link');
+                let filtered = articlesData.slice();
+                filtered = filtered.filter(function(a) { return a.category !== 'friend_link'; });
                 if (currentCategory !== 'all') {
-                    filtered = filtered.filter(a => a.category === currentCategory);
+                    filtered = filtered.filter(function(a) { return a.category === currentCategory; });
                 }
 
-                filtered.sort((a, b) => {
+                filtered.sort(function(a, b) {
                     const keyA = getLatestSortKey(a);
                     const keyB = getLatestSortKey(b);
                     if (keyA && keyB) return keyB.localeCompare(keyA);
@@ -2197,29 +2182,24 @@
 
                 if (!pageArticles.length) {
                     grid.innerHTML =
-                        `<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>`;
+                        '<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>';
                     renderPagination(totalPages, currentPage);
                     updateCategoryButtons();
                     return;
                 }
 
-                pageArticles.forEach(article => {
+                pageArticles.forEach(function(article) {
                     const slug = getSlug(article.filename);
                     const card = document.createElement('div');
                     card.className = 'article-card glass';
-                    card.innerHTML = `
-            <div class="article-header">
-              <h3 class="article-title">${escapeHtml(article.title)}</h3>
-              <div class="article-meta">
-                <span>${article.latest ? article.latest.substring(0, 10) : article.date}</span>
-                <span>${getCategoryName(article.category)}</span>
-              </div>
-            </div>
-            <div class="article-content">${escapeHtml(article.excerpt)}</div>
-            <a href="/articles/${slug}" class="read-more">阅读全文</a>
-            <div class="card-hint">查看详细</div>
-          `;
-                    card.addEventListener('click', (e) => {
+                    card.innerHTML =
+                        '<div class="article-header"><h3 class="article-title">' + escapeHtml(article.title) +
+                        '</h3><div class="article-meta"><span>' + (article.latest ? article.latest.substring(0, 10) :
+                            article.date) + '</span><span>' + getCategoryName(article.category) +
+                        '</span></div></div><div class="article-content">' + escapeHtml(article.excerpt) +
+                        '</div><a href="/articles/' + slug +
+                        '" class="read-more">阅读全文</a><div class="card-hint">查看详细</div>';
+                    card.addEventListener('click', function(e) {
                         if (e.target.closest('.read-more')) return;
                         openArticleModal(article);
                     });
@@ -2231,7 +2211,7 @@
             }
 
             function updateCategoryButtons() {
-                document.querySelectorAll('.category-btn').forEach(btn => {
+                document.querySelectorAll('.category-btn').forEach(function(btn) {
                     btn.classList.toggle('active', btn.dataset.category === currentCategory);
                 });
             }
@@ -2254,28 +2234,27 @@
             }
 
             function bindEvents() {
-                document.querySelectorAll('.category-btn').forEach(btn => {
-                    btn.addEventListener('click', () => renderArticles(btn.dataset.category));
+                document.querySelectorAll('.category-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() { renderArticles(btn.dataset.category); });
                 });
 
-                document.getElementById('about-btn').addEventListener('click', () => {
+                document.getElementById('about-btn').addEventListener('click', function() {
                     const card = document.getElementById('about-card');
                     card.style.display = card.style.display === 'block' ? 'none' : 'block';
                 });
 
-                document.getElementById('article-modal').addEventListener('click', (e) => {
+                document.getElementById('article-modal').addEventListener('click', function(e) {
                     if (e.target === e.currentTarget) closeArticleModal();
                 });
                 document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
 
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains(
-                            'active')) {
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && document.getElementById('article-modal').classList.contains('active')) {
                         closeArticleModal();
                     }
                 });
 
-                document.addEventListener('click', (e) => {
+                document.addEventListener('click', function(e) {
                     const about = document.getElementById('about-card');
                     if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest(
                             '#about-btn')) {
@@ -2288,14 +2267,18 @@
                     }
                 });
 
-                document.getElementById('luck-btn')?.addEventListener('click', getDailyLuck);
+                const luckBtn = document.getElementById('luck-btn');
+                if (luckBtn) luckBtn.addEventListener('click', getDailyLuck);
 
-                document.getElementById('rss-link')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const rssUrl = window.location.origin + '/rss.xml';
-                    copyToClipboard(rssUrl);
-                    showToast('RSS 链接已复制到剪贴板！', 'success');
-                });
+                const rssLink = document.getElementById('rss-link');
+                if (rssLink) {
+                    rssLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const rssUrl = window.location.origin + '/rss.xml';
+                        copyToClipboard(rssUrl);
+                        showToast('RSS 链接已复制到剪贴板！', 'success');
+                    });
+                }
             }
 
             function copyToClipboard(text) {
@@ -2308,63 +2291,65 @@
             }
 
             async function initializePage() {
+                const globalLoadTimer = setTimeout(function() {
+                    if (!loadingOverlayHidden) {
+                        updateLoadingProgress(95, '即将完成...');
+                        hideLoadingOverlay();
+                        flushLoadingErrors();
+                    }
+                }, LOADING_MAX_DISPLAY);
+
                 try {
-                    updateLoadingProgress(8, '正在连接...');
+                    updateLoadingProgress(8, '正在初始化...');
                     articlesData = window.__ARTICLES__ || [];
-                    updateLoadingProgress(25, articlesData.length ? '文章列表已就绪' : '无文章数据');
+                    updateLoadingProgress(20, articlesData.length ? '文章数据已就绪' : '无文章数据');
 
-                    updateLoadingProgress(30, '正在加载壁纸...');
-                    let wallOk = false;
-                    try {
-                        wallOk = await loadWallpapers();
-                    } catch (e) {
-                        addLoadingError('壁纸加载失败: ' + e.message);
-                    }
-
-                    if (!wallOk) {
-                        updateLoadingProgress(45, '使用备用壁纸 Bing...');
-                        wallOk = await setBingWallpaper();
-                    }
-                    if (!wallOk) {
-                        updateLoadingProgress(55, '使用备用壁纸 360...');
-                        wallOk = await set360Wallpaper();
-                    }
-                    if (!wallOk) {
-                        addLoadingError('所有壁纸源均加载失败');
-                    }
-                    updateLoadingProgress(60, wallOk ? '壁纸加载完成' : '壁纸加载失败，使用默认背景');
-
-                    updateLoadingProgress(75, '正在加载美句...');
-                    await loadWithTimeout(loadSentences(), 10000, '美句加载超时').catch(e => addLoadingError(
-                        '美句加载失败'));
-                    updateLoadingProgress(88, '正在渲染文章...');
+                    updateLoadingProgress(30, '正在渲染文章...');
                     renderArticles('all');
-                    updateLoadingProgress(95, '即将完成...');
+                    updateLoadingProgress(55, '文章渲染完成');
+
+                    updateLoadingProgress(60, '正在加载美句...');
+                    await Promise.race([
+                        loadSentences(),
+                        new Promise(function(resolve) { setTimeout(resolve, 8000); })
+                    ]).catch(function(e) { addLoadingError('美句加载失败'); });
+                    updateLoadingProgress(80, '美句加载完成');
+
+                    loadWallpaperBackground().then(function(ok) {
+                        if (!ok) addLoadingError('所有壁纸源均加载失败');
+                    }).catch(function(e) {
+                        console.warn('壁纸后台加载异常:', e);
+                    });
+
+                    updateLoadingProgress(92, '即将完成...');
                     bindEvents();
                     initLuckResult();
                     updateRuntime();
                     setInterval(updateRuntime, 1000);
                     loadContacts();
 
-                    document.getElementById('func-btn').addEventListener('click', () => {
+                    document.getElementById('func-btn').addEventListener('click', function() {
                         const card = document.getElementById('func-card');
                         card.style.display = card.style.display === 'block' ? 'none' : 'block';
                         if (card.style.display === 'block' && !window.historyLoaded) loadHistoryToday();
                     });
-                    document.getElementById('close-func-card').addEventListener('click', () => {
+                    document.getElementById('close-func-card').addEventListener('click', function() {
                         document.getElementById('func-card').style.display = 'none';
                     });
-                    document.getElementById('close-about-btn').addEventListener('click', () => {
+                    document.getElementById('close-about-btn').addEventListener('click', function() {
                         document.getElementById('about-card').style.display = 'none';
                     });
 
+                    updateLoadingProgress(100, '加载完成(ゝ∀･)b');
                     hideLoadingOverlay();
                     flushLoadingErrors();
+                    clearTimeout(globalLoadTimer);
                 } catch (e) {
                     console.error(e);
                     showToast('初始化失败: ' + e.message, 'error');
                     hideLoadingOverlay();
                     flushLoadingErrors();
+                    clearTimeout(globalLoadTimer);
                 }
             }
 

@@ -27,16 +27,13 @@
             border-radius: 2px;
             background: transparent;
         }
-
         .article-full-content a:not(:has(img)):hover {
             color: #ffffff;
             background: rgba(66, 133, 244, 0.2);
         }
-
         .article-full-content a:not(:has(img))::before {
             content: none !important;
         }
-
         .article-full-content a:not(:has(img))::after {
             content: '';
             position: absolute;
@@ -49,12 +46,10 @@
             transform-origin: right;
             transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
         }
-
         .article-full-content a:not(:has(img)):hover::after {
             transform: scaleX(1);
             transform-origin: left;
         }
-
         .toc-list a {
             color: rgba(255, 255, 255, 0.8) !important;
             background: none !important;
@@ -62,17 +57,14 @@
             background-clip: unset !important;
             position: static !important;
         }
-
         .toc-list a:hover {
             color: var(--primary-color) !important;
             transform: translateX(5px) !important;
         }
-
         .toc-list a::before,
         .toc-list a::after {
             content: none !important;
         }
-
         .link-confirm a {
             color: #a3c8ff !important;
             background: none !important;
@@ -80,12 +72,10 @@
             background-clip: unset !important;
             position: static !important;
         }
-
         .link-confirm a::before,
         .link-confirm a::after {
             content: none !important;
         }
-
         .article-footer a {
             color: #a1c4fd !important;
             background: none !important;
@@ -95,7 +85,6 @@
             text-decoration: underline;
             text-underline-offset: 3px;
         }
-
         .article-footer a::before,
         .article-footer a::after {
             content: none !important;
@@ -138,7 +127,6 @@
             transition: background-image 1.5s ease-in-out;
             background-color: #121212;
         }
-
         body::before {
             content: '';
             position: absolute;
@@ -166,16 +154,13 @@
             transition: opacity 0.5s ease;
             opacity: 1;
         }
-
         .loading-overlay.fade-out {
             opacity: 0;
             pointer-events: none;
         }
-
         .loading-overlay.hidden {
             display: none;
         }
-
         .loading-card {
             background: rgba(30, 60, 120, 0.55);
             backdrop-filter: blur(16px);
@@ -190,18 +175,10 @@
             transition: all 0.3s ease;
             animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
         @keyframes loadingPopIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.85);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(30px) scale(0.85); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-
         .loading-card .loader {
             display: inline-block;
             width: 48px;
@@ -213,7 +190,6 @@
             animation: spin 0.9s linear infinite;
             margin-bottom: 18px;
         }
-
         .loading-card .loading-text {
             color: #ffffff;
             font-size: 1.05rem;
@@ -221,14 +197,12 @@
             margin-bottom: 8px;
             letter-spacing: 0.5px;
         }
-
         .loading-card .loading-subtext {
             color: rgba(255, 255, 255, 0.6);
             font-size: 0.8rem;
             margin-bottom: 18px;
             min-height: 18px;
         }
-
         .loading-progress-container {
             width: 100%;
             height: 5px;
@@ -237,7 +211,6 @@
             overflow: hidden;
             position: relative;
         }
-
         .loading-progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #3d8ef7, #5badf5, #7dc8f8);
@@ -248,23 +221,13 @@
             animation: progressShimmer 2s linear infinite;
             box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
         }
-
         @keyframes progressShimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .container {
@@ -272,7 +235,6 @@
             margin: 0 auto;
             padding: 20px;
         }
-
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -283,13 +245,11 @@
             padding: 20px;
             transition: var(--transition);
         }
-
         .reading-time {
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.7);
             margin-top: 0px;
         }
-
         .back-btn {
             position: fixed;
             top: 20px;
@@ -308,30 +268,25 @@
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-
         .back-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 0 20px var(--glow-color);
         }
-
         .article-container {
             max-width: 800px;
             margin: 60px auto 40px;
         }
-
         .article-header {
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 30px;
         }
-
         .article-title {
             font-size: 2.2rem;
             color: var(--light-text);
             margin-bottom: 15px;
             line-height: 1.3;
         }
-
         .article-meta {
             display: flex;
             justify-content: space-between;
@@ -339,7 +294,6 @@
             color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
         }
-
         .article-full-content {
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.8;
@@ -347,7 +301,6 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-
         .article-full-content h2 {
             font-size: 1.7rem;
             margin: 30px 0 20px 0;
@@ -355,7 +308,6 @@
             position: relative;
             padding-left: 16px;
         }
-
         .article-full-content h2::before {
             content: '';
             position: absolute;
@@ -367,7 +319,6 @@
             background: var(--primary-color);
             border-radius: 3px;
         }
-
         .article-full-content h3 {
             font-size: 1.4rem;
             margin: 28px 0 18px 10px;
@@ -375,7 +326,6 @@
             position: relative;
             padding-left: 15px;
         }
-
         .article-full-content h3::before {
             content: '';
             position: absolute;
@@ -387,7 +337,6 @@
             background: rgba(66, 133, 244, 0.85);
             border-radius: 3px;
         }
-
         .article-full-content h4 {
             font-size: 1.2rem;
             margin: 24px 0 14px 20px;
@@ -395,7 +344,6 @@
             position: relative;
             padding-left: 14px;
         }
-
         .article-full-content h4::before {
             content: '';
             position: absolute;
@@ -407,7 +355,6 @@
             background: rgba(66, 133, 244, 0.7);
             border-radius: 2px;
         }
-
         .article-full-content h5 {
             font-size: 1.05rem;
             margin: 20px 0 10px 30px;
@@ -415,7 +362,6 @@
             position: relative;
             padding-left: 12px;
         }
-
         .article-full-content h5::before {
             content: '';
             position: absolute;
@@ -427,7 +373,6 @@
             background: rgba(66, 133, 244, 0.55);
             border-radius: 2px;
         }
-
         .article-full-content h6 {
             font-size: 0.95rem;
             margin: 18px 0 8px 38px;
@@ -435,7 +380,6 @@
             position: relative;
             padding-left: 10px;
         }
-
         .article-full-content h6::before {
             content: '';
             position: absolute;
@@ -447,23 +391,19 @@
             background: rgba(66, 133, 244, 0.45);
             border-radius: 2px;
         }
-
         .article-full-content p {
             margin-bottom: 25px;
         }
-
         .article-full-content ul,
         .article-full-content ol {
             margin-bottom: 25px;
             padding-left: 30px;
         }
-
         .article-full-content ul li,
         .article-full-content ol li {
             margin-bottom: 10px;
             padding-left: 10px;
         }
-
         .article-full-content pre {
             position: relative;
             background: var(--code-bg);
@@ -476,7 +416,6 @@
             line-height: 1.6;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
-
         .article-full-content code {
             font-family: 'Fira Code', 'Courier New', monospace;
             background: rgba(66, 133, 244, 0.12);
@@ -488,7 +427,6 @@
             transition: all 0.3s ease;
             white-space: nowrap;
         }
-
         .article-full-content pre code {
             background: none;
             padding: 0;
@@ -499,7 +437,6 @@
             border-radius: 0;
             white-space: pre;
         }
-
         .code-language {
             position: absolute;
             top: 10px;
@@ -510,7 +447,6 @@
             font-weight: 500;
             letter-spacing: 0.5px;
         }
-
         .copy-btn {
             position: absolute;
             top: 10px;
@@ -528,23 +464,19 @@
             gap: 5px;
             z-index: 2;
         }
-
         .copy-btn:hover {
             background: var(--code-copy-hover);
             color: white;
             box-shadow: 0 0 10px var(--glow-color);
         }
-
         .copy-btn.success {
             background: var(--success-color);
             color: white;
         }
-
         .copy-btn.error {
             background: var(--error-color);
             color: white;
         }
-
         .article-full-content img {
             max-width: 100%;
             height: auto;
@@ -558,7 +490,6 @@
             transition: all 0.3s ease, opacity 0.5s ease;
             display: block;
         }
-
         .article-full-content img.lazy-img {
             min-height: 180px;
             opacity: 0.35;
@@ -566,44 +497,27 @@
             border: 1px dashed rgba(255, 255, 255, 0.2);
             animation: placeholderPulse 2.5s ease-in-out infinite;
         }
-
         @keyframes placeholderPulse {
-            0%,
-            100% {
-                opacity: 0.25;
-            }
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.5; }
         }
-
         .article-full-content img.lazy-loaded {
             opacity: 1;
             animation: imgReveal 0.55s ease-out forwards;
         }
-
         @keyframes imgReveal {
-            from {
-                opacity: 0.35;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0.35; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         .article-full-content img.lazy-error {
             min-height: 120px;
             opacity: 0.7;
             background: rgba(244, 67, 54, 0.15);
             border: 1px dashed rgba(244, 67, 54, 0.4);
         }
-
         .article-full-content img:hover {
             box-shadow: 0 0 20px var(--glow-color);
         }
-
         .article-full-content blockquote {
             border-left: 4px solid var(--primary-color);
             padding: 10px 20px;
@@ -626,7 +540,6 @@
             align-items: center;
             animation: fadeIn 0.3s ease;
         }
-
         .lightbox img {
             max-width: 90%;
             max-height: 90%;
@@ -634,7 +547,6 @@
             box-shadow: 0 0 30px rgba(66, 133, 244, 0.5);
             transition: transform 0.3s ease;
         }
-
         .lightbox-close,
         .lightbox-rotate-cw,
         .lightbox-rotate-ccw {
@@ -653,19 +565,9 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-
-        .lightbox-close {
-            right: 30px;
-        }
-
-        .lightbox-rotate-cw {
-            right: 90px;
-        }
-
-        .lightbox-rotate-ccw {
-            right: 150px;
-        }
-
+        .lightbox-close { right: 30px; }
+        .lightbox-rotate-cw { right: 90px; }
+        .lightbox-rotate-ccw { right: 150px; }
         .lightbox-close:hover,
         .lightbox-rotate-cw:hover,
         .lightbox-rotate-ccw:hover {
@@ -692,7 +594,6 @@
             box-shadow: var(--glass-shadow);
             overscroll-behavior: contain;
         }
-
         .toc-toggle {
             position: fixed;
             top: 100px;
@@ -711,16 +612,11 @@
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-
         .toc-toggle:hover {
             transform: scale(1.1);
             box-shadow: 0 0 20px var(--glow-color);
         }
-
-        .toc-toggle.mobile-only {
-            display: none;
-        }
-
+        .toc-toggle.mobile-only { display: none; }
         .toc-title {
             font-size: 1.2rem;
             color: var(--light-text);
@@ -728,12 +624,7 @@
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        .toc-list {
-            list-style-type: none;
-            padding-left: 15px;
-        }
-
+        .toc-list { list-style-type: none; padding-left: 15px; }
         .toc-list li {
             margin-bottom: 8px;
             line-height: 1.4;
@@ -741,18 +632,15 @@
             border-radius: 6px;
             padding: 4px 8px;
         }
-
         .toc-list li:hover {
             background: rgba(66, 133, 244, 0.1);
             transform: translateX(5px);
         }
-
         .toc-list li.active {
             background: rgba(66, 133, 244, 0.2);
             border-left: 3px solid var(--primary-color);
             padding-left: 12px;
         }
-
         .toc-list a {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
@@ -760,21 +648,9 @@
             display: block;
             padding: 3px 0;
         }
-
-        .toc-list a:hover {
-            color: var(--primary-color);
-        }
-
-        .toc-list .toc-h2 {
-            font-weight: 600;
-            padding-left: 0;
-        }
-
-        .toc-list .toc-h3 {
-            font-weight: 400;
-            padding-left: 15px;
-            font-size: 0.95rem;
-        }
+        .toc-list a:hover { color: var(--primary-color); }
+        .toc-list .toc-h2 { font-weight: 600; padding-left: 0; }
+        .toc-list .toc-h3 { font-weight: 400; padding-left: 15px; font-size: 0.95rem; }
 
         .back-to-top {
             position: fixed;
@@ -793,16 +669,11 @@
             z-index: 98;
             box-shadow: none;
         }
-
-        .back-to-top.visible {
-            opacity: 1;
-        }
-
+        .back-to-top.visible { opacity: 1; }
         .back-to-top:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 20px var(--glow-color);
         }
-
         .back-to-top .progress-ring {
             position: absolute;
             top: 0;
@@ -812,13 +683,11 @@
             pointer-events: none;
             transform: rotate(-90deg);
         }
-
         .back-to-top .progress-ring-track {
             fill: none;
             stroke: rgba(255, 255, 255, 0.15);
             stroke-width: 4;
         }
-
         .back-to-top .progress-ring-progress {
             fill: none;
             stroke: url(#progressGradient);
@@ -829,7 +698,6 @@
             transition: stroke-dashoffset 0.15s linear;
             filter: drop-shadow(0 0 6px rgba(66,133,244,0.8));
         }
-
         .back-to-top .back-to-top-icon {
             position: relative;
             z-index: 1;
@@ -855,18 +723,12 @@
             transition: all 0.4s ease;
             display: none;
         }
-
-        .link-confirm.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
+        .link-confirm.show { transform: translateY(0); opacity: 1; }
         .link-confirm p {
             margin-bottom: 15px;
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.5;
         }
-
         .link-confirm a {
             color: #a3c8ff;
             word-break: break-all;
@@ -874,13 +736,7 @@
             margin: 10px 0;
             text-decoration: none;
         }
-
-        .link-confirm-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
+        .link-confirm-buttons { display: flex; gap: 10px; justify-content: flex-end; }
         .link-confirm-btn {
             padding: 8px 16px;
             border-radius: 6px;
@@ -889,25 +745,10 @@
             font-weight: 600;
             transition: all 0.2s ease;
         }
-
-        .link-confirm-btn.confirm {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .link-confirm-btn.confirm:hover {
-            background: #3b78e7;
-            box-shadow: 0 0 10px var(--glow-color);
-        }
-
-        .link-confirm-btn.cancel {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .link-confirm-btn.cancel:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        .link-confirm-btn.confirm { background: var(--primary-color); color: white; }
+        .link-confirm-btn.confirm:hover { background: #3b78e7; box-shadow: 0 0 10px var(--glow-color); }
+        .link-confirm-btn.cancel { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); }
+        .link-confirm-btn.cancel:hover { background: rgba(255, 255, 255, 0.2); }
 
         .toast-container {
             position: fixed;
@@ -919,7 +760,6 @@
             gap: 10px;
             max-width: 300px;
         }
-
         .toast {
             background: var(--primary-color);
             color: white;
@@ -931,11 +771,7 @@
             position: relative;
             overflow: hidden;
         }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
+        .toast.show { transform: translateX(0); }
         .toast-progress {
             position: absolute;
             bottom: 0;
@@ -946,126 +782,11 @@
             transform-origin: left;
             animation: progress 3s linear forwards;
         }
-
-        .toast.error {
-            background: #f44336;
-        }
-
-        .toast.success {
-            background: #4CAF50;
-        }
-
+        .toast.error { background: #f44336; }
+        .toast.success { background: #4CAF50; }
         @keyframes progress {
-            from {
-                transform: scaleX(1);
-            }
-            to {
-                transform: scaleX(0);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: var(--scrollbar-width);
-            height: var(--scrollbar-width);
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(66, 133, 244, 0.5);
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(66, 133, 244, 0.7);
-        }
-
-        .toc-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .toc-container::-webkit-scrollbar-track {
-            background: transparent;
-            border-radius: 4px;
-        }
-
-        .toc-container::-webkit-scrollbar-thumb {
-            background: rgba(66, 133, 244, 0.4);
-            border-radius: 4px;
-        }
-
-        .toc-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(66, 133, 244, 0.6);
-        }
-
-        .article-full-content pre::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .article-full-content pre::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-
-        .article-full-content pre::-webkit-scrollbar-thumb {
-            background: rgba(66, 133, 244, 0.5);
-            border-radius: 4px;
-        }
-
-        .article-full-content pre::-webkit-scrollbar-thumb:hover {
-            background: rgba(66, 133, 244, 0.7);
-        }
-
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
-        }
-
-        .toc-container {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(66, 133, 244, 0.4) transparent;
-        }
-
-        .article-full-content pre {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.2);
-        }
-
-        ::selection {
-            background: rgba(66, 133, 244, 0.3);
-            color: white;
-            text-shadow: none;
-        }
-
-        ::-moz-selection {
-            background: rgba(66, 133, 244, 0.3);
-            color: white;
-            text-shadow: none;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
         }
 
         .poetry-card {
@@ -1086,24 +807,9 @@
             font-size: 0.9rem;
             line-height: 1.5;
         }
-
-        .poetry-content {
-            margin-bottom: 8px;
-            font-style: italic;
-        }
-
-        .poetry-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .poetry-author {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: right;
-        }
-
+        .poetry-content { margin-bottom: 8px; font-style: italic; }
+        .poetry-meta { display: flex; justify-content: space-between; align-items: center; }
+        .poetry-author { font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); text-align: right; }
         .poetry-refresh-btn {
             background: none;
             border: none;
@@ -1117,166 +823,57 @@
             align-items: center;
             justify-content: center;
         }
+        .poetry-refresh-btn:hover { background: rgba(255, 255, 255, 0.15); color: white; }
 
-        .poetry-refresh-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-
-        @media (max-width: 640px) {
-            .poetry-card {
-                display: none;
-            }
-        }
-
+        @media (max-width: 640px) { .poetry-card { display: none; } }
         @media (max-width: 1024px) {
-            .toc-container {
-                display: none;
-            }
-            .toc-toggle.mobile-only {
-                display: flex;
-            }
+            .toc-container { display: none; }
+            .toc-toggle.mobile-only { display: flex; }
         }
-
         @media (max-width: 768px) {
-            .article-title {
-                font-size: 1.8rem;
-            }
-            .article-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            .back-btn {
-                top: 15px;
-                left: 15px;
-                width: 45px;
-                height: 45px;
-            }
-            .toc-toggle {
-                top: 80px;
-                right: 15px;
-                width: 45px;
-                height: 45px;
-            }
-            .toc-container {
-                right: 15px;
-                max-width: 280px;
-            }
-            .loading-card {
-                width: 280px;
-                padding: 28px 22px 20px;
-            }
-            :root {
-                --blur-amount: 8px;
-                --scrollbar-width: 8px;
-            }
-            .toast-container {
-                max-width: 250px;
-            }
-            .article-full-content h3 {
-                margin-left: 6px;
-            }
-            .article-full-content h4 {
-                margin-left: 12px;
-            }
-            .article-full-content h5 {
-                margin-left: 18px;
-            }
-            .article-full-content h6 {
-                margin-left: 24px;
-            }
-            .article-full-content img.lazy-img {
-                min-height: 140px;
-            }
-            .article-full-content img.lazy-error {
-                min-height: 100px;
-            }
+            .article-title { font-size: 1.8rem; }
+            .article-meta { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .back-btn { top: 15px; left: 15px; width: 45px; height: 45px; }
+            .toc-toggle { top: 80px; right: 15px; width: 45px; height: 45px; }
+            .toc-container { right: 15px; max-width: 280px; }
+            .loading-card { width: 280px; padding: 28px 22px 20px; }
+            :root { --blur-amount: 8px; --scrollbar-width: 8px; }
+            .toast-container { max-width: 250px; }
+            .article-full-content h3 { margin-left: 6px; }
+            .article-full-content h4 { margin-left: 12px; }
+            .article-full-content h5 { margin-left: 18px; }
+            .article-full-content h6 { margin-left: 24px; }
+            .article-full-content img.lazy-img { min-height: 140px; }
+            .article-full-content img.lazy-error { min-height: 100px; }
             .lightbox-close,
             .lightbox-rotate-cw,
-            .lightbox-rotate-ccw {
-                width: 40px;
-                height: 40px;
-                font-size: 1.3rem;
-            }
-            .lightbox-close {
-                right: 15px;
-            }
-            .lightbox-rotate-cw {
-                right: 65px;
-            }
-            .lightbox-rotate-ccw {
-                right: 115px;
-            }
+            .lightbox-rotate-ccw { width: 40px; height: 40px; font-size: 1.3rem; }
+            .lightbox-close { right: 15px; }
+            .lightbox-rotate-cw { right: 65px; }
+            .lightbox-rotate-ccw { right: 115px; }
         }
-
         @media (max-width: 480px) {
-            .article-title {
-                font-size: 1.6rem;
-            }
-            .article-meta {
-                font-size: 0.9rem;
-            }
-            .article-full-content {
-                font-size: 1rem;
-            }
-            .code-language {
-                font-size: 0.7rem;
-                right: 45px;
-            }
-            .copy-btn {
-                padding: 5px 8px;
-                font-size: 0.7rem;
-            }
-            .toc-container {
-                max-width: 250px;
-            }
-            .loading-card {
-                width: 260px;
-                padding: 24px 18px 16px;
-            }
-            .loading-card .loader {
-                width: 38px;
-                height: 38px;
-                border-width: 3px;
-            }
-            .loading-card .loading-text {
-                font-size: 0.95rem;
-            }
-            .article-full-content h3 {
-                margin-left: 4px;
-            }
-            .article-full-content h4 {
-                margin-left: 8px;
-            }
-            .article-full-content h5 {
-                margin-left: 12px;
-            }
-            .article-full-content h6 {
-                margin-left: 16px;
-            }
-            .article-full-content img.lazy-img {
-                min-height: 110px;
-            }
-            .article-full-content img.lazy-error {
-                min-height: 80px;
-            }
+            .article-title { font-size: 1.6rem; }
+            .article-meta { font-size: 0.9rem; }
+            .article-full-content { font-size: 1rem; }
+            .code-language { font-size: 0.7rem; right: 45px; }
+            .copy-btn { padding: 5px 8px; font-size: 0.7rem; }
+            .toc-container { max-width: 250px; }
+            .loading-card { width: 260px; padding: 24px 18px 16px; }
+            .loading-card .loader { width: 38px; height: 38px; border-width: 3px; }
+            .loading-card .loading-text { font-size: 0.95rem; }
+            .article-full-content h3 { margin-left: 4px; }
+            .article-full-content h4 { margin-left: 8px; }
+            .article-full-content h5 { margin-left: 12px; }
+            .article-full-content h6 { margin-left: 16px; }
+            .article-full-content img.lazy-img { min-height: 110px; }
+            .article-full-content img.lazy-error { min-height: 80px; }
             .lightbox-close,
             .lightbox-rotate-cw,
-            .lightbox-rotate-ccw {
-                width: 36px;
-                height: 36px;
-                font-size: 1.2rem;
-            }
-            .lightbox-close {
-                right: 10px;
-            }
-            .lightbox-rotate-cw {
-                right: 55px;
-            }
-            .lightbox-rotate-ccw {
-                right: 100px;
-            }
+            .lightbox-rotate-ccw { width: 36px; height: 36px; font-size: 1.2rem; }
+            .lightbox-close { right: 10px; }
+            .lightbox-rotate-cw { right: 55px; }
+            .lightbox-rotate-ccw { right: 100px; }
         }
 
         .article-footer {
@@ -1290,6 +887,26 @@
             border: 1px solid var(--glass-border);
             border-radius: 16px;
         }
+
+        ::-webkit-scrollbar { width: var(--scrollbar-width); height: var(--scrollbar-width); }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.5); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(66, 133, 244, 0.7); }
+        .toc-container::-webkit-scrollbar { width: 8px; }
+        .toc-container::-webkit-scrollbar-track { background: transparent; border-radius: 4px; }
+        .toc-container::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.4); border-radius: 4px; }
+        .toc-container::-webkit-scrollbar-thumb:hover { background: rgba(66, 133, 244, 0.6); }
+        .article-full-content pre::-webkit-scrollbar { height: 8px; }
+        .article-full-content pre::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+        .article-full-content pre::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.5); border-radius: 4px; }
+        .article-full-content pre::-webkit-scrollbar-thumb:hover { background: rgba(66, 133, 244, 0.7); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1); }
+        .toc-container { scrollbar-width: thin; scrollbar-color: rgba(66, 133, 244, 0.4) transparent; }
+        .article-full-content pre { scrollbar-width: thin; scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.2); }
+        ::selection { background: rgba(66, 133, 244, 0.3); color: white; text-shadow: none; }
+        ::-moz-selection { background: rgba(66, 133, 244, 0.3); color: white; text-shadow: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -1297,7 +914,7 @@
         <div class="loading-card">
             <div class="loader"></div>
             <div class="loading-text">加载中...</div>
-            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待(๑•̀ㅂ•́)و✧</div>
+            <div class="loading-subtext" id="loading-subtext">正在加载，请耐心等待˶･֊･˶</div>
             <div class="loading-progress-container">
                 <div class="loading-progress-bar" id="loading-progress-bar"></div>
             </div>
@@ -1399,610 +1016,615 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
 
     <script>
-        const loadingErrors = [];
-        let articleImageObserver = null;
-        let currentRotation = 0;
+        (function() {
+            const WALLPAPER_TOTAL_TIMEOUT = 22000;
+            const LOADING_MAX_DISPLAY = 8000;
+            const IMG_TIMEOUT_B2 = 10000;
+            const IMG_TIMEOUT_FALLBACK = 7000;
+            const FETCH_TIMEOUT_CONFIG = 6000;
+            const FETCH_TIMEOUT_BING = 8000;
+            const FETCH_TIMEOUT_360 = 8000;
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error(`请求失败: ${response.status}`);
-                return response;
-            } catch (e) {
-                clearTimeout(timeoutId);
-                if (e.name === 'AbortError') {
-                    throw new Error('请求超时');
+            const loadingErrors = [];
+            let articleImageObserver = null;
+            let currentRotation = 0;
+            let loadingOverlayHidden = false;
+            let wallpaperResolved = false;
+
+            async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const response = await fetch(url, { ...options, signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+                    return response;
+                } catch (e) {
+                    clearTimeout(timeoutId);
+                    if (e.name === 'AbortError') throw new Error('请求超时');
+                    throw e;
                 }
-                throw e;
             }
-        }
 
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const progress = document.createElement('div');
-            progress.className = 'toast-progress';
-            const messageEl = document.createElement('div');
-            messageEl.textContent = message;
-            toast.appendChild(progress);
-            toast.appendChild(messageEl);
-            toastContainer.appendChild(toast);
-            setTimeout(() => { toast.classList.add('show'); }, 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const progress = document.createElement('div');
+                progress.className = 'toast-progress';
+                const msg = document.createElement('div');
+                msg.textContent = message;
+                toast.appendChild(progress);
+                toast.appendChild(msg);
+                container.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('show'));
                 setTimeout(() => {
-                    if (toastContainer.contains(toast)) toastContainer.removeChild(toast);
-                }, 400);
-            }, 3000);
-        }
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (container.contains(toast)) container.removeChild(toast);
+                    }, 400);
+                }, 3000);
+            }
 
-        function updateLoadingProgress(percentage, subtext) {
-            const progressBar = document.getElementById('loading-progress-bar');
-            const subtextEl = document.getElementById('loading-subtext');
-            if (progressBar) progressBar.style.width = percentage + '%';
-            if (subtextEl && subtext) subtextEl.textContent = subtext;
-        }
+            function updateLoadingProgress(percentage, subtext) {
+                const progressBar = document.getElementById('loading-progress-bar');
+                const subtextEl = document.getElementById('loading-subtext');
+                if (progressBar) progressBar.style.width = Math.min(percentage, 100) + '%';
+                if (subtextEl && subtext) subtextEl.textContent = subtext;
+            }
 
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (!overlay) return;
-            updateLoadingProgress(100, '加载完成(ゝ∀･)b');
-            setTimeout(() => {
+            function hideLoadingOverlay() {
+                if (loadingOverlayHidden) return;
+                loadingOverlayHidden = true;
+                const overlay = document.getElementById('loading-overlay');
+                if (!overlay) return;
+                updateLoadingProgress(100, '加载完成˶>ᗜ<˶');
                 overlay.classList.add('fade-out');
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     overlay.style.display = 'none';
                 }, 500);
-            }, 350);
-        }
+            }
 
-        function addLoadingError(msg) {
-            loadingErrors.push(msg);
-        }
+            function addLoadingError(msg) {
+                loadingErrors.push(msg);
+            }
 
-        function flushLoadingErrors() {
-            if (loadingErrors.length === 0) return;
-            const unique = [...new Set(loadingErrors)];
-            unique.forEach(err => showToast(err, 'error'));
-            loadingErrors.length = 0;
-        }
+            function flushLoadingErrors() {
+                if (loadingErrors.length === 0) return;
+                const unique = [...new Set(loadingErrors)];
+                unique.forEach(err => showToast(err, 'error'));
+                loadingErrors.length = 0;
+            }
 
-        function loadWithTimeout(promise, timeoutMs, errorMsg) {
-            return Promise.race([
-                promise,
-                new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), timeoutMs))
-            ]);
-        }
-
-        function loadImageWithSpeedCheck(imgUrl, options = {}) {
-            const {
-                initialCheckMs = 3000,
-                    maxWaitMs = 60000
-            } = options;
-            return new Promise((resolve) => {
-                const img = new Image();
-                let initialTimer = null;
-                let maxTimer = null;
-                let resolved = false;
-                const finish = (success) => {
-                    if (resolved) return;
-                    resolved = true;
-                    clearTimeout(initialTimer);
-                    clearTimeout(maxTimer);
-                    if (success) {
-                        document.body.style.backgroundImage = `url(${imgUrl})`;
+            function loadImageWithTimeout(imgUrl, timeoutMs) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    let settled = false;
+                    const finish = (success) => {
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timer);
+                        if (success) {
+                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                        }
+                        resolve(success);
+                    };
+                    const timer = setTimeout(() => {
+                        if (!settled && !img.complete) {
+                            console.warn('图片加载超时:', imgUrl);
+                        }
+                        finish(img.naturalWidth > 0);
+                    }, timeoutMs);
+                    img.onload = () => finish(true);
+                    img.onerror = () => finish(false);
+                    img.src = imgUrl;
+                    if (img.complete) {
+                        finish(img.naturalWidth > 0);
                     }
-                    resolve(success);
-                };
-                img.onload = () => finish(true);
-                img.onerror = () => {
-                    console.warn('图片加载失败（onerror）:', imgUrl);
-                    finish(false);
-                };
-                img.src = imgUrl;
-                initialTimer = setTimeout(() => {
-                    if (resolved) return;
-                    if (!img.complete) {
-                        const remainingMs = maxWaitMs - initialCheckMs;
-                        maxTimer = setTimeout(() => {
-                            if (resolved) return;
-                            if (!img.complete) {
-                                console.warn('图片加载超过最大等待时间（仍在下载中，速度极慢）:', imgUrl);
+                });
+            }
+
+            async function loadWallpaperFromConfig() {
+                try {
+                    const res = await fetchWithTimeout('../wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
+                    if (!res.ok) throw new Error('请求失败');
+                    const data = await res.json();
+                    if (data && data.length) {
+                        const entry = data[Math.floor(Math.random() * data.length)];
+                        let imgUrl = entry.path;
+                        if (!/^https?:\/\//i.test(imgUrl)) {
+                            imgUrl = '../' + imgUrl;
+                        }
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_B2);
+                    }
+                    return false;
+                } catch (e) {
+                    console.warn('壁纸配置加载失败:', e);
+                    return false;
+                }
+            }
+
+            async function loadBingWallpaper() {
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
+                try {
+                    const response = await fetchWithTimeout(
+                        proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING
+                    );
+                    const data = await response.json();
+                    if (data.images && data.images[0]) {
+                        const imgUrl = 'https://www.bing.com' + data.images[0].url;
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
+                    }
+                    return false;
+                } catch (error) {
+                    console.warn('Bing 壁纸加载失败:', error);
+                    return false;
+                }
+            }
+
+            async function load360Wallpaper() {
+                const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
+                try {
+                    const response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
+                    const data = await response.json();
+                    if (data && data.data && data.data.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * data.data.length);
+                        const imgUrl = data.data[randomIndex].url;
+                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
+                    }
+                    return false;
+                } catch (error) {
+                    console.warn('360 壁纸加载失败:', error);
+                    return false;
+                }
+            }
+
+            async function loadWallpaperBackground() {
+                if (wallpaperResolved) return;
+                const deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
+                const sources = [
+                    { name: '本地配置', fn: loadWallpaperFromConfig },
+                    { name: 'Bing', fn: loadBingWallpaper },
+                    { name: '360', fn: load360Wallpaper }
+                ];
+                for (const source of sources) {
+                    if (Date.now() >= deadline) {
+                        console.warn('壁纸加载总超时，停止尝试');
+                        break;
+                    }
+                    const remaining = deadline - Date.now();
+                    try {
+                        const raceResult = await Promise.race([
+                            source.fn(),
+                            new Promise((resolve) => setTimeout(() => resolve(false), remaining))
+                        ]);
+                        if (raceResult === true) {
+                            wallpaperResolved = true;
+                            return true;
+                        }
+                    } catch (e) {
+                        console.warn(source.name + ' 壁纸源异常:', e);
+                    }
+                }
+                if (!wallpaperResolved) {
+                    document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
+                    document.body.style.backgroundSize = 'cover';
+                }
+                wallpaperResolved = true;
+                return false;
+            }
+
+            function prepareArticleImagesForLazyLoading() {
+                const images = document.querySelectorAll('.article-full-content img');
+                if (images.length === 0) return false;
+                images.forEach(img => {
+                    if (img.complete && img.naturalWidth > 0) return;
+                    const src = img.getAttribute('src');
+                    if (src && !img.hasAttribute('data-src')) {
+                        img.setAttribute('data-src', src);
+                        img.removeAttribute('src');
+                        img.classList.add('lazy-img');
+                    }
+                });
+                return document.querySelectorAll('.article-full-content img[data-src]').length > 0;
+            }
+
+            function startArticleImageLazyLoading() {
+                const lazyImages = document.querySelectorAll('.article-full-content img[data-src]');
+                if (lazyImages.length === 0) return;
+                if (articleImageObserver) articleImageObserver.disconnect();
+                articleImageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const dataSrc = img.getAttribute('data-src');
+                            if (dataSrc) {
+                                img.src = dataSrc;
+                                img.removeAttribute('data-src');
+                                img.onload = () => {
+                                    img.classList.remove('lazy-img');
+                                    img.classList.add('lazy-loaded');
+                                };
+                                img.onerror = () => {
+                                    img.classList.remove('lazy-img');
+                                    img.classList.add('lazy-error');
+                                };
                             }
-                            finish(img.naturalWidth > 0);
-                        }, remainingMs);
-                    } else {
-                        if (img.naturalWidth > 0) {
-                            finish(true);
-                        } else {
-                            console.warn('图片加载失败（速度为0，naturalWidth=0）:', imgUrl);
-                            finish(false);
+                            articleImageObserver.unobserve(img);
                         }
-                    }
-                }, initialCheckMs);
-            });
-        }
-
-        async function loadWallpapers() {
-            try {
-                const response = await fetchWithTimeout('../wallpaper.json', {}, 10000);
-                const data = await response.json();
-                if (data && data.length) {
-                    const entry = data[Math.floor(Math.random() * data.length)];
-                    let imgUrl = entry.path;
-                    if (!/^https?:\/\//i.test(imgUrl)) {
-                        imgUrl = '../' + imgUrl;
-                    }
-                    imgUrl += '?t=' + new Date().getTime();
-                    return await loadImageWithSpeedCheck(imgUrl, {
-                        initialCheckMs: 3000,
-                        maxWaitMs: 60000
                     });
-                }
-                return false;
-            } catch (e) {
-                console.error('壁纸配置加载失败:', e);
-                return false;
+                }, { root: null, rootMargin: '250px', threshold: 0 });
+                lazyImages.forEach(img => articleImageObserver.observe(img));
             }
-        }
 
-        async function setDefaultWallpaper() {
-            try {
-                const bingResponse = await fetchWithTimeout('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN', {}, 8000);
-                const bingData = await bingResponse.json();
-                if (bingData.images && bingData.images[0]) {
-                    const bingUrl = 'https://www.bing.com' + bingData.images[0].url;
-                    return await loadImageWithSpeedCheck(bingUrl, {
-                        initialCheckMs: 3000,
-                        maxWaitMs: 30000
+            function preventTocScrollPropagation() {
+                const tocContainer = document.getElementById('toc-container');
+                if (tocContainer) {
+                    tocContainer.addEventListener('wheel', function(e) {
+                        const isScrollable = this.scrollHeight > this.clientHeight;
+                        const isAtTop = this.scrollTop === 0;
+                        const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 1;
+                        const scrollingUp = e.deltaY < 0;
+                        const scrollingDown = e.deltaY > 0;
+                        if ((isAtTop && scrollingUp) || (isAtBottom && scrollingDown)) return true;
+                        if (isScrollable) e.stopPropagation();
+                    }, { passive: false });
+                }
+            }
+
+            function addCopyButtonsToCodeBlocks() {
+                const codeBlocks = document.querySelectorAll('.article-full-content pre');
+                codeBlocks.forEach((pre) => {
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-btn';
+                    copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                    const code = pre.querySelector('code');
+                    const language = code.className.replace('language-', '') || 'code';
+                    const langLabel = document.createElement('span');
+                    langLabel.className = 'code-language';
+                    langLabel.textContent = language;
+                    pre.appendChild(langLabel);
+                    copyButton.addEventListener('click', () => {
+                        const textToCopy = code.innerText;
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                            copyButton.classList.add('success');
+                            showToast('代码已复制到剪贴板', 'success');
+                            setTimeout(() => {
+                                copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                                copyButton.classList.remove('success');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('复制失败:', err);
+                            copyButton.innerHTML = '<i class="fas fa-times"></i> 失败';
+                            copyButton.classList.add('error');
+                            setTimeout(() => {
+                                copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                                copyButton.classList.remove('error');
+                            }, 2000);
+                        });
                     });
-                }
-            } catch (error) {
-                console.error('获取必应壁纸失败:', error);
-            }
-            const defaultWallpaper = 'https://www.yumus.cn/api/?target=img&brand=360&type=3';
-            return await loadImageWithSpeedCheck(defaultWallpaper, {
-                initialCheckMs: 3000,
-                maxWaitMs: 30000
-            });
-        }
-
-        function prepareArticleImagesForLazyLoading() {
-            const images = document.querySelectorAll('.article-full-content img');
-            if (images.length === 0) return false;
-            images.forEach(img => {
-                if (img.complete && img.naturalWidth > 0) return;
-                const src = img.getAttribute('src');
-                if (src && !img.hasAttribute('data-src')) {
-                    img.setAttribute('data-src', src);
-                    img.removeAttribute('src');
-                    img.classList.add('lazy-img');
-                }
-            });
-            return document.querySelectorAll('.article-full-content img[data-src]').length > 0;
-        }
-
-        function startArticleImageLazyLoading() {
-            const lazyImages = document.querySelectorAll('.article-full-content img[data-src]');
-            if (lazyImages.length === 0) return;
-            if (articleImageObserver) {
-                articleImageObserver.disconnect();
-            }
-            articleImageObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        const dataSrc = img.getAttribute('data-src');
-                        if (dataSrc) {
-                            img.src = dataSrc;
-                            img.removeAttribute('data-src');
-                            img.onload = () => {
-                                img.classList.remove('lazy-img');
-                                img.classList.add('lazy-loaded');
-                            };
-                            img.onerror = () => {
-                                img.classList.remove('lazy-img');
-                                img.classList.add('lazy-error');
-                            };
-                        }
-                        articleImageObserver.unobserve(img);
-                    }
+                    pre.appendChild(copyButton);
                 });
-            }, {
-                root: null,
-                rootMargin: '250px',
-                threshold: 0
-            });
-            lazyImages.forEach(img => {
-                articleImageObserver.observe(img);
-            });
-        }
-
-        function preventTocScrollPropagation() {
-            const tocContainer = document.getElementById('toc-container');
-            if (tocContainer) {
-                tocContainer.addEventListener('wheel', function(e) {
-                    const isScrollable = this.scrollHeight > this.clientHeight;
-                    const isAtTop = this.scrollTop === 0;
-                    const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 1;
-                    const scrollingUp = e.deltaY < 0;
-                    const scrollingDown = e.deltaY > 0;
-                    if ((isAtTop && scrollingUp) || (isAtBottom && scrollingDown)) return true;
-                    if (isScrollable) e.stopPropagation();
-                }, { passive: false });
             }
-        }
 
-        function addCopyButtonsToCodeBlocks() {
-            const codeBlocks = document.querySelectorAll('.article-full-content pre');
-            codeBlocks.forEach((pre) => {
-                const copyButton = document.createElement('button');
-                copyButton.className = 'copy-btn';
-                copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                const code = pre.querySelector('code');
-                const language = code.className.replace('language-', '') || 'code';
-                const langLabel = document.createElement('span');
-                langLabel.className = 'code-language';
-                langLabel.textContent = language;
-                pre.appendChild(langLabel);
-                copyButton.addEventListener('click', () => {
-                    const textToCopy = code.innerText;
-                    navigator.clipboard.writeText(textToCopy).then(() => {
-                        copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
-                        copyButton.classList.add('success');
-                        showToast('代码已复制到剪贴板', 'success');
-                        setTimeout(() => {
-                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                            copyButton.classList.remove('success');
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('复制失败:', err);
-                        copyButton.innerHTML = '<i class="fas fa-times"></i> 失败';
-                        copyButton.classList.add('error');
-                        setTimeout(() => {
-                            copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                            copyButton.classList.remove('error');
-                        }, 2000);
-                    });
-                });
-                pre.appendChild(copyButton);
-            });
-        }
+            function handleImageClick(e) {
+                const target = e.target;
+                if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
+                    const imgSrc = target.src;
+                    if (!imgSrc && target.hasAttribute('data-src')) return;
+                    if (imgSrc && !target.closest('a')) {
+                        const lightbox = document.getElementById('lightbox');
+                        const lightboxImg = document.getElementById('lightbox-img');
+                        lightboxImg.src = imgSrc;
+                        lightboxImg.style.transform = 'rotate(0deg)';
+                        currentRotation = 0;
+                        lightbox.style.display = 'flex';
+                    }
+                }
+                if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
+                    e.preventDefault();
+                    const link = target.closest('a');
+                    showLinkConfirm(link.href);
+                }
+            }
 
-        function handleImageClick(e) {
-            const target = e.target;
-            if (target.tagName === 'IMG' && target.closest('.article-full-content')) {
-                const imgSrc = target.src;
-                if (!imgSrc && target.hasAttribute('data-src')) {
+            function closeLightbox() {
+                document.getElementById('lightbox').style.display = 'none';
+                hideLinkConfirm();
+            }
+
+            function rotateCW() {
+                const lightboxImg = document.getElementById('lightbox-img');
+                if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
+                currentRotation += 90;
+                lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
+            }
+
+            function rotateCCW() {
+                const lightboxImg = document.getElementById('lightbox-img');
+                if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
+                currentRotation -= 90;
+                lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
+            }
+
+            function showLinkConfirm(url) {
+                const confirmEl = document.getElementById('link-confirm');
+                const linkUrlEl = document.getElementById('link-url');
+                linkUrlEl.textContent = url;
+                linkUrlEl.href = url;
+                confirmEl.style.display = 'block';
+                setTimeout(() => confirmEl.classList.add('show'), 10);
+                document.getElementById('link-confirm-btn').onclick = function() {
+                    hideLinkConfirm();
+                    window.open(url, '_blank');
+                };
+            }
+
+            function hideLinkConfirm() {
+                const confirmEl = document.getElementById('link-confirm');
+                confirmEl.classList.remove('show');
+                setTimeout(() => { confirmEl.style.display = 'none'; }, 400);
+            }
+
+            function formatRelativeTime(dateStr) {
+                if (!dateStr) return '';
+                const now = new Date();
+                const date = new Date(dateStr);
+                const diffMs = now - date;
+                const diffMinutes = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+                if (diffMinutes < 1) return '刚刚';
+                if (diffMinutes < 60) return `${diffMinutes} 分钟前`;
+                if (diffHours < 24) return `${diffHours} 小时前`;
+                if (diffDays <= 30) return `${diffDays} 天前`;
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+
+            function displayLatestInfo() {
+                const latestEl = document.getElementById('article-latest');
+                const latestTimeEl = document.getElementById('article-latest-time');
+                const latestStr = latestEl ? latestEl.dataset.latest : '';
+                if (latestStr) {
+                    latestEl.style.display = 'inline';
+                    latestTimeEl.textContent = formatRelativeTime(latestStr);
+                }
+            }
+
+            function generateTOC() {
+                const tocContainer = document.getElementById('toc-container');
+                const tocList = document.getElementById('toc-list');
+                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+                if (headings.length === 0) {
+                    tocContainer.style.display = 'none';
+                    document.getElementById('toc-toggle').style.display = 'none';
                     return;
                 }
-                if (imgSrc && !target.closest('a')) {
-                    const lightbox = document.getElementById('lightbox');
-                    const lightboxImg = document.getElementById('lightbox-img');
-                    lightboxImg.src = imgSrc;
-                    lightboxImg.style.transform = 'rotate(0deg)';
-                    currentRotation = 0;
-                    lightbox.style.display = 'flex';
-                }
-            }
-            if (target.tagName === 'IMG' && target.closest('a') && target.closest('.article-full-content')) {
-                e.preventDefault();
-                const link = target.closest('a');
-                showLinkConfirm(link.href);
-            }
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-            hideLinkConfirm();
-        }
-
-        function rotateCW() {
-            const lightboxImg = document.getElementById('lightbox-img');
-            if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
-            currentRotation += 90;
-            lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
-        }
-
-        function rotateCCW() {
-            const lightboxImg = document.getElementById('lightbox-img');
-            if (!lightboxImg || document.getElementById('lightbox').style.display !== 'flex') return;
-            currentRotation -= 90;
-            lightboxImg.style.transform = `rotate(${currentRotation}deg)`;
-        }
-
-        function showLinkConfirm(url) {
-            const confirmEl = document.getElementById('link-confirm');
-            const linkUrlEl = document.getElementById('link-url');
-            linkUrlEl.textContent = url;
-            linkUrlEl.href = url;
-            confirmEl.style.display = 'block';
-            setTimeout(() => { confirmEl.classList.add('show'); }, 10);
-            document.getElementById('link-confirm-btn').onclick = function() {
-                hideLinkConfirm();
-                window.open(url, '_blank');
-            };
-        }
-
-        function hideLinkConfirm() {
-            const confirmEl = document.getElementById('link-confirm');
-            confirmEl.classList.remove('show');
-            setTimeout(() => { confirmEl.style.display = 'none'; }, 400);
-        }
-
-        function formatRelativeTime(dateStr) {
-            if (!dateStr) return '';
-            const now = new Date();
-            const date = new Date(dateStr);
-            const diffMs = now - date;
-            const diffMinutes = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
-            if (diffMinutes < 1) return '刚刚';
-            if (diffMinutes < 60) return `${diffMinutes} 分钟前`;
-            if (diffHours < 24) return `${diffHours} 小时前`;
-            if (diffDays <= 30) return `${diffDays} 天前`;
-
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-
-        function displayLatestInfo() {
-            const latestEl = document.getElementById('article-latest');
-            const latestTimeEl = document.getElementById('article-latest-time');
-            const latestStr = latestEl ? latestEl.dataset.latest : '';
-            if (latestStr) {
-                latestEl.style.display = 'inline';
-                latestTimeEl.textContent = formatRelativeTime(latestStr);
-            }
-        }
-
-        function generateTOC() {
-            const tocContainer = document.getElementById('toc-container');
-            const tocList = document.getElementById('toc-list');
-            const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
-            if (headings.length === 0) {
-                tocContainer.style.display = 'none';
-                document.getElementById('toc-toggle').style.display = 'none';
-                return;
-            }
-            if (window.innerWidth > 1024) {
-                tocContainer.style.display = 'block';
-            } else {
-                tocContainer.style.display = 'none';
-            }
-            tocList.innerHTML = '';
-            headings.forEach((heading, index) => {
-                if (!heading.id) heading.id = `heading-${index}`;
-                const listItem = document.createElement('li');
-                listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
-                listItem.dataset.id = heading.id;
-                const link = document.createElement('a');
-                link.href = `#${heading.id}`;
-                link.textContent = heading.textContent;
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetElement = document.getElementById(heading.id);
-                    if (targetElement) {
-                        const offsetTop = targetElement.offsetTop - 80;
-                        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
-                    }
-                    if (window.innerWidth <= 1024) tocContainer.style.display = 'none';
-                });
-                listItem.appendChild(link);
-                tocList.appendChild(listItem);
-            });
-        }
-
-        function adjustTocPosition() {
-            if (window.innerWidth <= 1024) return;
-            const tocContainer = document.getElementById('toc-container');
-            const articleContainer = document.querySelector('.article-container');
-            if (!tocContainer || !articleContainer) return;
-            if (tocContainer.style.display === 'none' && window.innerWidth > 1024) return;
-
-            const articleRect = articleContainer.getBoundingClientRect();
-            const tocWidth = tocContainer.offsetWidth;
-            const minGap = 20;
-            const articleRightEdge = articleRect.right;
-            const viewportWidth = window.innerWidth;
-
-            const tocLeftTarget = articleRightEdge + minGap;
-            const tocRightEdge = tocLeftTarget + tocWidth;
-            let newRight = viewportWidth - tocRightEdge;
-
-            const minRight = -(tocWidth - 50);
-            newRight = Math.max(minRight, Math.min(newRight, viewportWidth - 10));
-
-            tocContainer.style.right = newRight + 'px';
-        }
-
-        function updateProgressRing() {
-            const progressCircle = document.getElementById('progress-circle');
-            if (!progressCircle) return;
-            const scrollTop = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollPercent = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
-            const circumference = 2 * Math.PI * 20;
-            const offset = circumference * (1 - scrollPercent);
-            progressCircle.style.strokeDashoffset = offset;
-        }
-
-        function handleScroll() {
-            const backToTopBtn = document.getElementById('back-to-top');
-            if (window.scrollY > 300) backToTopBtn.classList.add('visible');
-            else backToTopBtn.classList.remove('visible');
-            highlightTOC();
-            updateProgressRing();
-            adjustTocPosition();
-        }
-
-        function highlightTOC() {
-            const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
-            const tocItems = document.querySelectorAll('.toc-list li');
-            if (headings.length === 0) return;
-            let currentHeading = null;
-            const scrollPosition = window.scrollY + 100;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const isAtBottom = windowHeight + window.scrollY >= documentHeight - 100;
-            if (isAtBottom) {
-                currentHeading = headings[headings.length - 1];
-            } else {
-                for (let i = 0; i < headings.length; i++) {
-                    const heading = headings[i];
-                    const headingTop = heading.offsetTop;
-                    const headingBottom = headingTop + heading.offsetHeight;
-                    if ((headingTop <= scrollPosition && headingBottom >= scrollPosition) ||
-                        (i === headings.length - 1 && headingTop <= scrollPosition)) {
-                        currentHeading = heading;
-                        break;
-                    }
-                    if (headingTop > scrollPosition) {
-                        currentHeading = headings[Math.max(0, i - 1)];
-                        break;
-                    }
-                }
-            }
-            if (!currentHeading && headings.length > 0) currentHeading = headings[0];
-            if (currentHeading) {
-                tocItems.forEach(item => {
-                    if (item.dataset.id === currentHeading.id) {
-                        item.classList.add('active');
-                        if (window.innerWidth > 1024) {
-                            const tocContainer = document.getElementById('toc-container');
-                            const itemTop = item.offsetTop;
-                            const containerHeight = tocContainer.clientHeight;
-                            const itemHeight = item.clientHeight;
-                            if (itemTop < tocContainer.scrollTop || itemTop + itemHeight > tocContainer.scrollTop + containerHeight) {
-                                tocContainer.scrollTop = itemTop - containerHeight / 2 + itemHeight / 2;
-                            }
-                        }
-                    } else {
-                        item.classList.remove('active');
-                    }
-                });
-            }
-        }
-
-        async function loadPoetry() {
-            const contentEl = document.getElementById('poetry-content');
-            const authorEl = document.getElementById('poetry-author');
-            try {
-                contentEl.textContent = '加载中...';
-                authorEl.textContent = '';
-                const response = await fetchWithTimeout('https://v1.jinrishici.com/all.json', {}, 8000);
-                const data = await response.json();
-                if (data && data.content) {
-                    contentEl.textContent = data.content;
-                    authorEl.textContent = `—— ${data.author}`;
-                } else {
-                    throw new Error('数据结构不符');
-                }
-            } catch (e) {
-                contentEl.textContent = '加载失败';
-                authorEl.textContent = '';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            updateLoadingProgress(10, '正在准备...');
-
-            const hasLazyImages = prepareArticleImagesForLazyLoading();
-
-            updateLoadingProgress(20, '正在加载壁纸...');
-            let wallOk = false;
-            try {
-                wallOk = await loadWallpapers();
-            } catch (e) {
-                addLoadingError('壁纸加载失败');
-            }
-            updateLoadingProgress(55, wallOk ? '壁纸加载完成' : '使用默认壁纸...');
-            if (!wallOk) {
-                try {
-                    wallOk = await setDefaultWallpaper();
-                } catch (e) {
-                    addLoadingError('壁纸加载失败');
-                }
-                if (!wallOk) {
-                    addLoadingError('所有壁纸源均加载失败');
-                }
-            }
-
-            if (hasLazyImages) {
-                startArticleImageLazyLoading();
-            }
-
-            updateLoadingProgress(70, '正在增强文章...');
-            addCopyButtonsToCodeBlocks();
-            document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-            generateTOC();
-            displayLatestInfo();
-            document.addEventListener('click', handleImageClick);
-            window.addEventListener('scroll', handleScroll);
-
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    const tocContainer = document.getElementById('toc-container');
-                    if (window.innerWidth > 1024) {
-                        tocContainer.style.display = 'block';
-                        adjustTocPosition();
-                    } else {
-                        tocContainer.style.display = '';
-                    }
-                    updateProgressRing();
-                }, 150);
-            });
-
-            document.getElementById('back-to-top').addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-            document.getElementById('toc-toggle').addEventListener('click', () => {
-                const tocContainer = document.getElementById('toc-container');
-                if (tocContainer.style.display === 'block') {
-                    tocContainer.style.display = 'none';
-                } else {
+                if (window.innerWidth > 1024) {
                     tocContainer.style.display = 'block';
-                    highlightTOC();
-                    const activeItem = document.querySelector('.toc-list li.active');
-                    if (activeItem) activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    tocContainer.style.display = 'none';
                 }
-            });
-            preventTocScrollPropagation();
-            document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
-
-            document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-            document.getElementById('lightbox').addEventListener('click', (ev) => {
-                if (ev.target === document.getElementById('lightbox')) closeLightbox();
-            });
-            document.getElementById('lightbox-rotate-cw').addEventListener('click', rotateCW);
-            document.getElementById('lightbox-rotate-ccw').addEventListener('click', rotateCCW);
-
-            updateLoadingProgress(85, '即将完成...');
-
-            loadPoetry();
-            document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
-
-            adjustTocPosition();
-            updateProgressRing();
-
-            const footerContent = document.querySelector('#article-footer .footer-content');
-            if (footerContent && /保留所有权利/.test(footerContent.textContent)) {
-                footerContent.innerHTML = '<span>作者保留此文章所有权利</span>';
+                tocList.innerHTML = '';
+                headings.forEach((heading, index) => {
+                    if (!heading.id) heading.id = `heading-${index}`;
+                    const listItem = document.createElement('li');
+                    listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
+                    listItem.dataset.id = heading.id;
+                    const link = document.createElement('a');
+                    link.href = `#${heading.id}`;
+                    link.textContent = heading.textContent;
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetElement = document.getElementById(heading.id);
+                        if (targetElement) {
+                            const offsetTop = targetElement.offsetTop - 80;
+                            window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+                        }
+                        if (window.innerWidth <= 1024) tocContainer.style.display = 'none';
+                    });
+                    listItem.appendChild(link);
+                    tocList.appendChild(listItem);
+                });
             }
 
-            hideLoadingOverlay();
-            flushLoadingErrors();
-        });
+            function adjustTocPosition() {
+                if (window.innerWidth <= 1024) return;
+                const tocContainer = document.getElementById('toc-container');
+                const articleContainer = document.querySelector('.article-container');
+                if (!tocContainer || !articleContainer) return;
+                if (tocContainer.style.display === 'none' && window.innerWidth > 1024) return;
+                const articleRect = articleContainer.getBoundingClientRect();
+                const tocWidth = tocContainer.offsetWidth;
+                const minGap = 20;
+                const articleRightEdge = articleRect.right;
+                const viewportWidth = window.innerWidth;
+                const tocLeftTarget = articleRightEdge + minGap;
+                const tocRightEdge = tocLeftTarget + tocWidth;
+                let newRight = viewportWidth - tocRightEdge;
+                const minRight = -(tocWidth - 50);
+                newRight = Math.max(minRight, Math.min(newRight, viewportWidth - 10));
+                tocContainer.style.right = newRight + 'px';
+            }
+
+            function updateProgressRing() {
+                const progressCircle = document.getElementById('progress-circle');
+                if (!progressCircle) return;
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+                const circumference = 2 * Math.PI * 20;
+                const offset = circumference * (1 - scrollPercent);
+                progressCircle.style.strokeDashoffset = offset;
+            }
+
+            function handleScroll() {
+                const backToTopBtn = document.getElementById('back-to-top');
+                if (window.scrollY > 300) backToTopBtn.classList.add('visible');
+                else backToTopBtn.classList.remove('visible');
+                highlightTOC();
+                updateProgressRing();
+                adjustTocPosition();
+            }
+
+            function highlightTOC() {
+                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+                const tocItems = document.querySelectorAll('.toc-list li');
+                if (headings.length === 0) return;
+                let currentHeading = null;
+                const scrollPosition = window.scrollY + 100;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const isAtBottom = windowHeight + window.scrollY >= documentHeight - 100;
+                if (isAtBottom) {
+                    currentHeading = headings[headings.length - 1];
+                } else {
+                    for (let i = 0; i < headings.length; i++) {
+                        const heading = headings[i];
+                        const headingTop = heading.offsetTop;
+                        const headingBottom = headingTop + heading.offsetHeight;
+                        if ((headingTop <= scrollPosition && headingBottom >= scrollPosition) ||
+                            (i === headings.length - 1 && headingTop <= scrollPosition)) {
+                            currentHeading = heading;
+                            break;
+                        }
+                        if (headingTop > scrollPosition) {
+                            currentHeading = headings[Math.max(0, i - 1)];
+                            break;
+                        }
+                    }
+                }
+                if (!currentHeading && headings.length > 0) currentHeading = headings[0];
+                if (currentHeading) {
+                    tocItems.forEach(item => {
+                        if (item.dataset.id === currentHeading.id) {
+                            item.classList.add('active');
+                            if (window.innerWidth > 1024) {
+                                const tocContainer = document.getElementById('toc-container');
+                                const itemTop = item.offsetTop;
+                                const containerHeight = tocContainer.clientHeight;
+                                const itemHeight = item.clientHeight;
+                                if (itemTop < tocContainer.scrollTop || itemTop + itemHeight > tocContainer.scrollTop + containerHeight) {
+                                    tocContainer.scrollTop = itemTop - containerHeight / 2 + itemHeight / 2;
+                                }
+                            }
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                }
+            }
+
+            async function loadPoetry() {
+                const contentEl = document.getElementById('poetry-content');
+                const authorEl = document.getElementById('poetry-author');
+                try {
+                    contentEl.textContent = '加载中...';
+                    authorEl.textContent = '';
+                    const response = await fetchWithTimeout('https://v1.jinrishici.com/all.json', {}, 8000);
+                    const data = await response.json();
+                    if (data && data.content) {
+                        contentEl.textContent = data.content;
+                        authorEl.textContent = `—— ${data.author}`;
+                    } else {
+                        throw new Error('数据结构不符');
+                    }
+                } catch (e) {
+                    contentEl.textContent = '加载失败';
+                    authorEl.textContent = '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const globalLoadTimer = setTimeout(() => {
+                    if (!loadingOverlayHidden) {
+                        updateLoadingProgress(95, '即将完成...');
+                        hideLoadingOverlay();
+                        flushLoadingErrors();
+                    }
+                }, LOADING_MAX_DISPLAY);
+
+                updateLoadingProgress(10, '正在准备...');
+
+                const hasLazyImages = prepareArticleImagesForLazyLoading();
+
+                loadWallpaperBackground().then(ok => {
+                    if (!ok) addLoadingError('所有壁纸源均加载失败，已启用天空渐变背景');
+                }).catch(e => {
+                    console.warn('壁纸后台加载异常:', e);
+                });
+
+                updateLoadingProgress(55, '正在增强文章...');
+                if (hasLazyImages) startArticleImageLazyLoading();
+                addCopyButtonsToCodeBlocks();
+                document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+                generateTOC();
+                displayLatestInfo();
+                document.addEventListener('click', handleImageClick);
+                window.addEventListener('scroll', handleScroll);
+
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        const tocContainer = document.getElementById('toc-container');
+                        if (window.innerWidth > 1024) {
+                            tocContainer.style.display = 'block';
+                            adjustTocPosition();
+                        } else {
+                            tocContainer.style.display = '';
+                        }
+                        updateProgressRing();
+                    }, 150);
+                });
+
+                document.getElementById('back-to-top').addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                document.getElementById('toc-toggle').addEventListener('click', () => {
+                    const tocContainer = document.getElementById('toc-container');
+                    if (tocContainer.style.display === 'block') {
+                        tocContainer.style.display = 'none';
+                    } else {
+                        tocContainer.style.display = 'block';
+                        highlightTOC();
+                        const activeItem = document.querySelector('.toc-list li.active');
+                        if (activeItem) activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                preventTocScrollPropagation();
+                document.getElementById('link-cancel').addEventListener('click', hideLinkConfirm);
+
+                document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+                document.getElementById('lightbox').addEventListener('click', (ev) => {
+                    if (ev.target === document.getElementById('lightbox')) closeLightbox();
+                });
+                document.getElementById('lightbox-rotate-cw').addEventListener('click', rotateCW);
+                document.getElementById('lightbox-rotate-ccw').addEventListener('click', rotateCCW);
+
+                updateLoadingProgress(90, '即将完成...');
+                loadPoetry();
+                document.getElementById('poetry-refresh-btn').addEventListener('click', loadPoetry);
+
+                adjustTocPosition();
+                updateProgressRing();
+
+                const footerContent = document.querySelector('#article-footer .footer-content');
+                if (footerContent && /保留所有权利/.test(footerContent.textContent)) {
+                    footerContent.innerHTML = '<span>作者保留此文章所有权利</span>';
+                }
+
+                hideLoadingOverlay();
+                flushLoadingErrors();
+                clearTimeout(globalLoadTimer);
+            });
+        })();
     </script>
 </body>
 </html>
