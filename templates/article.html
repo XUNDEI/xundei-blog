@@ -26,6 +26,7 @@
             padding: 0 2px;
             border-radius: 2px;
             background: transparent;
+            word-break: break-all;
         }
         .article-full-content a:not(:has(img)):hover {
             color: #ffffff;
@@ -300,6 +301,7 @@
             font-size: 1.1rem;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            word-break: break-word;
         }
         .article-full-content h2 {
             font-size: 1.7rem;
@@ -419,7 +421,9 @@
             font-size: 0.95em;
             border: 1px solid rgba(66, 133, 244, 0.2);
             transition: all 0.3s ease;
-            white-space: nowrap;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
         .article-full-content pre code {
             background: none;
@@ -430,6 +434,19 @@
             border: none;
             border-radius: 0;
             white-space: pre;
+        }
+        .article-full-content table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+        .article-full-content th,
+        .article-full-content td {
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            word-break: break-word;
         }
         .code-language {
             position: absolute;
