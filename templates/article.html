@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ARTICLE_TITLE}} - xundei's blog</title>
     <meta name="description" content="{{META_DESCRIPTION}}">
+    <meta name="keywords" content="{{ARTICLE_TAGS_STR}}">
     <link rel="canonical" href="{{CANONICAL_URL}}">
     <meta property="og:title" content="{{OG_TITLE}}">
     <meta property="og:description" content="{{OG_DESCRIPTION}}">
@@ -294,6 +295,32 @@
             align-items: center;
             color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
+        }
+        .article-tags-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .article-tags-bar .article-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            font-size: 0.8rem;
+            border-radius: 50px;
+            background: rgba(66, 133, 244, 0.2);
+            color: rgba(255, 255, 255, 0.85) !important;
+            border: 1px solid rgba(66, 133, 244, 0.25);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            background-image: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+        }
+        .article-tags-bar .article-tag:hover {
+            background: rgba(66, 133, 244, 0.4);
+            border-color: rgba(66, 133, 244, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.25);
         }
         .article-full-content {
             color: rgba(255, 255, 255, 0.9);
@@ -727,6 +754,7 @@
                     </div>
                     <div class="reading-time">预计阅读时间: {{READING_TIME}}</div>
                 </div>
+                <div class="article-tags-bar">{{ARTICLE_TAGS_HTML}}</div>
             </div>
             <div class="article-full-content">
                 {{ARTICLE_CONTENT}}

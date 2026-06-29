@@ -39,6 +39,10 @@ function parseFrontMatter(content) {
       if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
         val = val.slice(1, -1);
       }
+      // 处理 YAML 内联数组: [a, b, c]
+      if (val.startsWith('[') && val.endsWith(']')) {
+        val = val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+      }
       if (val === 'true') val = true;
       else if (val === 'false') val = false;
       meta[kv[1]] = val;
@@ -98,6 +102,22 @@ function scanArticles() {
   return articles;
 }
 
+function stripMarkdown(md) {
+  return md
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
+    .replace(/[#*`>|~_\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeTags(tags) {
+  if (!tags) return '';
+  if (Array.isArray(tags)) return tags.join(', ');
+  return String(tags).split(',').map(s => s.trim()).filter(Boolean).join(', ');
+}
+
 function calcReadingTime(text) {
   return Math.ceil(text.replace(/\s+/g, '').length / 300);
 }
@@ -120,11 +140,15 @@ function generateSEOTags(article, slug) {
   const title = `${article.title} - ${SITE_NAME}`;
   const description = article.excerpt || SITE_DESCRIPTION;
 
+  const tagsStr = normalizeTags(article.tags);
+  const keywords = tagsStr || description;
+
   const jsonLD = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     'headline': article.title,
     'description': description,
+    'keywords': keywords,
     'datePublished': article.datetime || article.date,
     'url': url,
     'author': {
@@ -396,11 +420,16 @@ function build() {
     const seo = generateSEOTags(article, slug);
     const license = getLicenseDisplayAndHtml(article);
 
+    const tagsStr = normalizeTags(article.tags);
+    const tagsHtml = tagsStr ? tagsStr.split(', ').map(t => `<a href="/?tag=${encodeURIComponent(t)}" class="article-tag" data-tag="${t.replace(/"/g, '&quot;')}">${t}</a>`).join('') : '';
+
     let page = articleTemplate
       .replace(/{{ARTICLE_TITLE}}/g, article.title)
       .replace(/{{ARTICLE_DATE}}/g, article.date)
       .replace(/{{ARTICLE_LATEST}}/g, article.latest ? article.latest : '')
       .replace(/{{ARTICLE_CATEGORY}}/g, getCategoryName(article.category))
+      .replace(/{{ARTICLE_TAGS_HTML}}/g, tagsHtml)
+      .replace(/{{ARTICLE_TAGS_STR}}/g, tagsStr)
       .replace(/{{READING_TIME}}/g, readingTime + ' 分钟')
       .replace(/{{META_DESCRIPTION}}/g, seo.metaDescription)
       .replace(/{{CANONICAL_URL}}/g, seo.canonicalUrl)
@@ -416,8 +445,15 @@ function build() {
     console.log(`✅ 生成: articles/${slug}.html`);
   }
 
-  // 构建文章索引（不含 body）
-  const articlesIndex = articles.map(({ body, ...rest }) => rest);
+  // 构建文章索引（不含 body，但添加 searchText 供前端搜索使用）
+  const articlesIndex = articles.map(({ body, ...rest }) => {
+    const searchText = stripMarkdown(body || '');
+    return {
+      ...rest,
+      tags: normalizeTags(rest.tags),
+      searchText: searchText
+    };
+  });
 
   // 生成 articles.json（供文章页面读取 license 等信息）
   fs.writeFileSync(

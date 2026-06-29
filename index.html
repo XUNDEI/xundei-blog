@@ -574,9 +574,9 @@
             transform: translateX(-50%) translateY(0);
         }
         .article-header {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 15px 0;
             transition: background 0.3s ease;
+            flex-shrink: 0;
         }
         .article-card:hover .article-header {
             background: rgba(255, 255, 255, 0.04);
@@ -598,9 +598,10 @@
             color: rgba(255, 255, 255, 0.8);
             flex-wrap: wrap;
             gap: 4px 8px;
+            margin-bottom: 4px;
         }
         .article-content {
-            padding: 15px;
+            padding: 10px 15px 15px;
             flex-grow: 1;
             overflow: hidden;
             color: rgba(255, 255, 255, 0.9);
@@ -631,6 +632,67 @@
             cursor: pointer;
             position: relative;
             z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .article-tags {
+            padding: 4px 0 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .article-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            letter-spacing: 0.02em;
+            border-radius: 50px;
+            background: rgba(66, 133, 244, 0.15);
+            color: rgba(255, 255, 255, 0.75) !important;
+            border: 1px solid rgba(66, 133, 244, 0.2);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            background-image: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+        }
+        .article-tag::before,
+        .article-tag::after {
+            content: none !important;
+        }
+        .article-tag:hover {
+            background: rgba(66, 133, 244, 0.35);
+            border-color: rgba(66, 133, 244, 0.45);
+            color: rgba(255, 255, 255, 0.95) !important;
+            transform: translateY(-1px);
+        }
+        .article-tag.tag-active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(66, 133, 244, 0.3);
+        }
+
+        .modal-tags {
+            margin-top: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .modal-tags .article-tag {
+            font-size: 0.8rem;
+            padding: 3px 12px;
+        }
+
+        .search-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.78rem;
+            padding: 8px 0 0;
+            display: none;
+        }
+        .search-info.visible {
+            display: block;
         }
 
         .pagination-container {
@@ -886,9 +948,7 @@
             align-items: center;
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 8px;
             gap: 12px;
             flex-wrap: wrap;
         }
@@ -1356,6 +1416,190 @@
             scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1);
         }
 
+        /* ========== 搜索按钮（右上角固定） ========== */
+        .search-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            font-size: 1.1rem;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25), 0 0 0 0 rgba(66, 133, 244, 0);
+            will-change: transform;
+        }
+        .search-toggle::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.4), rgba(91, 158, 245, 0.2), rgba(66, 133, 244, 0.4));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .search-toggle:hover::before {
+            opacity: 1;
+        }
+        .search-toggle:hover {
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.55), rgba(91, 158, 245, 0.35));
+            border-color: rgba(66, 133, 244, 0.6);
+            color: #fff;
+            transform: scale(1.08);
+            box-shadow: 0 8px 28px rgba(66, 133, 244, 0.45), 0 0 40px rgba(66, 133, 244, 0.15);
+        }
+        .search-toggle:active {
+            transform: scale(0.92);
+            transition-duration: 0.1s;
+        }
+        .search-toggle.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(66, 133, 244, 0.5);
+            color: rgba(66, 133, 244, 0.9);
+            transform: rotate(90deg) scale(0.95);
+            box-shadow: 0 4px 18px rgba(66, 133, 244, 0.2);
+        }
+        .search-toggle .search-pulse {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(66, 133, 244, 0.25);
+            animation: searchPulse 2.8s ease-in-out infinite;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .search-toggle:hover .search-pulse {
+            opacity: 1;
+            border-color: rgba(66, 133, 244, 0.35);
+        }
+        @keyframes searchPulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* ========== 搜索面板 ========== */
+        .search-panel {
+            position: fixed;
+            top: 78px;
+            right: 20px;
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-12px) scale(0.94);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(66, 133, 244, 0.08);
+        }
+        .search-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        .search-panel .search-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-panel .search-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+        .search-panel .search-input:focus~.search-input-icon {
+            color: rgba(66, 133, 244, 0.7);
+        }
+        .search-panel .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.25s ease, color 0.3s ease;
+            z-index: 1;
+            background: none;
+            border: none;
+            padding: 4px;
+            line-height: 1;
+        }
+        .search-panel .search-clear.visible {
+            opacity: 1;
+        }
+        .search-panel .search-clear:hover {
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .search-panel .search-input {
+            width: 100%;
+            padding: 11px 38px 11px 42px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--light-text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            box-sizing: border-box;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .search-panel .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        .search-panel .search-input:focus {
+            border-color: rgba(66, 133, 244, 0.6);
+            background: rgba(255, 255, 255, 0.14);
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.08), 0 0 24px rgba(66, 133, 244, 0.06);
+        }
+        .search-panel .search-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            padding: 10px 0 2px;
+            display: none;
+            letter-spacing: 0.2px;
+        }
+        .search-panel .search-info.visible {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .blog-title {
                 font-size: 2.5rem;
@@ -1430,6 +1674,24 @@
                 height: 36px;
                 padding: 0 12px;
                 font-size: 0.78rem;
+            }
+            .search-toggle {
+                top: 12px;
+                right: 12px;
+                width: 42px;
+                height: 42px;
+                font-size: 0.95rem;
+            }
+            .search-panel {
+                top: 64px;
+                right: 12px;
+                width: calc(100vw - 24px);
+                padding: 14px 16px;
+                border-radius: 16px;
+            }
+            .search-panel .search-input {
+                padding: 10px 34px 10px 38px;
+                font-size: 0.9rem;
             }
         }
 
@@ -1509,10 +1771,52 @@
                 font-size: 0.72rem;
                 border-radius: 20px;
             }
+            .search-toggle {
+                top: 10px;
+                right: 10px;
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
+            }
+            .search-panel {
+                top: 56px;
+                right: 10px;
+                width: calc(100vw - 20px);
+                padding: 12px 14px;
+                border-radius: 14px;
+            }
+            .search-panel .search-input {
+                padding: 9px 30px 9px 34px;
+                font-size: 0.85rem;
+            }
+            .search-panel .search-input-icon {
+                left: 12px;
+                font-size: 0.8rem;
+            }
+            .search-panel .search-clear {
+                right: 10px;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 搜索按钮（独立于标题容器，固定右上角） -->
+    <div class="search-toggle" id="search-toggle" role="button" aria-label="搜索">
+        <i class="fas fa-search"></i>
+        <span class="search-pulse"></span>
+    </div>
+
+    <!-- 搜索面板（独立于标题容器，固定右上角） -->
+    <div class="search-panel" id="search-panel">
+        <div class="search-input-wrap">
+            <i class="fas fa-search search-input-icon"></i>
+            <input type="text" class="search-input" id="search-input" placeholder="搜索文章..." autocomplete="off" aria-label="搜索文章">
+            <button class="search-clear" id="search-clear" aria-label="清除搜索"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="search-info" id="search-info"></div>
+    </div>
+
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-card">
             <div class="loader"></div>
@@ -1544,13 +1848,13 @@
                     <div class="loader"></div>
                 </div>
             </div>
-            <div class="pagination-container glass" id="pagination-container"></div>
+            <div class="pagination-container" id="pagination-container"></div>
         </main>
 
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.10.8">xundei-blog V2.10.8</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.0">xundei-blog V2.11.0</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1569,6 +1873,7 @@
                 <span class="meta-item" id="modal-latest-item" style="display:none;"><i class="fas fa-sync-alt"></i> <span id="modal-latest"></span></span>
                 <span class="meta-item"><i class="fas fa-folder"></i> <span id="modal-category"></span></span>
             </div>
+            <div class="modal-tags" id="modal-tags"></div>
             <div class="modal-excerpt" id="modal-excerpt"></div>
             <a href="#" class="modal-read-full" id="modal-read-link">
                 <span>阅读全文</span>
@@ -1632,7 +1937,6 @@
 
     <script>
         (function() {
-            // 初始即显示蓝白天空渐变背景，等待壁纸加载成功后替换
             document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
             document.body.style.backgroundSize = 'cover';
 
@@ -1662,6 +1966,8 @@
             const ARTICLES_PER_PAGE = 6;
             let currentCategory = 'all';
             let currentPage = 1;
+            let currentSearchQuery = '';
+            let currentTag = '';
             let loadingOverlayHidden = false;
             let wallpaperResolved = false;
 
@@ -1685,7 +1991,8 @@
                 }, 500);
             }
 
-            function showToast(message, type = 'info') {
+            function showToast(message, type) {
+                type = type || 'info';
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = 'toast ' + type;
@@ -1696,10 +2003,10 @@
                 toast.appendChild(progress);
                 toast.appendChild(msg);
                 container.appendChild(toast);
-                requestAnimationFrame(() => toast.classList.add('show'));
-                setTimeout(() => {
+                requestAnimationFrame(function() { toast.classList.add('show'); });
+                setTimeout(function() {
                     toast.classList.remove('show');
-                    setTimeout(() => {
+                    setTimeout(function() {
                         if (container.contains(toast)) container.removeChild(toast);
                     }, 400);
                 }, 3000);
@@ -1707,8 +2014,13 @@
 
             function flushLoadingErrors() {
                 if (loadingErrors.length === 0) return;
-                const unique = [...new Set(loadingErrors)];
-                unique.forEach(err => showToast(err, 'error'));
+                var unique = [];
+                for (var i = 0; i < loadingErrors.length; i++) {
+                    if (unique.indexOf(loadingErrors[i]) === -1) unique.push(loadingErrors[i]);
+                }
+                for (var j = 0; j < unique.length; j++) {
+                    showToast(unique[j], 'error');
+                }
                 loadingErrors.length = 0;
             }
 
@@ -1716,11 +2028,13 @@
                 loadingErrors.push(msg);
             }
 
-            async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+            async function fetchWithTimeout(url, options, timeoutMs) {
+                options = options || {};
+                timeoutMs = timeoutMs || 12000;
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                const timeoutId = setTimeout(function() { controller.abort(); }, timeoutMs);
                 try {
-                    const response = await fetch(url, { ...options, signal: controller.signal });
+                    const response = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
                     clearTimeout(timeoutId);
                     return response;
                 } catch (e) {
@@ -1731,11 +2045,17 @@
             }
 
             function loadImageWithTimeout(imgUrl, timeoutMs) {
-                return new Promise((resolve) => {
-                    const img = new Image();
-                    let settled = false;
+                return new Promise(function(resolve) {
+                    var img = new Image();
+                    var settled = false;
+                    var timer = setTimeout(function() {
+                        if (!settled && !img.complete) {
+                            console.warn('图片加载超时:', imgUrl);
+                        }
+                        finish(img.naturalWidth > 0);
+                    }, timeoutMs);
 
-                    const finish = (success) => {
+                    function finish(success) {
                         if (settled) return;
                         settled = true;
                         clearTimeout(timer);
@@ -1743,19 +2063,10 @@
                             document.body.style.backgroundImage = 'url(' + imgUrl + ')';
                         }
                         resolve(success);
-                    };
-
-                    const timer = setTimeout(() => {
-                        if (!settled && !img.complete) {
-                            console.warn('图片加载超时:', imgUrl);
-                        }
-                        finish(img.naturalWidth > 0);
-                    }, timeoutMs);
-
-                    img.onload = () => finish(true);
-                    img.onerror = () => finish(false);
+                    }
+                    img.onload = function() { finish(true); };
+                    img.onerror = function() { finish(false); };
                     img.src = imgUrl;
-
                     if (img.complete) {
                         finish(img.naturalWidth > 0);
                     }
@@ -1763,59 +2074,59 @@
             }
 
             function updateRuntime() {
-                const start = new Date('2025-07-12T11:04:41');
-                const now = new Date();
-                const diff = now - start;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                const el = document.getElementById('runtime-display');
+                var start = new Date('2025-07-12T11:04:41');
+                var now = new Date();
+                var diff = now - start;
+                var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                var el = document.getElementById('runtime-display');
                 if (el) el.textContent = days + '天' + hours + '时' + minutes + '分' + seconds + '秒';
             }
 
             function initLuckResult() {
-                const today = new Date().toDateString();
-                const stored = localStorage.getItem('dailyLuck');
+                var today = new Date().toDateString();
+                var stored = localStorage.getItem('dailyLuck');
                 if (stored) {
-                    const data = JSON.parse(stored);
+                    var data = JSON.parse(stored);
                     if (data.date === today) {
                         displayLuckResult(data.value);
                         return;
                     }
                 }
-                const el = document.getElementById('luck-result');
+                var el = document.getElementById('luck-result');
                 if (el) el.textContent = '?';
             }
 
             function getDailyLuck() {
-                const today = new Date().toDateString();
-                const stored = localStorage.getItem('dailyLuck');
+                var today = new Date().toDateString();
+                var stored = localStorage.getItem('dailyLuck');
                 if (stored) {
-                    const data = JSON.parse(stored);
+                    var data = JSON.parse(stored);
                     if (data.date === today) {
                         displayLuckResult(data.value);
                         return;
                     }
                 }
-                const value = Math.floor(Math.random() * 101);
+                var value = Math.floor(Math.random() * 101);
                 localStorage.setItem('dailyLuck', JSON.stringify({ date: today, value: value }));
                 displayLuckResult(value);
             }
 
             function displayLuckResult(value) {
-                const resultEl = document.getElementById('luck-result');
-                const messageEl = document.getElementById('luck-message');
+                var resultEl = document.getElementById('luck-result');
+                var messageEl = document.getElementById('luck-message');
                 if (!resultEl) return;
                 resultEl.textContent = value;
                 resultEl.style.transform = 'scale(1.5)';
-                setTimeout(() => { resultEl.style.transform = 'scale(1)'; }, 500);
-
+                setTimeout(function() { resultEl.style.transform = 'scale(1)'; }, 500);
                 if (!messageEl) return;
                 if (value === 0) messageEl.textContent = luckMessages[0];
                 else if (value === 100) messageEl.textContent = luckMessages[100];
                 else {
-                    for (const range of luckMessages.range) {
+                    for (var i = 0; i < luckMessages.range.length; i++) {
+                        var range = luckMessages.range[i];
                         if (value >= range.min && value <= range.max) {
                             messageEl.textContent = range.message;
                             break;
@@ -1826,21 +2137,21 @@
 
             function typeWriter(element, text, speed) {
                 element.innerHTML = '';
-                const wrapper = document.createElement('span');
-                const textSpan = document.createElement('span');
-                const cursor = document.createElement('span');
+                var wrapper = document.createElement('span');
+                var textSpan = document.createElement('span');
+                var cursor = document.createElement('span');
                 cursor.className = 'typewriter-cursor';
                 cursor.textContent = '|';
                 wrapper.appendChild(textSpan);
                 wrapper.appendChild(cursor);
                 element.appendChild(wrapper);
-                let i = 0;
+                var i = 0;
 
                 function type() {
                     if (i < text.length) {
                         textSpan.textContent += text.charAt(i);
                         i++;
-                        const variation = Math.random() * 0.6 + 0.7;
+                        var variation = Math.random() * 0.6 + 0.7;
                         setTimeout(type, speed * variation);
                     } else {
                         cursor.classList.add('blink');
@@ -1850,14 +2161,14 @@
             }
 
             async function loadSentences() {
-                const el = document.getElementById('sentence');
+                var el = document.getElementById('sentence');
                 try {
-                    const res = await fetchWithTimeout('./sentences.txt', {}, 8000);
+                    var res = await fetchWithTimeout('./sentences.txt', {}, 8000);
                     if (!res.ok) throw new Error('请求失败');
-                    const text = await res.text();
-                    const sentences = text.split('\n').filter(function(line) { return line.trim(); });
+                    var text = await res.text();
+                    var sentences = text.split('\n').filter(function(line) { return line.trim(); });
                     if (sentences.length) {
-                        const random = sentences[Math.floor(Math.random() * sentences.length)];
+                        var random = sentences[Math.floor(Math.random() * sentences.length)];
                         typeWriter(el, random, 80);
                     } else throw new Error('空文件');
                 } catch (e) {
@@ -1869,12 +2180,12 @@
 
             async function loadWallpaperFromConfig() {
                 try {
-                    const res = await fetchWithTimeout('./wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
+                    var res = await fetchWithTimeout('./wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
                     if (!res.ok) throw new Error('请求失败');
-                    const data = await res.json();
+                    var data = await res.json();
                     if (data && data.length) {
-                        const entry = data[Math.floor(Math.random() * data.length)];
-                        let imgUrl = entry.path;
+                        var entry = data[Math.floor(Math.random() * data.length)];
+                        var imgUrl = entry.path;
                         if (!/^https?:\/\//i.test(imgUrl)) {
                             imgUrl = './' + imgUrl;
                         }
@@ -1888,15 +2199,13 @@
             }
 
             async function loadBingWallpaper() {
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
+                var proxyUrl = 'https://api.allorigins.win/raw?url=';
+                var bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
                 try {
-                    const response = await fetchWithTimeout(
-                        proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING
-                    );
-                    const data = await response.json();
+                    var response = await fetchWithTimeout(proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING);
+                    var data = await response.json();
                     if (data.images && data.images[0]) {
-                        const imgUrl = 'https://www.bing.com' + data.images[0].url;
+                        var imgUrl = 'https://www.bing.com' + data.images[0].url;
                         return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
                     }
                     return false;
@@ -1907,13 +2216,13 @@
             }
 
             async function load360Wallpaper() {
-                const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
+                var url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
                 try {
-                    const response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
-                    const data = await response.json();
+                    var response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
+                    var data = await response.json();
                     if (data && data.data && data.data.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * data.data.length);
-                        const imgUrl = data.data[randomIndex].url;
+                        var randomIndex = Math.floor(Math.random() * data.data.length);
+                        var imgUrl = data.data[randomIndex].url;
                         return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
                     }
                     return false;
@@ -1925,53 +2234,46 @@
 
             async function loadWallpaperBackground() {
                 if (wallpaperResolved) return;
-                const deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
-
-                const sources = [
+                var deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
+                var sources = [
                     { name: '本地配置', fn: loadWallpaperFromConfig },
                     { name: 'Bing', fn: loadBingWallpaper },
                     { name: '360', fn: load360Wallpaper }
                 ];
-
-                for (const source of sources) {
-                    if (Date.now() >= deadline) {
-                        console.warn('壁纸加载总超时，停止尝试');
-                        break;
-                    }
-                    const remaining = deadline - Date.now();
+                for (var i = 0; i < sources.length; i++) {
+                    if (Date.now() >= deadline) break;
+                    var remaining = deadline - Date.now();
                     try {
-                        const raceResult = await Promise.race([
-                            source.fn(),
-                            new Promise((resolve) => setTimeout(function() { resolve(false); }, remaining))
+                        var raceResult = await Promise.race([
+                            sources[i].fn(),
+                            new Promise(function(resolve) { setTimeout(function() { resolve(false); }, remaining); })
                         ]);
                         if (raceResult === true) {
                             wallpaperResolved = true;
                             return true;
                         }
                     } catch (e) {
-                        console.warn(source.name + ' 壁纸源异常:', e);
+                        console.warn(sources[i].name + ' 壁纸源异常:', e);
                     }
                 }
-
                 wallpaperResolved = true;
                 return false;
             }
 
             async function loadHistoryToday() {
-                const el = document.getElementById('history-content');
+                var el = document.getElementById('history-content');
                 try {
-                    el.innerHTML =
-                        '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-                    const api = 'https://v2.xxapi.cn/api/history';
-                    const res = await fetchWithTimeout(api, {}, 10000);
+                    el.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+                    var api = 'https://v2.xxapi.cn/api/history';
+                    var res = await fetchWithTimeout(api, {}, 10000);
                     if (!res.ok) throw new Error('接口响应异常');
-                    const data = await res.json();
+                    var data = await res.json();
                     if (data && data.code === 200 && Array.isArray(data.data) && data.data.length > 0) {
-                        const items = data.data;
-                        const randomItem = items[Math.floor(Math.random() * items.length)];
-                        const separatorIndex = randomItem.indexOf(' ');
-                        let dateStr = '';
-                        let eventStr = '';
+                        var items = data.data;
+                        var randomItem = items[Math.floor(Math.random() * items.length)];
+                        var separatorIndex = randomItem.indexOf(' ');
+                        var dateStr = '';
+                        var eventStr = '';
                         if (separatorIndex !== -1) {
                             dateStr = randomItem.substring(0, separatorIndex);
                             eventStr = randomItem.substring(separatorIndex + 1);
@@ -1979,9 +2281,7 @@
                             dateStr = randomItem;
                             eventStr = '';
                         }
-                        el.innerHTML =
-                            '<div class="history-date">' + dateStr +
-                            '</div><div class="history-event">' + eventStr + '</div>';
+                        el.innerHTML = '<div class="history-date">' + dateStr + '</div><div class="history-event">' + eventStr + '</div>';
                     } else if (data && data.msg) {
                         throw new Error(data.msg);
                     } else {
@@ -1994,39 +2294,40 @@
             }
 
             function loadContacts() {
-                const container = document.getElementById('contacts-container');
+                var container = document.getElementById('contacts-container');
                 if (!container) return;
-                const contacts = {
+                var contacts = {
                     email: 'xundei_awa@outlook.com',
                     qq: '503275418',
                     wechat: 'xie503275418',
                     github: 'https://github.com/XUNDEI',
                     bilibili: 'https://space.bilibili.com/518218011'
                 };
-                const iconMap = {
+                var iconMap = {
                     email: { icon: 'fas fa-envelope', label: '邮箱' },
                     qq: { icon: 'fab fa-qq', label: 'QQ' },
                     github: { icon: 'fab fa-github', label: 'GitHub' },
                     wechat: { icon: 'fab fa-weixin', label: '微信' },
                     bilibili: { icon: 'fab fa-bilibili', label: 'B站' }
                 };
-                let html = '';
-                for (const key of Object.keys(contacts)) {
-                    const value = contacts[key];
+                var html = '';
+                var keys = Object.keys(contacts);
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i];
+                    var value = contacts[key];
                     if (!value || !iconMap[key]) continue;
-                    const icon = iconMap[key].icon;
-                    const label = iconMap[key].label;
-                    html +=
-                        '<div class="contact-btn" data-contact="' + key + '" data-value="' + value + '"><i class="' +
-                        icon + '"></i><div class="contact-tooltip">' + label + '</div></div>';
+                    var icon = iconMap[key].icon;
+                    var label = iconMap[key].label;
+                    html += '<div class="contact-btn" data-contact="' + key + '" data-value="' + value + '"><i class="' + icon + '"></i><div class="contact-tooltip">' + label + '</div></div>';
                 }
                 container.innerHTML = html;
-                document.querySelectorAll('.contact-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        copyToClipboard(btn.dataset.value);
+                var btns = document.querySelectorAll('.contact-btn');
+                for (var j = 0; j < btns.length; j++) {
+                    btns[j].addEventListener('click', function() {
+                        copyToClipboard(this.dataset.value);
                         showToast('已复制到剪贴板', 'success');
                     });
-                });
+                }
             }
 
             function getSlug(filename) {
@@ -2034,14 +2335,27 @@
             }
 
             function openArticleModal(article) {
-                const modal = document.getElementById('article-modal');
+                var modal = document.getElementById('article-modal');
                 document.getElementById('modal-title').textContent = article.title;
                 document.getElementById('modal-date').textContent = article.date;
                 document.getElementById('modal-category').textContent = getCategoryName(article.category);
                 document.getElementById('modal-excerpt').textContent = article.excerpt;
+                var tagsEl = document.getElementById('modal-tags');
+                if (article.tags) {
+                    var tagArr = article.tags.split(', ');
+                    var tagHtml = '';
+                    for (var i = 0; i < tagArr.length; i++) {
+                        var t = tagArr[i].trim();
+                        if (!t) continue;
+                        tagHtml += '<a href="/?tag=' + encodeURIComponent(t) + '" class="article-tag" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</a>';
+                    }
+                    tagsEl.innerHTML = tagHtml;
+                } else {
+                    tagsEl.innerHTML = '';
+                }
                 document.getElementById('modal-read-link').href = '/articles/' + getSlug(article.filename);
-                const latestItem = document.getElementById('modal-latest-item');
-                const latestEl = document.getElementById('modal-latest');
+                var latestItem = document.getElementById('modal-latest-item');
+                var latestEl = document.getElementById('modal-latest');
                 if (article.latest) {
                     latestEl.textContent = formatRelativeTime(article.latest);
                     latestItem.style.display = '';
@@ -2059,19 +2373,19 @@
 
             function formatRelativeTime(dateStr) {
                 if (!dateStr) return '';
-                const now = new Date();
-                const date = new Date(dateStr);
-                const diffMs = now - date;
-                const diffMinutes = Math.floor(diffMs / 60000);
-                const diffHours = Math.floor(diffMs / 3600000);
-                const diffDays = Math.floor(diffMs / 86400000);
+                var now = new Date();
+                var date = new Date(dateStr);
+                var diffMs = now - date;
+                var diffMinutes = Math.floor(diffMs / 60000);
+                var diffHours = Math.floor(diffMs / 3600000);
+                var diffDays = Math.floor(diffMs / 86400000);
                 if (diffMinutes < 1) return '刚刚';
                 if (diffMinutes < 60) return diffMinutes + ' 分钟前';
                 if (diffHours < 24) return diffHours + ' 小时前';
                 if (diffDays <= 30) return diffDays + ' 天前';
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
+                var y = date.getFullYear();
+                var m = String(date.getMonth() + 1).padStart(2, '0');
+                var d = String(date.getDate()).padStart(2, '0');
                 return y + '-' + m + '-' + d;
             }
 
@@ -2081,20 +2395,20 @@
 
             function getArticleTimestamp(article) {
                 if (article.datetime) {
-                    const ts = Date.parse(article.datetime);
+                    var ts = Date.parse(article.datetime);
                     if (!isNaN(ts)) return ts;
                 }
                 return Date.parse(article.date + 'T00:00:00');
             }
 
             function renderPagination(totalPages, page) {
-                const container = document.getElementById('pagination-container');
+                var container = document.getElementById('pagination-container');
                 if (!container) return;
                 container.innerHTML = '';
                 if (totalPages <= 1) return;
 
-                const createBtn = function(innerHTML, pageNum, disabled, active, isArrow) {
-                    const btn = document.createElement('button');
+                function createBtn(innerHTML, pageNum, disabled, active, isArrow) {
+                    var btn = document.createElement('button');
                     btn.className = 'pagination-btn' + (active ? ' active' : '') + (isArrow ? ' pagination-arrow' : '');
                     btn.innerHTML = innerHTML;
                     if (disabled) btn.disabled = true;
@@ -2102,47 +2416,46 @@
                         btn.addEventListener('click', function() {
                             currentPage = pageNum;
                             renderArticles();
-                            const grid = document.getElementById('articles-grid');
+                            var grid = document.getElementById('articles-grid');
                             if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         });
                     }
                     return btn;
-                };
+                }
 
                 container.appendChild(createBtn('<i class="fas fa-chevron-left"></i>', page - 1, page <= 1, false, true));
 
-                let startPage = Math.max(1, page - 2);
-                let endPage = Math.min(totalPages, page + 2);
+                var startPage = Math.max(1, page - 2);
+                var endPage = Math.min(totalPages, page + 2);
                 if (endPage - startPage < 4) {
                     if (startPage === 1) endPage = Math.min(totalPages, startPage + 4);
                     else if (endPage === totalPages) startPage = Math.max(1, endPage - 4);
                 }
-                for (let i = startPage; i <= endPage; i++) {
+                for (var i = startPage; i <= endPage; i++) {
                     container.appendChild(createBtn(String(i), i, false, i === page, false));
                 }
 
-                container.appendChild(createBtn('<i class="fas fa-chevron-right"></i>', page + 1, page >= totalPages,
-                    false, true));
+                container.appendChild(createBtn('<i class="fas fa-chevron-right"></i>', page + 1, page >= totalPages, false, true));
 
-                const jumpDiv = document.createElement('div');
+                var jumpDiv = document.createElement('div');
                 jumpDiv.className = 'page-jump';
-                const input = document.createElement('input');
+                var input = document.createElement('input');
                 input.type = 'number';
                 input.min = 1;
                 input.max = totalPages;
                 input.className = 'page-jump-input';
                 input.placeholder = '页';
                 input.setAttribute('aria-label', '跳转到指定页');
-                const jumpBtn = document.createElement('button');
+                var jumpBtn = document.createElement('button');
                 jumpBtn.className = 'page-jump-btn';
                 jumpBtn.textContent = '跳转';
                 jumpBtn.addEventListener('click', function() {
-                    let p = parseInt(input.value);
+                    var p = parseInt(input.value);
                     if (isNaN(p) || p < 1) p = 1;
                     if (p > totalPages) p = totalPages;
                     currentPage = p;
                     renderArticles();
-                    const grid = document.getElementById('articles-grid');
+                    var grid = document.getElementById('articles-grid');
                     if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
                 input.addEventListener('keydown', function(e) {
@@ -2153,67 +2466,139 @@
                 container.appendChild(jumpDiv);
             }
 
-            function renderArticles(category) {
+            function renderTagsHtml(tagsStr) {
+                if (!tagsStr) return '';
+                var parts = tagsStr.split(', ');
+                var html = '';
+                for (var i = 0; i < parts.length; i++) {
+                    var t = parts[i].trim();
+                    if (!t) continue;
+                    var active = (currentTag === t) ? ' tag-active' : '';
+                    html += '<a href="/?tag=' + encodeURIComponent(t) + '" class="article-tag' + active + '" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</a>';
+                }
+                return html;
+            }
+
+            function renderArticles(category, searchQuery) {
                 if (!articlesData) return;
                 if (category !== undefined) {
                     currentCategory = category;
                     currentPage = 1;
                 }
-                const grid = document.getElementById('articles-grid');
+                var grid = document.getElementById('articles-grid');
                 grid.innerHTML = '';
 
-                let filtered = articlesData.slice();
+                var filtered = articlesData.slice();
                 filtered = filtered.filter(function(a) { return a.category !== 'friend_link'; });
+
                 if (currentCategory !== 'all') {
                     filtered = filtered.filter(function(a) { return a.category === currentCategory; });
                 }
 
+                var query = searchQuery !== undefined ? searchQuery : currentSearchQuery;
+                if (query) {
+                    var q = query.toLowerCase().trim();
+                    filtered = filtered.filter(function(a) {
+                        var searchInTitle = (a.title || '').toLowerCase().indexOf(q) !== -1;
+                        var searchInExcerpt = (a.excerpt || '').toLowerCase().indexOf(q) !== -1;
+                        var searchInTags = (a.tags || '').toLowerCase().indexOf(q) !== -1;
+                        var searchInBody = (a.searchText || '').toLowerCase().indexOf(q) !== -1;
+                        return searchInTitle || searchInExcerpt || searchInTags || searchInBody;
+                    });
+                }
+
+                if (currentTag) {
+                    filtered = filtered.filter(function(a) {
+                        var tags = (a.tags || '').split(', ').map(function(t) { return t.trim(); });
+                        return tags.indexOf(currentTag) !== -1;
+                    });
+                }
+
                 filtered.sort(function(a, b) {
-                    const keyA = getLatestSortKey(a);
-                    const keyB = getLatestSortKey(b);
+                    var keyA = getLatestSortKey(a);
+                    var keyB = getLatestSortKey(b);
                     if (keyA && keyB) return keyB.localeCompare(keyA);
                     return getArticleTimestamp(b) - getArticleTimestamp(a);
                 });
 
-                const totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+                var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
                 if (currentPage > totalPages) currentPage = totalPages;
-                const start = (currentPage - 1) * ARTICLES_PER_PAGE;
-                const pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+                var start = (currentPage - 1) * ARTICLES_PER_PAGE;
+                var pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+
+                var searchInfo = document.getElementById('search-info');
+                if (query || currentTag) {
+                    var msg = '';
+                    if (query && currentTag) {
+                        msg = '搜索 "' + escapeHtml(query) + '" 和标签 "' + escapeHtml(currentTag) + '" 共 ' + filtered.length + ' 篇';
+                    } else if (query) {
+                        msg = '搜索 "' + escapeHtml(query) + '" 共 ' + filtered.length + ' 篇';
+                    } else if (currentTag) {
+                        msg = '标签 "' + escapeHtml(currentTag) + '" 共 ' + filtered.length + ' 篇';
+                    }
+                    searchInfo.textContent = msg;
+                    searchInfo.classList.add('visible');
+                } else {
+                    searchInfo.classList.remove('visible');
+                }
 
                 if (!pageArticles.length) {
-                    grid.innerHTML =
-                        '<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-folder-open" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无文章</h3><p>该分类下还没有文章</p></div>';
+                    var emptyMsg = (query || currentTag) ? '没有找到匹配的文章' : '该分类下还没有文章';
+                    grid.innerHTML = '<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-frown" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无结果</h3><p>' + emptyMsg + '</p></div>';
                     renderPagination(totalPages, currentPage);
                     updateCategoryButtons();
                     return;
                 }
 
-                pageArticles.forEach(function(article) {
-                    const slug = getSlug(article.filename);
-                    const card = document.createElement('div');
+                for (var i = 0; i < pageArticles.length; i++) {
+                    var article = pageArticles[i];
+                    var slug = getSlug(article.filename);
+                    var card = document.createElement('div');
                     card.className = 'article-card glass';
-                    card.innerHTML =
-                        '<div class="article-header"><h3 class="article-title">' + escapeHtml(article.title) +
+                    var tagsHtml = renderTagsHtml(article.tags);
+                    card.innerHTML = '<div class="article-header"><h3 class="article-title">' + escapeHtml(article.title) +
                         '</h3><div class="article-meta"><span>' + (article.latest ? article.latest.substring(0, 10) :
                             article.date) + '</span><span>' + getCategoryName(article.category) +
-                        '</span></div></div><div class="article-content">' + escapeHtml(article.excerpt) +
+                        '</span></div>' + (tagsHtml ? '<div class="article-tags">' + tagsHtml + '</div>' : '') +
+                        '</div><div class="article-content">' + escapeHtml(article.excerpt) +
                         '</div><a href="/articles/' + slug +
                         '" class="read-more">阅读全文</a><div class="card-hint">查看详细</div>';
                     card.addEventListener('click', function(e) {
                         if (e.target.closest('.read-more')) return;
+                        if (e.target.closest('.article-tag')) return;
                         openArticleModal(article);
                     });
                     grid.appendChild(card);
-                });
+                }
+
+                var tagLinks = grid.querySelectorAll('.article-tag');
+                for (var j = 0; j < tagLinks.length; j++) {
+                    tagLinks[j].addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var tagName = this.dataset.tag;
+                        if (currentTag === tagName) {
+                            currentTag = '';
+                        } else {
+                            currentTag = tagName;
+                        }
+                        if (currentTag) {
+                            document.getElementById('search-input').value = '';
+                            currentSearchQuery = '';
+                        }
+                        renderArticles('all');
+                    });
+                }
 
                 renderPagination(totalPages, currentPage);
                 updateCategoryButtons();
             }
 
             function updateCategoryButtons() {
-                document.querySelectorAll('.category-btn').forEach(function(btn) {
-                    btn.classList.toggle('active', btn.dataset.category === currentCategory);
-                });
+                var btns = document.querySelectorAll('.category-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    btns[i].classList.toggle('active', btns[i].dataset.category === currentCategory);
+                }
             }
 
             function escapeHtml(str) {
@@ -2223,28 +2608,109 @@
                     if (m === '<') return '&lt;';
                     if (m === '>') return '&gt;';
                     return m;
-                }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                    return c;
-                });
+                }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; });
             }
 
             function getCategoryName(cat) {
-                const map = { technology: '技术', diary: '日记', something: '杂碎', friend_link: '友链' };
+                var map = { technology: '技术', diary: '日记', something: '杂碎', friend_link: '友链' };
                 return map[cat] || cat;
             }
 
             function bindEvents() {
-                document.querySelectorAll('.category-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function() { renderArticles(btn.dataset.category); });
+                var catBtns = document.querySelectorAll('.category-btn');
+                for (var i = 0; i < catBtns.length; i++) {
+                    catBtns[i].addEventListener('click', function() {
+                        if (currentSearchQuery) {
+                            document.getElementById('search-input').value = '';
+                            currentSearchQuery = '';
+                        }
+                        currentTag = '';
+                        renderArticles(this.dataset.category);
+                    });
+                }
+
+                var searchToggle = document.getElementById('search-toggle');
+                var searchPanel = document.getElementById('search-panel');
+                var searchInput = document.getElementById('search-input');
+                var searchClear = document.getElementById('search-clear');
+                var searchTimer = null;
+
+                function openSearch() {
+                    searchPanel.classList.add('active');
+                    searchToggle.classList.add('active');
+                    setTimeout(function() { searchInput.focus(); }, 200);
+                }
+
+                function closeSearch() {
+                    searchPanel.classList.remove('active');
+                    searchToggle.classList.remove('active');
+                    searchInput.blur();
+                }
+
+                function resetSearch() {
+                    searchInput.value = '';
+                    currentSearchQuery = '';
+                    currentTag = '';
+                    searchClear.classList.remove('visible');
+                    renderArticles('all');
+                }
+
+                searchToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (searchPanel.classList.contains('active')) {
+                        closeSearch();
+                        resetSearch();
+                    } else {
+                        openSearch();
+                    }
+                });
+
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(function() {
+                        currentSearchQuery = searchInput.value.trim();
+                        currentTag = '';
+                        if (currentSearchQuery) {
+                            searchClear.classList.add('visible');
+                        } else {
+                            searchClear.classList.remove('visible');
+                        }
+                        renderArticles('all', currentSearchQuery);
+                    }, 250);
+                });
+
+                searchClear.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    resetSearch();
+                    searchInput.focus();
+                });
+
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        resetSearch();
+                        closeSearch();
+                    }
                 });
 
                 document.getElementById('about-btn').addEventListener('click', function() {
-                    const card = document.getElementById('about-card');
+                    var card = document.getElementById('about-card');
                     card.style.display = card.style.display === 'block' ? 'none' : 'block';
                 });
 
                 document.getElementById('article-modal').addEventListener('click', function(e) {
                     if (e.target === e.currentTarget) closeArticleModal();
+                    var tagEl = e.target.closest('.article-tag');
+                    if (tagEl) {
+                        e.preventDefault();
+                        var tagName = tagEl.dataset.tag;
+                        if (tagName) {
+                            closeArticleModal();
+                            currentTag = tagName;
+                            document.getElementById('search-input').value = '';
+                            currentSearchQuery = '';
+                            renderArticles('all');
+                        }
+                    }
                 });
                 document.getElementById('modal-close-btn').addEventListener('click', closeArticleModal);
 
@@ -2255,26 +2721,30 @@
                 });
 
                 document.addEventListener('click', function(e) {
-                    const about = document.getElementById('about-card');
-                    if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest(
-                            '#about-btn')) {
+                    var about = document.getElementById('about-card');
+                    if (about.style.display === 'block' && !e.target.closest('#about-card') && !e.target.closest('#about-btn')) {
                         about.style.display = 'none';
                     }
-                    const func = document.getElementById('func-card');
-                    if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest(
-                            '#func-btn')) {
+                    var func = document.getElementById('func-card');
+                    if (func.style.display === 'block' && !e.target.closest('#func-card') && !e.target.closest('#func-btn')) {
                         func.style.display = 'none';
+                    }
+                    if (searchPanel.classList.contains('active') &&
+                        !e.target.closest('#search-panel') &&
+                        !e.target.closest('#search-toggle')) {
+                        closeSearch();
+                        resetSearch();
                     }
                 });
 
-                const luckBtn = document.getElementById('luck-btn');
+                var luckBtn = document.getElementById('luck-btn');
                 if (luckBtn) luckBtn.addEventListener('click', getDailyLuck);
 
-                const rssLink = document.getElementById('rss-link');
+                var rssLink = document.getElementById('rss-link');
                 if (rssLink) {
                     rssLink.addEventListener('click', function(e) {
                         e.preventDefault();
-                        const rssUrl = window.location.origin + '/rss.xml';
+                        var rssUrl = window.location.origin + '/rss.xml';
                         copyToClipboard(rssUrl);
                         showToast('RSS 链接已复制到剪贴板！', 'success');
                     });
@@ -2282,7 +2752,7 @@
             }
 
             function copyToClipboard(text) {
-                const ta = document.createElement('textarea');
+                var ta = document.createElement('textarea');
                 ta.value = text;
                 document.body.appendChild(ta);
                 ta.select();
@@ -2291,7 +2761,7 @@
             }
 
             async function initializePage() {
-                const globalLoadTimer = setTimeout(function() {
+                var globalLoadTimer = setTimeout(function() {
                     if (!loadingOverlayHidden) {
                         updateLoadingProgress(95, '即将完成...');
                         hideLoadingOverlay();
@@ -2305,6 +2775,11 @@
                     updateLoadingProgress(20, articlesData.length ? '文章数据已就绪' : '无文章数据');
 
                     updateLoadingProgress(30, '正在渲染文章...');
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var urlTag = urlParams.get('tag');
+                    if (urlTag) {
+                        currentTag = urlTag;
+                    }
                     renderArticles('all');
                     updateLoadingProgress(55, '文章渲染完成');
 
@@ -2329,7 +2804,7 @@
                     loadContacts();
 
                     document.getElementById('func-btn').addEventListener('click', function() {
-                        const card = document.getElementById('func-card');
+                        var card = document.getElementById('func-card');
                         card.style.display = card.style.display === 'block' ? 'none' : 'block';
                         if (card.style.display === 'block' && !window.historyLoaded) loadHistoryToday();
                     });
