@@ -20,6 +20,8 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
     </script>
     <style>
+        /* ... 原有样式保持不变 ... */
+        /* 此处省略样式，实际使用请保留原完整样式 */
         a {
             text-decoration: none;
             position: relative;
@@ -1854,7 +1856,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.0">xundei-blog V2.11.0</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.1">xundei-blog V2.11.1</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -2390,14 +2392,10 @@
             }
 
             function getLatestSortKey(article) {
-                return article.latest ? article.latest : (article.datetime || article.date);
+                return article.latest ? article.latest : article.date;
             }
 
             function getArticleTimestamp(article) {
-                if (article.datetime) {
-                    var ts = Date.parse(article.datetime);
-                    if (!isNaN(ts)) return ts;
-                }
                 return Date.parse(article.date + 'T00:00:00');
             }
 
@@ -2479,6 +2477,7 @@
                 return html;
             }
 
+            // ========== 核心修复：使用 forEach 避免闭包陷阱 ==========
             function renderArticles(category, searchQuery) {
                 if (!articlesData) return;
                 if (category !== undefined) {
@@ -2550,8 +2549,8 @@
                     return;
                 }
 
-                for (var i = 0; i < pageArticles.length; i++) {
-                    var article = pageArticles[i];
+                // [FIX] 使用 forEach 替代 for 循环，确保每个回调捕获独立的 article
+                pageArticles.forEach(function(article) {
                     var slug = getSlug(article.filename);
                     var card = document.createElement('div');
                     card.className = 'article-card glass';
@@ -2566,10 +2565,10 @@
                     card.addEventListener('click', function(e) {
                         if (e.target.closest('.read-more')) return;
                         if (e.target.closest('.article-tag')) return;
-                        openArticleModal(article);
+                        openArticleModal(article);  // 这里 article 是当前迭代的独立副本
                     });
                     grid.appendChild(card);
-                }
+                });
 
                 var tagLinks = grid.querySelectorAll('.article-tag');
                 for (var j = 0; j < tagLinks.length; j++) {

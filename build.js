@@ -91,10 +91,9 @@ function scanArticles() {
   }
 
   articles.sort((a, b) => {
-    const aLatest = a.latest ? a.latest : a.datetime || a.date;
-    const bLatest = b.latest ? b.latest : b.datetime || b.date;
+    const aLatest = a.latest ? a.latest : a.date;
+    const bLatest = b.latest ? b.latest : b.date;
     if (aLatest && bLatest) return bLatest.localeCompare(aLatest);
-    if (a.datetime && b.datetime) return b.datetime.localeCompare(a.datetime);
     if (a.date && b.date) return b.date.localeCompare(a.date);
     return 0;
   });
@@ -149,7 +148,7 @@ function generateSEOTags(article, slug) {
     'headline': article.title,
     'description': description,
     'keywords': keywords,
-    'datePublished': article.datetime || article.date,
+    'datePublished': article.date,
     'url': url,
     'author': {
       '@type': 'Person',
@@ -260,8 +259,8 @@ function generateRSS(articles, siteUrl, siteName, siteDescription, distDir) {
 
     const slug = path.basename(article.filename, '.md');
     const url = `${siteUrl}/articles/${slug}`;
-    const pubDate = article.datetime
-      ? new Date(article.datetime).toUTCString()
+    const pubDate = article.date
+      ? new Date(article.date + 'T00:00:00').toUTCString()
       : now;
 
     if (!article.title) {
