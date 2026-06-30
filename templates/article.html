@@ -744,7 +744,8 @@
                 <h1 class="article-title">{{ARTICLE_TITLE}}</h1>
                 <div class="article-meta">
                     <div>
-                        <span>{{ARTICLE_DATE}}</span>
+                        <!-- 修改点：给日期 span 增加 id，方便 JS 格式化 -->
+                        <span id="article-date">{{ARTICLE_DATE}}</span>
                         <span id="article-latest" data-latest="{{ARTICLE_LATEST}}" style="display:none;">
                             <span> | </span>
                             <span class="latest-label">更新于 <span id="article-latest-time"></span></span>
@@ -776,13 +777,7 @@
 
     <script>
         (function() {
-            const WALLPAPER_TOTAL_TIMEOUT = 22000;
-            const LOADING_MAX_DISPLAY = 8000;
-            const IMG_TIMEOUT_B2 = 10000;
-            const IMG_TIMEOUT_FALLBACK = 7000;
-            const FETCH_TIMEOUT_CONFIG = 6000;
-            const FETCH_TIMEOUT_BING = 8000;
-            const FETCH_TIMEOUT_360 = 8000;
+            // 超时相关常量已移除（第三方壁纸源已失效，超时不再有意义）
 
             const loadingErrors = [];
             let articleImageObserver = null;
@@ -793,19 +788,10 @@
             document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
             document.body.style.backgroundSize = 'cover';
 
-            async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-                try {
-                    const response = await fetch(url, { ...options, signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
-                    return response;
-                } catch (e) {
-                    clearTimeout(timeoutId);
-                    if (e.name === 'AbortError') throw new Error('请求超时');
-                    throw e;
-                }
+            async function simpleFetch(url, options = {}) {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+                return response;
             }
 
             function showToast(message, type = 'info') {
@@ -859,38 +845,29 @@
                 loadingErrors.length = 0;
             }
 
-            function loadImageWithTimeout(imgUrl, timeoutMs) {
+            function loadImage(imgUrl) {
                 return new Promise((resolve) => {
                     const img = new Image();
-                    let settled = false;
-                    const finish = (success) => {
-                        if (settled) return;
-                        settled = true;
-                        clearTimeout(timer);
-                        if (success) {
-                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
-                        }
-                        resolve(success);
+                    img.onload = () => {
+                        document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                        resolve(true);
                     };
-                    const timer = setTimeout(() => {
-                        if (!settled && !img.complete) {
-                            console.warn('图片加载超时:', imgUrl);
-                        }
-                        finish(img.naturalWidth > 0);
-                    }, timeoutMs);
-                    img.onload = () => finish(true);
-                    img.onerror = () => finish(false);
+                    img.onerror = () => resolve(false);
                     img.src = imgUrl;
                     if (img.complete) {
-                        finish(img.naturalWidth > 0);
+                        if (img.naturalWidth > 0) {
+                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
                     }
                 });
             }
 
             async function loadWallpaperFromConfig() {
                 try {
-                    const res = await fetchWithTimeout('../wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
-                    if (!res.ok) throw new Error('请求失败');
+                    const res = await simpleFetch('../wallpaper.json');
                     const data = await res.json();
                     if (data && data.length) {
                         const entry = data[Math.floor(Math.random() * data.length)];
@@ -898,7 +875,7 @@
                         if (!/^https?:\/\//i.test(imgUrl)) {
                             imgUrl = '../' + imgUrl;
                         }
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_B2);
+                        return await loadImage(imgUrl);
                     }
                     return false;
                 } catch (e) {
@@ -907,68 +884,16 @@
                 }
             }
 
-            async function loadBingWallpaper() {
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
-                try {
-                    const response = await fetchWithTimeout(
-                        proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING
-                    );
-                    const data = await response.json();
-                    if (data.images && data.images[0]) {
-                        const imgUrl = 'https://www.bing.com' + data.images[0].url;
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
-                    }
-                    return false;
-                } catch (error) {
-                    console.warn('Bing 壁纸加载失败:', error);
-                    return false;
-                }
-            }
-
-            async function load360Wallpaper() {
-                const url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
-                try {
-                    const response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
-                    const data = await response.json();
-                    if (data && data.data && data.data.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * data.data.length);
-                        const imgUrl = data.data[randomIndex].url;
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
-                    }
-                    return false;
-                } catch (error) {
-                    console.warn('360 壁纸加载失败:', error);
-                    return false;
-                }
-            }
-
             async function loadWallpaperBackground() {
-                if (wallpaperResolved) return;
-                const deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
-                const sources = [
-                    { name: '本地配置', fn: loadWallpaperFromConfig },
-                    { name: 'Bing', fn: loadBingWallpaper },
-                    { name: '360', fn: load360Wallpaper }
-                ];
-                for (const source of sources) {
-                    if (Date.now() >= deadline) {
-                        console.warn('壁纸加载总超时，停止尝试');
-                        break;
+                if (wallpaperResolved) return true;
+                try {
+                    const result = await loadWallpaperFromConfig();
+                    if (result) {
+                        wallpaperResolved = true;
+                        return true;
                     }
-                    const remaining = deadline - Date.now();
-                    try {
-                        const raceResult = await Promise.race([
-                            source.fn(),
-                            new Promise((resolve) => setTimeout(() => resolve(false), remaining))
-                        ]);
-                        if (raceResult === true) {
-                            wallpaperResolved = true;
-                            return true;
-                        }
-                    } catch (e) {
-                        console.warn(source.name + ' 壁纸源异常:', e);
-                    }
+                } catch (e) {
+                    console.warn('壁纸加载异常:', e);
                 }
                 wallpaperResolved = true;
                 return false;
@@ -1285,7 +1210,7 @@
                 try {
                     contentEl.textContent = '加载中...';
                     authorEl.textContent = '';
-                    const response = await fetchWithTimeout('https://v1.jinrishici.com/all.json', {}, 8000);
+                    const response = await fetch('https://v1.jinrishici.com/all.json');
                     const data = await response.json();
                     if (data && data.content) {
                         contentEl.textContent = data.content;
@@ -1299,15 +1224,20 @@
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', () => {
-                const globalLoadTimer = setTimeout(() => {
-                    if (!loadingOverlayHidden) {
-                        updateLoadingProgress(95, '即将完成...');
-                        hideLoadingOverlay();
-                        flushLoadingErrors();
-                    }
-                }, LOADING_MAX_DISPLAY);
+            // ---------- 新增：将文章日期格式化为“月日” ----------
+            function formatArticleDateToMonthDay() {
+                const dateSpan = document.getElementById('article-date');
+                if (!dateSpan) return;
+                const rawText = dateSpan.textContent.trim();
+                if (!rawText) return;
+                const parsedDate = new Date(rawText);
+                if (isNaN(parsedDate.getTime())) return; // 解析失败则保留原样
+                const month = parsedDate.getMonth() + 1;
+                const day = parsedDate.getDate();
+                dateSpan.textContent = `${month}月${day}日`;
+            }
 
+            document.addEventListener('DOMContentLoaded', () => {
                 updateLoadingProgress(10, '正在准备...');
 
                 const hasLazyImages = prepareArticleImagesForLazyLoading();
@@ -1315,7 +1245,7 @@
                 loadWallpaperBackground().then(ok => {
                     if (!ok) addLoadingError('壁纸加载失败，已使用天空渐变背景');
                 }).catch(e => {
-                    console.warn('壁纸后台加载异常:', e);
+                    console.warn('壁纸加载异常:', e);
                 });
 
                 updateLoadingProgress(55, '正在渲染文章...');
@@ -1341,6 +1271,9 @@
 
                 generateTOC();
                 displayLatestInfo();
+                // 格式化日期为月日
+                formatArticleDateToMonthDay();
+
                 document.addEventListener('click', handleImageClick);
                 window.addEventListener('scroll', handleScroll);
 
@@ -1397,7 +1330,6 @@
 
                 hideLoadingOverlay();
                 flushLoadingErrors();
-                clearTimeout(globalLoadTimer);
             });
         })();
     </script>

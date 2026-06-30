@@ -208,13 +208,17 @@ function getLicenseDisplayAndHtml(article) {
     licenseHtml = `本文遵循 <a href="${url}" target="_blank" rel="noopener noreferrer">${license} 4.0 国际许可协议</a>`;
   }
 
-  // 代码 License 显示
-  const codeUrl = codeLicenseUrls[codeLicense] || '';
-  const codeHtml = `代码片段（如有）遵循 <a href="${codeUrl}" target="_blank" rel="noopener noreferrer">${codeLicense} 许可协议</a>`;
+  // 代码 License 显示（可选，没有 code-license 则不显示）
+  let resultHtml = licenseHtml;
+  if (codeLicense) {
+    const codeUrl = codeLicenseUrls[codeLicense] || '';
+    const codeHtml = `代码片段遵循 <a href="${codeUrl}" target="_blank" rel="noopener noreferrer">${codeLicense} 许可协议</a>`;
+    resultHtml = `${licenseHtml} · ${codeHtml}`;
+  }
 
   return {
     display: '',
-    html: `${licenseHtml} · ${codeHtml}`
+    html: resultHtml
   };
 }
 
@@ -260,7 +264,7 @@ function generateRSS(articles, siteUrl, siteName, siteDescription, distDir) {
     const slug = path.basename(article.filename, '.md');
     const url = `${siteUrl}/articles/${slug}`;
     const pubDate = article.date
-      ? new Date(article.date + 'T00:00:00').toUTCString()
+      ? new Date(article.date.includes('T') ? article.date : article.date + 'T00:00:00').toUTCString()
       : now;
 
     if (!article.title) {

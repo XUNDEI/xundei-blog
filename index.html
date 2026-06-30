@@ -20,8 +20,6 @@
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
     </script>
     <style>
-        /* ... 原有样式保持不变 ... */
-        /* 此处省略样式，实际使用请保留原完整样式 */
         a {
             text-decoration: none;
             position: relative;
@@ -1476,6 +1474,14 @@
             transform: rotate(90deg) scale(0.95);
             box-shadow: 0 4px 18px rgba(66, 133, 244, 0.2);
         }
+        /* [FIX] 防止 active + hover 时 transform 冲突导致闪烁 */
+        .search-toggle.active:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(66, 133, 244, 0.5);
+            color: rgba(66, 133, 244, 0.9);
+            transform: rotate(90deg) scale(0.95);
+            box-shadow: 0 4px 18px rgba(66, 133, 244, 0.2);
+        }
         .search-toggle .search-pulse {
             position: absolute;
             inset: -6px;
@@ -1488,6 +1494,11 @@
         .search-toggle:hover .search-pulse {
             opacity: 1;
             border-color: rgba(66, 133, 244, 0.35);
+        }
+        /* [FIX] 搜索面板打开时停止脉冲动画，避免持续闪烁 */
+        .search-toggle.active .search-pulse {
+            animation: none;
+            opacity: 0;
         }
         @keyframes searchPulse {
             0% {
@@ -1856,7 +1867,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.1">xundei-blog V2.11.1</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.2">xundei-blog V2.11.2</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -1955,13 +1966,7 @@
                 ]
             };
 
-            const WALLPAPER_TOTAL_TIMEOUT = 22000;
-            const LOADING_MAX_DISPLAY = 10000;
-            const IMG_TIMEOUT_B2 = 10000;
-            const IMG_TIMEOUT_FALLBACK = 7000;
-            const FETCH_TIMEOUT_CONFIG = 6000;
-            const FETCH_TIMEOUT_BING = 8000;
-            const FETCH_TIMEOUT_360 = 8000;
+            // 超时相关常量已移除（第三方壁纸源已失效，超时不再有意义）
 
             let articlesData = [];
             const loadingErrors = [];
@@ -2030,47 +2035,26 @@
                 loadingErrors.push(msg);
             }
 
-            async function fetchWithTimeout(url, options, timeoutMs) {
-                options = options || {};
-                timeoutMs = timeoutMs || 12000;
-                const controller = new AbortController();
-                const timeoutId = setTimeout(function() { controller.abort(); }, timeoutMs);
-                try {
-                    const response = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
-                    clearTimeout(timeoutId);
-                    return response;
-                } catch (e) {
-                    clearTimeout(timeoutId);
-                    if (e.name === 'AbortError') throw new Error('请求超时');
-                    throw e;
-                }
+            async function simpleFetch(url, options) {
+                return await fetch(url, options || {});
             }
 
-            function loadImageWithTimeout(imgUrl, timeoutMs) {
+            function loadImage(imgUrl) {
                 return new Promise(function(resolve) {
                     var img = new Image();
-                    var settled = false;
-                    var timer = setTimeout(function() {
-                        if (!settled && !img.complete) {
-                            console.warn('图片加载超时:', imgUrl);
-                        }
-                        finish(img.naturalWidth > 0);
-                    }, timeoutMs);
-
-                    function finish(success) {
-                        if (settled) return;
-                        settled = true;
-                        clearTimeout(timer);
-                        if (success) {
-                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
-                        }
-                        resolve(success);
-                    }
-                    img.onload = function() { finish(true); };
-                    img.onerror = function() { finish(false); };
+                    img.onload = function() {
+                        document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                        resolve(true);
+                    };
+                    img.onerror = function() { resolve(false); };
                     img.src = imgUrl;
                     if (img.complete) {
-                        finish(img.naturalWidth > 0);
+                        if (img.naturalWidth > 0) {
+                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
                     }
                 });
             }
@@ -2165,7 +2149,7 @@
             async function loadSentences() {
                 var el = document.getElementById('sentence');
                 try {
-                    var res = await fetchWithTimeout('./sentences.txt', {}, 8000);
+                    var res = await simpleFetch('./sentences.txt');
                     if (!res.ok) throw new Error('请求失败');
                     var text = await res.text();
                     var sentences = text.split('\n').filter(function(line) { return line.trim(); });
@@ -2182,7 +2166,7 @@
 
             async function loadWallpaperFromConfig() {
                 try {
-                    var res = await fetchWithTimeout('./wallpaper.json', {}, FETCH_TIMEOUT_CONFIG);
+                    var res = await simpleFetch('./wallpaper.json');
                     if (!res.ok) throw new Error('请求失败');
                     var data = await res.json();
                     if (data && data.length) {
@@ -2191,7 +2175,7 @@
                         if (!/^https?:\/\//i.test(imgUrl)) {
                             imgUrl = './' + imgUrl;
                         }
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_B2);
+                        return await loadImage(imgUrl);
                     }
                     return false;
                 } catch (e) {
@@ -2200,63 +2184,16 @@
                 }
             }
 
-            async function loadBingWallpaper() {
-                var proxyUrl = 'https://api.allorigins.win/raw?url=';
-                var bingApiUrl = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
-                try {
-                    var response = await fetchWithTimeout(proxyUrl + encodeURIComponent(bingApiUrl), {}, FETCH_TIMEOUT_BING);
-                    var data = await response.json();
-                    if (data.images && data.images[0]) {
-                        var imgUrl = 'https://www.bing.com' + data.images[0].url;
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
-                    }
-                    return false;
-                } catch (error) {
-                    console.warn('Bing 壁纸加载失败:', error);
-                    return false;
-                }
-            }
-
-            async function load360Wallpaper() {
-                var url = 'https://mini.browser.360.cn/newtab/imgsx?tid=67&page=1';
-                try {
-                    var response = await fetchWithTimeout(url, {}, FETCH_TIMEOUT_360);
-                    var data = await response.json();
-                    if (data && data.data && data.data.length > 0) {
-                        var randomIndex = Math.floor(Math.random() * data.data.length);
-                        var imgUrl = data.data[randomIndex].url;
-                        return await loadImageWithTimeout(imgUrl, IMG_TIMEOUT_FALLBACK);
-                    }
-                    return false;
-                } catch (error) {
-                    console.warn('360 壁纸加载失败:', error);
-                    return false;
-                }
-            }
-
             async function loadWallpaperBackground() {
-                if (wallpaperResolved) return;
-                var deadline = Date.now() + WALLPAPER_TOTAL_TIMEOUT;
-                var sources = [
-                    { name: '本地配置', fn: loadWallpaperFromConfig },
-                    { name: 'Bing', fn: loadBingWallpaper },
-                    { name: '360', fn: load360Wallpaper }
-                ];
-                for (var i = 0; i < sources.length; i++) {
-                    if (Date.now() >= deadline) break;
-                    var remaining = deadline - Date.now();
-                    try {
-                        var raceResult = await Promise.race([
-                            sources[i].fn(),
-                            new Promise(function(resolve) { setTimeout(function() { resolve(false); }, remaining); })
-                        ]);
-                        if (raceResult === true) {
-                            wallpaperResolved = true;
-                            return true;
-                        }
-                    } catch (e) {
-                        console.warn(sources[i].name + ' 壁纸源异常:', e);
+                if (wallpaperResolved) return true;
+                try {
+                    var result = await loadWallpaperFromConfig();
+                    if (result) {
+                        wallpaperResolved = true;
+                        return true;
                     }
+                } catch (e) {
+                    console.warn('壁纸加载异常:', e);
                 }
                 wallpaperResolved = true;
                 return false;
@@ -2267,7 +2204,7 @@
                 try {
                     el.innerHTML = '<div class="history-loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
                     var api = 'https://v2.xxapi.cn/api/history';
-                    var res = await fetchWithTimeout(api, {}, 10000);
+                    var res = await simpleFetch(api);
                     if (!res.ok) throw new Error('接口响应异常');
                     var data = await res.json();
                     if (data && data.code === 200 && Array.isArray(data.data) && data.data.length > 0) {
@@ -2336,10 +2273,23 @@
                 return filename.split('/').pop().replace(/\.md$/, '');
             }
 
+            // [FIX] 将日期字符串格式化为"月日"格式，如"7月12日"
+            function formatMonthDay(dateStr) {
+                if (!dateStr) return '';
+                var match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                if (match) {
+                    var month = parseInt(match[2], 10);
+                    var day = parseInt(match[3], 10);
+                    return month + '月' + day + '日';
+                }
+                return dateStr.substring(0, 10);
+            }
+
             function openArticleModal(article) {
                 var modal = document.getElementById('article-modal');
                 document.getElementById('modal-title').textContent = article.title;
-                document.getElementById('modal-date').textContent = article.date;
+                // [FIX] 文章详细信息卡片只显示月日，不显示具体时间
+                document.getElementById('modal-date').textContent = formatMonthDay(article.date);
                 document.getElementById('modal-category').textContent = getCategoryName(article.category);
                 document.getElementById('modal-excerpt').textContent = article.excerpt;
                 var tagsEl = document.getElementById('modal-tags');
@@ -2396,7 +2346,11 @@
             }
 
             function getArticleTimestamp(article) {
-                return Date.parse(article.date + 'T00:00:00');
+                var dateStr = article.date;
+                if (dateStr && dateStr.indexOf('T') === -1) {
+                    dateStr += 'T00:00:00';
+                }
+                return Date.parse(dateStr);
             }
 
             function renderPagination(totalPages, page) {
@@ -2477,7 +2431,7 @@
                 return html;
             }
 
-            // ========== 核心修复：使用 forEach 避免闭包陷阱 ==========
+            // [FIX] 使用 forEach 替代 for 循环，确保每个回调捕获独立的 article
             function renderArticles(category, searchQuery) {
                 if (!articlesData) return;
                 if (category !== undefined) {
@@ -2549,15 +2503,16 @@
                     return;
                 }
 
-                // [FIX] 使用 forEach 替代 for 循环，确保每个回调捕获独立的 article
+                // [FIX] 使用 forEach 确保每个 article 在回调中被独立捕获
                 pageArticles.forEach(function(article) {
                     var slug = getSlug(article.filename);
                     var card = document.createElement('div');
                     card.className = 'article-card glass';
                     var tagsHtml = renderTagsHtml(article.tags);
+                    // [FIX] 卡片日期也使用月日格式
+                    var displayDate = formatMonthDay(article.latest || article.date);
                     card.innerHTML = '<div class="article-header"><h3 class="article-title">' + escapeHtml(article.title) +
-                        '</h3><div class="article-meta"><span>' + (article.latest ? article.latest.substring(0, 10) :
-                            article.date) + '</span><span>' + getCategoryName(article.category) +
+                        '</h3><div class="article-meta"><span>' + escapeHtml(displayDate) + '</span><span>' + getCategoryName(article.category) +
                         '</span></div>' + (tagsHtml ? '<div class="article-tags">' + tagsHtml + '</div>' : '') +
                         '</div><div class="article-content">' + escapeHtml(article.excerpt) +
                         '</div><a href="/articles/' + slug +
@@ -2565,7 +2520,7 @@
                     card.addEventListener('click', function(e) {
                         if (e.target.closest('.read-more')) return;
                         if (e.target.closest('.article-tag')) return;
-                        openArticleModal(article);  // 这里 article 是当前迭代的独立副本
+                        openArticleModal(article);
                     });
                     grid.appendChild(card);
                 });
@@ -2760,14 +2715,6 @@
             }
 
             async function initializePage() {
-                var globalLoadTimer = setTimeout(function() {
-                    if (!loadingOverlayHidden) {
-                        updateLoadingProgress(95, '即将完成...');
-                        hideLoadingOverlay();
-                        flushLoadingErrors();
-                    }
-                }, LOADING_MAX_DISPLAY);
-
                 try {
                     updateLoadingProgress(8, '正在初始化...');
                     articlesData = window.__ARTICLES__ || [];
@@ -2783,16 +2730,17 @@
                     updateLoadingProgress(55, '文章渲染完成');
 
                     updateLoadingProgress(60, '正在加载美句...');
-                    await Promise.race([
-                        loadSentences(),
-                        new Promise(function(resolve) { setTimeout(resolve, 8000); })
-                    ]).catch(function(e) { addLoadingError('美句加载失败'); });
+                    try {
+                        await loadSentences();
+                    } catch (e) {
+                        addLoadingError('美句加载失败');
+                    }
                     updateLoadingProgress(80, '美句加载完成');
 
                     loadWallpaperBackground().then(function(ok) {
                         if (!ok) addLoadingError('壁纸加载失败，已使用天空渐变背景');
                     }).catch(function(e) {
-                        console.warn('壁纸后台加载异常:', e);
+                        console.warn('壁纸加载异常:', e);
                     });
 
                     updateLoadingProgress(92, '即将完成...');
@@ -2817,13 +2765,11 @@
                     updateLoadingProgress(100, '加载完成˶>ᗜ<˶');
                     hideLoadingOverlay();
                     flushLoadingErrors();
-                    clearTimeout(globalLoadTimer);
                 } catch (e) {
                     console.error(e);
                     showToast('初始化失败: ' + e.message, 'error');
                     hideLoadingOverlay();
                     flushLoadingErrors();
-                    clearTimeout(globalLoadTimer);
                 }
             }
 
