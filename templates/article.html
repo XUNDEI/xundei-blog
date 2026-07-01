@@ -569,6 +569,9 @@
         .toc-list a:hover { color:var(--primary-color); }
         .toc-list .toc-h2 { font-weight:600; padding-left:0; }
         .toc-list .toc-h3 { font-weight:400; padding-left:15px; font-size:0.95rem; }
+        .toc-list .toc-h4 { font-weight:400; padding-left:25px; font-size:0.9rem; color:rgba(255,255,255,0.75); }
+        .toc-list .toc-h5 { font-weight:400; padding-left:35px; font-size:0.85rem; color:rgba(255,255,255,0.7); }
+        .toc-list .toc-h6 { font-weight:400; padding-left:45px; font-size:0.8rem; color:rgba(255,255,255,0.65); }
 
         .back-to-top { position:fixed; bottom:30px; right:30px; width:50px; height:50px; background:transparent; border-radius:50%; display:grid; place-items:center; color:white; cursor:pointer; opacity:0; transition:var(--transition); z-index:98; box-shadow:none; }
         .back-to-top.visible { opacity:1; }
@@ -744,7 +747,6 @@
                 <h1 class="article-title">{{ARTICLE_TITLE}}</h1>
                 <div class="article-meta">
                     <div>
-                        <!-- 修改点：给日期 span 增加 id，方便 JS 格式化 -->
                         <span id="article-date">{{ARTICLE_DATE}}</span>
                         <span id="article-latest" data-latest="{{ARTICLE_LATEST}}" style="display:none;">
                             <span> | </span>
@@ -777,8 +779,6 @@
 
     <script>
         (function() {
-            // 超时相关常量已移除（第三方壁纸源已失效，超时不再有意义）
-
             const loadingErrors = [];
             let articleImageObserver = null;
             let currentRotation = 0;
@@ -1083,7 +1083,8 @@
             function generateTOC() {
                 const tocContainer = document.getElementById('toc-container');
                 const tocList = document.getElementById('toc-list');
-                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+                // 现在匹配 h2 到 h6 的所有标题
+                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3, .article-full-content h4, .article-full-content h5, .article-full-content h6');
                 if (headings.length === 0) {
                     tocContainer.style.display = 'none';
                     document.getElementById('toc-toggle').style.display = 'none';
@@ -1098,7 +1099,8 @@
                 headings.forEach((heading, index) => {
                     if (!heading.id) heading.id = `heading-${index}`;
                     const listItem = document.createElement('li');
-                    listItem.className = heading.tagName.toLowerCase() === 'h2' ? 'toc-h2' : 'toc-h3';
+                    const tagLevel = heading.tagName.toLowerCase(); // h2, h3, h4, h5, h6
+                    listItem.className = 'toc-' + tagLevel; // 例如 toc-h2, toc-h3, toc-h4 等
                     listItem.dataset.id = heading.id;
                     const link = document.createElement('a');
                     link.href = `#${heading.id}`;
@@ -1157,7 +1159,8 @@
             }
 
             function highlightTOC() {
-                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3');
+                // 同样匹配 h2 ~ h6
+                const headings = document.querySelectorAll('.article-full-content h2, .article-full-content h3, .article-full-content h4, .article-full-content h5, .article-full-content h6');
                 const tocItems = document.querySelectorAll('.toc-list li');
                 if (headings.length === 0) return;
                 let currentHeading = null;
@@ -1224,14 +1227,13 @@
                 }
             }
 
-            // ---------- 新增：将文章日期格式化为“月日” ----------
             function formatArticleDateToMonthDay() {
                 const dateSpan = document.getElementById('article-date');
                 if (!dateSpan) return;
                 const rawText = dateSpan.textContent.trim();
                 if (!rawText) return;
                 const parsedDate = new Date(rawText);
-                if (isNaN(parsedDate.getTime())) return; // 解析失败则保留原样
+                if (isNaN(parsedDate.getTime())) return;
                 const month = parsedDate.getMonth() + 1;
                 const day = parsedDate.getDate();
                 dateSpan.textContent = `${month}月${day}日`;
@@ -1271,7 +1273,6 @@
 
                 generateTOC();
                 displayLatestInfo();
-                // 格式化日期为月日
                 formatArticleDateToMonthDay();
 
                 document.addEventListener('click', handleImageClick);
