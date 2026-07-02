@@ -166,10 +166,6 @@
             background-color: transparent;
             background-image: none;
         }
-        /* 完全移除黑色遮罩 */
-        body::before {
-            display: none;
-        }
 
         /* ===== 极光背景容器 ===== */
         .aurora-background {
@@ -178,10 +174,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* 提升层级，确保在遮罩之上 */
+            z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            background: var(--aurora-gradient);
+            /* 在渐变上叠加一层 5% 透明度的黑色，柔和降低亮度 */
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+                var(--aurora-gradient);
             transition: opacity 0.8s ease;
             opacity: 1;
             will-change: opacity;
@@ -194,13 +193,21 @@
             display: none;
         }
 
+        /* 主容器提升层级 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
         /* 光斑基础样式 */
         .aurora-orb {
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
             will-change: transform;
-            mix-blend-mode: screen; /* 滤色模式，叠加更亮 */
         }
 
         /* 光斑1 — 左上，主色 */
@@ -208,7 +215,7 @@
             width: min(600px, 80vw);
             height: min(600px, 80vw);
             background: var(--aurora-primary);
-            opacity: 0.35; /* 提高透明度 */
+            opacity: 0.25;
             filter: blur(120px);
             left: 10%;
             top: 5%;
@@ -220,7 +227,7 @@
             width: min(500px, 65vw);
             height: min(500px, 65vw);
             background: var(--aurora-secondary);
-            opacity: 0.28; /* 提高透明度 */
+            opacity: 0.20;
             filter: blur(100px);
             right: 5%;
             bottom: 10%;
@@ -232,7 +239,7 @@
             width: min(450px, 55vw);
             height: min(450px, 55vw);
             background: var(--aurora-primary);
-            opacity: 0.22; /* 提高透明度 */
+            opacity: 0.15;
             filter: blur(130px);
             left: 40%;
             top: 40%;
@@ -244,14 +251,14 @@
             width: min(300px, 40vw);
             height: min(300px, 40vw);
             background: var(--aurora-secondary);
-            opacity: 0.25; /* 提高透明度 */
+            opacity: 0.18;
             filter: blur(80px);
             left: 55%;
             top: 15%;
             animation: orb4-drift 18s ease-in-out infinite;
         }
 
-        /* 光斑动画 — 包含缩放和位移动画，更鲜艳流动 */
+        /* 光斑动画 — 带缩放效果 */
         @keyframes orb1-drift {
             0% { transform: translate(0, 0) scale(1); }
             25% { transform: translate(10%, 8%) scale(1.15); }
@@ -279,12 +286,6 @@
             50% { transform: translate(5%, 5%) scale(0.95); }
             75% { transform: translate(-8%, 10%) scale(1.05); }
             100% { transform: translate(0, 0) scale(0.85); }
-        }
-
-        /* 主要内容容器提升层级 */
-        .container {
-            position: relative;
-            z-index: 1;
         }
 
         .loading-overlay {
@@ -373,13 +374,6 @@
         @keyframes progressShimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
-        }
-
-        /* 保留之前所有其他样式（未改动部分保持不变） */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
         }
 
         .glass {
@@ -1992,7 +1986,6 @@
         <div class="aurora-orb aurora-orb-4"></div>
     </div>
 
-    <!-- 页面其余结构保持不变 -->
     <div class="search-toggle" id="search-toggle" role="button" aria-label="搜索">
         <i class="fas fa-search"></i>
         <span class="search-pulse"></span>
