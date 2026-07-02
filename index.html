@@ -131,6 +131,19 @@
             --glow-color: rgba(66, 133, 244, 0.7);
             --scrollbar-width: 10px;
             --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
+
+            /* 极光背景渐变（底色） */
+            --aurora-gradient: linear-gradient(135deg, #B8D8E3 0%, #D4C5D9 50%, #E8D5D0 100%);
+            /* 光斑颜色 */
+            --aurora-primary: #7BA7BC;
+            --aurora-secondary: #C4A6C2;
+        }
+
+        /* 黄昏睡莲主题 */
+        body.theme-evening {
+            --aurora-gradient: linear-gradient(135deg, #F4C4A8 0%, #C9A0B6 50%, #5B6D8A 100%);
+            --aurora-primary: #E2B49A;
+            --aurora-secondary: #B08AA3;
         }
 
         * {
@@ -150,17 +163,128 @@
             overflow-x: hidden;
             background-attachment: fixed;
             transition: background-image 1.5s ease-in-out;
-            background-color: #121212;
+            background-color: transparent;
+            background-image: none;
         }
+        /* 完全移除黑色遮罩 */
         body::before {
-            content: '';
-            position: absolute;
+            display: none;
+        }
+
+        /* ===== 极光背景容器 ===== */
+        .aurora-background {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* 提升层级，确保在遮罩之上 */
+            pointer-events: none;
+            overflow: hidden;
+            background: var(--aurora-gradient);
+            transition: opacity 0.8s ease;
+            opacity: 1;
+            will-change: opacity;
+        }
+        .aurora-background.fade-out {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .aurora-background.hidden {
+            display: none;
+        }
+
+        /* 光斑基础样式 */
+        .aurora-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform;
+            mix-blend-mode: screen; /* 滤色模式，叠加更亮 */
+        }
+
+        /* 光斑1 — 左上，主色 */
+        .aurora-orb-1 {
+            width: min(600px, 80vw);
+            height: min(600px, 80vw);
+            background: var(--aurora-primary);
+            opacity: 0.35; /* 提高透明度 */
+            filter: blur(120px);
+            left: 10%;
+            top: 5%;
+            animation: orb1-drift 22s ease-in-out infinite;
+        }
+
+        /* 光斑2 — 右下，辅色 */
+        .aurora-orb-2 {
+            width: min(500px, 65vw);
+            height: min(500px, 65vw);
+            background: var(--aurora-secondary);
+            opacity: 0.28; /* 提高透明度 */
+            filter: blur(100px);
+            right: 5%;
+            bottom: 10%;
+            animation: orb2-drift 26s ease-in-out infinite;
+        }
+
+        /* 光斑3 — 中间偏左，主色 */
+        .aurora-orb-3 {
+            width: min(450px, 55vw);
+            height: min(450px, 55vw);
+            background: var(--aurora-primary);
+            opacity: 0.22; /* 提高透明度 */
+            filter: blur(130px);
+            left: 40%;
+            top: 40%;
+            animation: orb3-drift 30s ease-in-out infinite;
+        }
+
+        /* 光斑4 — 右上，辅色 */
+        .aurora-orb-4 {
+            width: min(300px, 40vw);
+            height: min(300px, 40vw);
+            background: var(--aurora-secondary);
+            opacity: 0.25; /* 提高透明度 */
+            filter: blur(80px);
+            left: 55%;
+            top: 15%;
+            animation: orb4-drift 18s ease-in-out infinite;
+        }
+
+        /* 光斑动画 — 包含缩放和位移动画，更鲜艳流动 */
+        @keyframes orb1-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(10%, 8%) scale(1.15); }
+            50% { transform: translate(5%, 15%) scale(0.9); }
+            75% { transform: translate(8%, 3%) scale(1.08); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes orb2-drift {
+            0% { transform: translate(0, 0) scale(0.9); }
+            25% { transform: translate(-5%, 5%) scale(1.12); }
+            50% { transform: translate(-8%, -3%) scale(1); }
+            75% { transform: translate(-3%, -8%) scale(1.08); }
+            100% { transform: translate(0, 0) scale(0.9); }
+        }
+        @keyframes orb3-drift {
+            0% { transform: translate(0, 0) scale(1.05); }
+            25% { transform: translate(-10%, 5%) scale(0.88); }
+            50% { transform: translate(5%, 10%) scale(1.1); }
+            75% { transform: translate(-5%, -3%) scale(0.95); }
+            100% { transform: translate(0, 0) scale(1.05); }
+        }
+        @keyframes orb4-drift {
+            0% { transform: translate(0, 0) scale(0.85); }
+            25% { transform: translate(-10%, -5%) scale(1.1); }
+            50% { transform: translate(5%, 5%) scale(0.95); }
+            75% { transform: translate(-8%, 10%) scale(1.05); }
+            100% { transform: translate(0, 0) scale(0.85); }
+        }
+
+        /* 主要内容容器提升层级 */
+        .container {
+            position: relative;
+            z-index: 1;
         }
 
         .loading-overlay {
@@ -201,14 +325,8 @@
             animation: loadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes loadingPopIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.85);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(30px) scale(0.85); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .loading-card .loader {
             display: inline-block;
@@ -253,14 +371,11 @@
             box-shadow: 0 0 12px rgba(66, 150, 244, 0.5);
         }
         @keyframes progressShimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
+        /* 保留之前所有其他样式（未改动部分保持不变） */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -305,14 +420,6 @@
             -webkit-text-fill-color: transparent;
             display: inline;
         }
-        @keyframes rainbow-flow {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 600% 50%;
-            }
-        }
         .glitch-text::before,
         .glitch-text::after {
             content: attr(data-text);
@@ -336,134 +443,50 @@
             animation: glitch-anim2 5s infinite linear alternate-reverse;
         }
         @keyframes glitch-anim {
-            0% {
-                clip: rect(38px, 9999px, 34px, 0);
-            }
-            5% {
-                clip: rect(72px, 9999px, 11px, 0);
-            }
-            10% {
-                clip: rect(6px, 9999px, 86px, 0);
-            }
-            15% {
-                clip: rect(54px, 9999px, 18px, 0);
-            }
-            20% {
-                clip: rect(22px, 9999px, 63px, 0);
-            }
-            25% {
-                clip: rect(81px, 9999px, 35px, 0);
-            }
-            30% {
-                clip: rect(13px, 9999px, 92px, 0);
-            }
-            35% {
-                clip: rect(65px, 9999px, 49px, 0);
-            }
-            40% {
-                clip: rect(27px, 9999px, 7px, 0);
-            }
-            45% {
-                clip: rect(98px, 9999px, 53px, 0);
-            }
-            50% {
-                clip: rect(44px, 9999px, 26px, 0);
-            }
-            55% {
-                clip: rect(15px, 9999px, 88px, 0);
-            }
-            60% {
-                clip: rect(61px, 9999px, 39px, 0);
-            }
-            65% {
-                clip: rect(33px, 9999px, 74px, 0);
-            }
-            70% {
-                clip: rect(89px, 9999px, 12px, 0);
-            }
-            75% {
-                clip: rect(5px, 9999px, 68px, 0);
-            }
-            80% {
-                clip: rect(47px, 9999px, 94px, 0);
-            }
-            85% {
-                clip: rect(76px, 9999px, 21px, 0);
-            }
-            90% {
-                clip: rect(19px, 9999px, 57px, 0);
-            }
-            95% {
-                clip: rect(92px, 9999px, 43px, 0);
-            }
-            100% {
-                clip: rect(58px, 9999px, 81px, 0);
-            }
+            0% { clip: rect(38px, 9999px, 34px, 0); }
+            5% { clip: rect(72px, 9999px, 11px, 0); }
+            10% { clip: rect(6px, 9999px, 86px, 0); }
+            15% { clip: rect(54px, 9999px, 18px, 0); }
+            20% { clip: rect(22px, 9999px, 63px, 0); }
+            25% { clip: rect(81px, 9999px, 35px, 0); }
+            30% { clip: rect(13px, 9999px, 92px, 0); }
+            35% { clip: rect(65px, 9999px, 49px, 0); }
+            40% { clip: rect(27px, 9999px, 7px, 0); }
+            45% { clip: rect(98px, 9999px, 53px, 0); }
+            50% { clip: rect(44px, 9999px, 26px, 0); }
+            55% { clip: rect(15px, 9999px, 88px, 0); }
+            60% { clip: rect(61px, 9999px, 39px, 0); }
+            65% { clip: rect(33px, 9999px, 74px, 0); }
+            70% { clip: rect(89px, 9999px, 12px, 0); }
+            75% { clip: rect(5px, 9999px, 68px, 0); }
+            80% { clip: rect(47px, 9999px, 94px, 0); }
+            85% { clip: rect(76px, 9999px, 21px, 0); }
+            90% { clip: rect(19px, 9999px, 57px, 0); }
+            95% { clip: rect(92px, 9999px, 43px, 0); }
+            100% { clip: rect(58px, 9999px, 81px, 0); }
         }
         @keyframes glitch-anim2 {
-            0% {
-                clip: rect(12px, 9999px, 91px, 0);
-            }
-            5% {
-                clip: rect(67px, 9999px, 24px, 0);
-            }
-            10% {
-                clip: rect(34px, 9999px, 58px, 0);
-            }
-            15% {
-                clip: rect(88px, 9999px, 15px, 0);
-            }
-            20% {
-                clip: rect(42px, 9999px, 77px, 0);
-            }
-            25% {
-                clip: rect(9px, 9999px, 36px, 0);
-            }
-            30% {
-                clip: rect(55px, 9999px, 83px, 0);
-            }
-            35% {
-                clip: rect(28px, 9999px, 46px, 0);
-            }
-            40% {
-                clip: rect(73px, 9999px, 19px, 0);
-            }
-            45% {
-                clip: rect(16px, 9999px, 62px, 0);
-            }
-            50% {
-                clip: rect(94px, 9999px, 31px, 0);
-            }
-            55% {
-                clip: rect(39px, 9999px, 85px, 0);
-            }
-            60% {
-                clip: rect(82px, 9999px, 48px, 0);
-            }
-            65% {
-                clip: rect(25px, 9999px, 71px, 0);
-            }
-            70% {
-                clip: rect(69px, 9999px, 14px, 0);
-            }
-            75% {
-                clip: rect(46px, 9999px, 97px, 0);
-            }
-            80% {
-                clip: rect(13px, 9999px, 52px, 0);
-            }
-            85% {
-                clip: rect(59px, 9999px, 29px, 0);
-            }
-            90% {
-                clip: rect(96px, 9999px, 66px, 0);
-            }
-            95% {
-                clip: rect(31px, 9999px, 89px, 0);
-            }
-            100% {
-                clip: rect(78px, 9999px, 41px, 0);
-            }
+            0% { clip: rect(12px, 9999px, 91px, 0); }
+            5% { clip: rect(67px, 9999px, 24px, 0); }
+            10% { clip: rect(34px, 9999px, 58px, 0); }
+            15% { clip: rect(88px, 9999px, 15px, 0); }
+            20% { clip: rect(42px, 9999px, 77px, 0); }
+            25% { clip: rect(9px, 9999px, 36px, 0); }
+            30% { clip: rect(55px, 9999px, 83px, 0); }
+            35% { clip: rect(28px, 9999px, 46px, 0); }
+            40% { clip: rect(73px, 9999px, 19px, 0); }
+            45% { clip: rect(16px, 9999px, 62px, 0); }
+            50% { clip: rect(94px, 9999px, 31px, 0); }
+            55% { clip: rect(39px, 9999px, 85px, 0); }
+            60% { clip: rect(82px, 9999px, 48px, 0); }
+            65% { clip: rect(25px, 9999px, 71px, 0); }
+            70% { clip: rect(69px, 9999px, 14px, 0); }
+            75% { clip: rect(46px, 9999px, 97px, 0); }
+            80% { clip: rect(13px, 9999px, 52px, 0); }
+            85% { clip: rect(59px, 9999px, 29px, 0); }
+            90% { clip: rect(96px, 9999px, 66px, 0); }
+            95% { clip: rect(31px, 9999px, 89px, 0); }
+            100% { clip: rect(78px, 9999px, 41px, 0); }
         }
         .sentence {
             font-size: 1.4rem;
@@ -489,14 +512,8 @@
             animation: cursorBlink 0.9s infinite;
         }
         @keyframes cursorBlink {
-            0%,
-            50% {
-                opacity: 1;
-            }
-            51%,
-            100% {
-                opacity: 0;
-            }
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
         .categories {
             display: flex;
@@ -891,14 +908,8 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
         @keyframes modalPopIn {
-            from {
-                opacity: 0;
-                transform: translateY(35px) scale(0.88);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(35px) scale(0.88); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .modal-content::before {
             content: '';
@@ -1189,12 +1200,8 @@
             background: #4CAF50;
         }
         @keyframes progress {
-            from {
-                transform: scaleX(1);
-            }
-            to {
-                transform: scaleX(0);
-            }
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
         }
 
         .loader {
@@ -1367,32 +1374,16 @@
         }
 
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         ::-webkit-scrollbar {
@@ -1499,14 +1490,8 @@
             opacity: 0;
         }
         @keyframes searchPulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
 
         .search-panel {
@@ -1655,9 +1640,7 @@
             margin: 0;
         }
 
-        /* ============================================================
-               自定义日期选择器样式 — 毛玻璃风格，贴合博客
-               ============================================================ */
+        /* 自定义日期选择器样式 */
         .date-range {
             display: flex;
             align-items: center;
@@ -1672,8 +1655,6 @@
             padding: 0 2px;
             user-select: none;
         }
-
-        /* 自定义日期选择器容器 */
         .custom-date-picker {
             position: relative;
             flex: 1;
@@ -1732,7 +1713,6 @@
             font-weight: 500;
         }
 
-        /* 日历弹出面板 — 毛玻璃 */
         .calendar-popup {
             position: absolute;
             top: calc(100% + 8px);
@@ -1759,7 +1739,6 @@
             transform: translateY(0) scale(1);
             pointer-events: auto;
         }
-        /* 面板顶部发光条 */
         .calendar-popup::before {
             content: '';
             position: absolute;
@@ -1770,15 +1749,11 @@
             background: linear-gradient(90deg, transparent, rgba(66, 133, 244, 0.6), rgba(130, 180, 250, 0.6), rgba(66, 133, 244, 0.6), transparent);
             border-radius: 0 0 2px 2px;
         }
-
-        /* 结束日期日历右对齐，避免右侧溢出 */
         .custom-date-picker[data-picker="to"] .calendar-popup {
             left: auto;
             right: 0;
             transform-origin: top right;
         }
-
-        /* 日历导航 */
         .calendar-nav {
             display: flex;
             align-items: center;
@@ -1814,8 +1789,6 @@
         .calendar-nav .nav-btn:active {
             transform: scale(0.9);
         }
-
-        /* 星期头 */
         .calendar-weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -1831,8 +1804,6 @@
             padding: 4px 0;
             text-transform: uppercase;
         }
-
-        /* 日期网格 */
         .calendar-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -1896,27 +1867,6 @@
             background: linear-gradient(135deg, #3a78e0, #4f8fe8);
             box-shadow: 0 0 22px rgba(66, 133, 244, 0.5);
         }
-        .calendar-days .day-cell.range-start {
-            border-radius: 8px 0 0 8px;
-            background: linear-gradient(135deg, #4285F4, #5b9ef5);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 0 16px rgba(66, 133, 244, 0.3);
-        }
-        .calendar-days .day-cell.range-end {
-            border-radius: 0 8px 8px 0;
-            background: linear-gradient(135deg, #4285F4, #5b9ef5);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 0 16px rgba(66, 133, 244, 0.3);
-        }
-        .calendar-days .day-cell.range-in {
-            background: rgba(66, 133, 244, 0.2);
-            color: #fff;
-            border-radius: 0;
-        }
-
-        /* 日历底部操作栏 */
         .calendar-footer {
             display: flex;
             justify-content: space-between;
@@ -1961,297 +1911,88 @@
 
         /* 响应式适配 */
         @media (max-width: 768px) {
-            .blog-title {
-                font-size: 2.5rem;
-            }
-            .sentence {
-                font-size: 1.1rem;
-            }
-            .articles-grid {
-                grid-template-columns: 1fr;
-            }
-            .about-card {
-                width: 250px;
-                right: 15px;
-            }
-            .func-card {
-                width: 260px;
-                left: 15px;
-            }
-            .loading-card {
-                width: 280px;
-                padding: 28px 22px 20px;
-            }
-            .modal-content {
-                padding: 28px 20px 22px;
-            }
-            .modal-content::before {
-                left: 20px;
-                right: 20px;
-            }
-            .modal-title {
-                font-size: 1.5rem;
-            }
-            :root {
-                --blur-amount: 8px;
-                --scrollbar-width: 8px;
-            }
-            footer .footer-content {
-                flex-direction: column;
-                gap: 5px;
-            }
-            .toast-container {
-                max-width: 250px;
-            }
-            .card-hint {
-                bottom: 45px;
-                font-size: 0.8rem;
-                padding: 4px 14px;
-            }
-            .pagination-container {
-                gap: 5px;
-                padding: 14px 16px;
-                border-radius: 36px;
-            }
-            .pagination-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 0.82rem;
-            }
-            .pagination-btn.pagination-arrow {
-                font-size: 0.9rem;
-            }
-            .page-jump {
-                margin-left: 0;
-                gap: 4px;
-            }
-            .page-jump-input {
-                width: 44px;
-                height: 36px;
-                font-size: 0.82rem;
-            }
-            .page-jump-btn {
-                height: 36px;
-                padding: 0 12px;
-                font-size: 0.78rem;
-            }
-            .search-toggle {
-                top: 12px;
-                right: 12px;
-                width: 42px;
-                height: 42px;
-                font-size: 0.95rem;
-            }
-            .search-panel {
-                top: 64px;
-                right: 12px;
-                width: calc(100vw - 24px);
-                padding: 14px 16px;
-                border-radius: 16px;
-            }
-            .search-panel .search-input {
-                padding: 10px 34px 10px 38px;
-                font-size: 0.9rem;
-            }
-            .search-filters {
-                gap: 10px;
-            }
-            .checkbox-group {
-                gap: 8px;
-            }
-            .date-range {
-                flex-direction: row;
-                gap: 6px;
-                flex-wrap: wrap;
-            }
-            .date-range .date-sep {
-                display: inline;
-                font-size: 0.75rem;
-            }
-            .custom-date-picker {
-                min-width: 90px;
-                max-width: 140px;
-            }
-            .custom-date-picker .date-input {
-                font-size: 0.78rem;
-                padding: 6px 10px 6px 30px;
-                min-height: 34px;
-            }
-            .custom-date-picker .date-input-icon {
-                font-size: 0.7rem;
-                left: 8px;
-            }
-            /* 小屏设备日历面板自适应：居中展开，避免溢出 */
-            .calendar-popup {
-                width: calc(100vw - 32px);
-                max-width: 300px;
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(-8px) scale(0.94);
-                transform-origin: top center !important;
-            }
-            .calendar-popup.open {
-                transform: translateX(-50%) translateY(0) scale(1);
-            }
-            .custom-date-picker[data-picker="to"] .calendar-popup {
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(-8px) scale(0.94);
-                transform-origin: top center !important;
-            }
-            .custom-date-picker[data-picker="to"] .calendar-popup.open {
-                transform: translateX(-50%) translateY(0) scale(1);
-            }
-            .calendar-days .day-cell {
-                height: 30px;
-                font-size: 0.75rem;
-            }
-            .calendar-nav .nav-title {
-                font-size: 0.82rem;
-            }
-            .calendar-weekdays span {
-                font-size: 0.65rem;
-            }
+            .blog-title { font-size: 2.5rem; }
+            .sentence { font-size: 1.1rem; }
+            .articles-grid { grid-template-columns: 1fr; }
+            .about-card { width: 250px; right: 15px; }
+            .func-card { width: 260px; left: 15px; }
+            .loading-card { width: 280px; padding: 28px 22px 20px; }
+            .modal-content { padding: 28px 20px 22px; }
+            .modal-content::before { left: 20px; right: 20px; }
+            .modal-title { font-size: 1.5rem; }
+            :root { --blur-amount: 8px; --scrollbar-width: 8px; }
+            footer .footer-content { flex-direction: column; gap: 5px; }
+            .toast-container { max-width: 250px; }
+            .card-hint { bottom: 45px; font-size: 0.8rem; padding: 4px 14px; }
+            .pagination-container { gap: 5px; padding: 14px 16px; border-radius: 36px; }
+            .pagination-btn { width: 36px; height: 36px; font-size: 0.82rem; }
+            .pagination-btn.pagination-arrow { font-size: 0.9rem; }
+            .page-jump { margin-left: 0; gap: 4px; }
+            .page-jump-input { width: 44px; height: 36px; font-size: 0.82rem; }
+            .page-jump-btn { height: 36px; padding: 0 12px; font-size: 0.78rem; }
+            .search-toggle { top: 12px; right: 12px; width: 42px; height: 42px; font-size: 0.95rem; }
+            .search-panel { top: 64px; right: 12px; width: calc(100vw - 24px); padding: 14px 16px; border-radius: 16px; }
+            .search-panel .search-input { padding: 10px 34px 10px 38px; font-size: 0.9rem; }
+            .search-filters { gap: 10px; }
+            .checkbox-group { gap: 8px; }
+            .date-range { flex-direction: row; gap: 6px; flex-wrap: wrap; }
+            .date-range .date-sep { display: inline; font-size: 0.75rem; }
+            .custom-date-picker { min-width: 90px; max-width: 140px; }
+            .custom-date-picker .date-input { font-size: 0.78rem; padding: 6px 10px 6px 30px; min-height: 34px; }
+            .custom-date-picker .date-input-icon { font-size: 0.7rem; left: 8px; }
+            .calendar-popup { width: calc(100vw - 32px); max-width: 300px; left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(-8px) scale(0.94); transform-origin: top center !important; }
+            .calendar-popup.open { transform: translateX(-50%) translateY(0) scale(1); }
+            .custom-date-picker[data-picker="to"] .calendar-popup { left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(-8px) scale(0.94); transform-origin: top center !important; }
+            .custom-date-picker[data-picker="to"] .calendar-popup.open { transform: translateX(-50%) translateY(0) scale(1); }
+            .calendar-days .day-cell { height: 30px; font-size: 0.75rem; }
+            .calendar-nav .nav-title { font-size: 0.82rem; }
+            .calendar-weekdays span { font-size: 0.65rem; }
         }
 
         @media (max-width: 480px) {
-            .blog-title {
-                font-size: 2rem;
-            }
-            .sentence {
-                font-size: 1rem;
-            }
-            .category-btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-            }
-            .about-card {
-                width: 90%;
-                right: 5%;
-                left: 5%;
-            }
-            .func-card {
-                width: 90%;
-                left: 5%;
-            }
-            .func-btn {
-                left: 15px;
-                bottom: 15px;
-            }
-            .loading-card {
-                width: 260px;
-                padding: 24px 18px 16px;
-            }
-            .loading-card .loader {
-                width: 38px;
-                height: 38px;
-                border-width: 3px;
-            }
-            .loading-card .loading-text {
-                font-size: 0.95rem;
-            }
-            .modal-content {
-                padding: 24px 16px 18px;
-                border-radius: 16px;
-            }
-            .modal-content::before {
-                left: 16px;
-                right: 16px;
-            }
-            .modal-title {
-                font-size: 1.35rem;
-            }
-            .modal-meta .meta-item {
-                font-size: 0.78rem;
-                padding: 4px 10px;
-            }
-            .pagination-container {
-                gap: 4px;
-                padding: 10px 12px;
-                border-radius: 30px;
-            }
-            .pagination-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.78rem;
-            }
-            .pagination-btn.pagination-arrow {
-                font-size: 0.85rem;
-            }
-            .page-jump-input {
-                width: 38px;
-                height: 32px;
-                font-size: 0.75rem;
-                border-radius: 20px;
-            }
-            .page-jump-btn {
-                height: 32px;
-                padding: 0 10px;
-                font-size: 0.72rem;
-                border-radius: 20px;
-            }
-            .search-toggle {
-                top: 10px;
-                right: 10px;
-                width: 38px;
-                height: 38px;
-                font-size: 0.85rem;
-            }
-            .search-panel {
-                top: 56px;
-                right: 10px;
-                width: calc(100vw - 20px);
-                padding: 12px 14px;
-                border-radius: 14px;
-            }
-            .search-panel .search-input {
-                padding: 9px 30px 9px 34px;
-                font-size: 0.85rem;
-            }
-            .search-panel .search-input-icon {
-                left: 12px;
-                font-size: 0.8rem;
-            }
-            .search-panel .search-clear {
-                right: 10px;
-                font-size: 0.75rem;
-            }
-            .date-range {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 6px;
-            }
-            .date-range .date-sep {
-                display: none;
-            }
-            .custom-date-picker {
-                min-width: 100%;
-                max-width: 100%;
-            }
-            .calendar-popup {
-                width: calc(100vw - 24px);
-                max-width: 300px;
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(-8px) scale(0.94);
-                transform-origin: top center !important;
-            }
-            .calendar-popup.open {
-                transform: translateX(-50%) translateY(0) scale(1);
-            }
-            .custom-date-picker[data-picker="to"] .calendar-popup {
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(-8px) scale(0.94);
-                transform-origin: top center !important;
-            }
-            .custom-date-picker[data-picker="to"] .calendar-popup.open {
-                transform: translateX(-50%) translateY(0) scale(1);
-            }
+            .blog-title { font-size: 2rem; }
+            .sentence { font-size: 1rem; }
+            .category-btn { padding: 10px 15px; font-size: 0.9rem; }
+            .about-card { width: 90%; right: 5%; left: 5%; }
+            .func-card { width: 90%; left: 5%; }
+            .func-btn { left: 15px; bottom: 15px; }
+            .loading-card { width: 260px; padding: 24px 18px 16px; }
+            .loading-card .loader { width: 38px; height: 38px; border-width: 3px; }
+            .loading-card .loading-text { font-size: 0.95rem; }
+            .modal-content { padding: 24px 16px 18px; border-radius: 16px; }
+            .modal-content::before { left: 16px; right: 16px; }
+            .modal-title { font-size: 1.35rem; }
+            .modal-meta .meta-item { font-size: 0.78rem; padding: 4px 10px; }
+            .pagination-container { gap: 4px; padding: 10px 12px; border-radius: 30px; }
+            .pagination-btn { width: 32px; height: 32px; font-size: 0.78rem; }
+            .pagination-btn.pagination-arrow { font-size: 0.85rem; }
+            .page-jump-input { width: 38px; height: 32px; font-size: 0.75rem; border-radius: 20px; }
+            .page-jump-btn { height: 32px; padding: 0 10px; font-size: 0.72rem; border-radius: 20px; }
+            .search-toggle { top: 10px; right: 10px; width: 38px; height: 38px; font-size: 0.85rem; }
+            .search-panel { top: 56px; right: 10px; width: calc(100vw - 20px); padding: 12px 14px; border-radius: 14px; }
+            .search-panel .search-input { padding: 9px 30px 9px 34px; font-size: 0.85rem; }
+            .search-panel .search-input-icon { left: 12px; font-size: 0.8rem; }
+            .search-panel .search-clear { right: 10px; font-size: 0.75rem; }
+            .date-range { flex-direction: column; align-items: stretch; gap: 6px; }
+            .date-range .date-sep { display: none; }
+            .custom-date-picker { min-width: 100%; max-width: 100%; }
+            .calendar-popup { width: calc(100vw - 24px); max-width: 300px; left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(-8px) scale(0.94); transform-origin: top center !important; }
+            .calendar-popup.open { transform: translateX(-50%) translateY(0) scale(1); }
+            .custom-date-picker[data-picker="to"] .calendar-popup { left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(-8px) scale(0.94); transform-origin: top center !important; }
+            .custom-date-picker[data-picker="to"] .calendar-popup.open { transform: translateX(-50%) translateY(0) scale(1); }
         }
     </style>
 </head>
 <body>
+    <!-- 极光背景 -->
+    <div class="aurora-background" id="aurora-bg">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+        <div class="aurora-orb aurora-orb-4"></div>
+    </div>
+
+    <!-- 页面其余结构保持不变 -->
     <div class="search-toggle" id="search-toggle" role="button" aria-label="搜索">
         <i class="fas fa-search"></i>
         <span class="search-pulse"></span>
@@ -2276,7 +2017,6 @@
             <div class="filter-group">
                 <span class="filter-label">时间筛选</span>
                 <div class="date-range" id="date-range">
-                    <!-- 开始日期 -->
                     <div class="custom-date-picker" data-picker="from">
                         <input type="text" class="date-input" id="date-from-display" placeholder="开始日期" readonly aria-label="开始日期" autocomplete="off">
                         <i class="fas fa-calendar-alt date-input-icon"></i>
@@ -2296,10 +2036,7 @@
                             </div>
                         </div>
                     </div>
-
                     <span class="date-sep">至</span>
-
-                    <!-- 结束日期 -->
                     <div class="custom-date-picker" data-picker="to">
                         <input type="text" class="date-input" id="date-to-display" placeholder="结束日期" readonly aria-label="结束日期" autocomplete="off">
                         <i class="fas fa-calendar-alt date-input-icon"></i>
@@ -2362,7 +2099,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.3">xundei-blog V2.11.3</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.4">xundei-blog V2.11.4</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -2393,7 +2130,6 @@
     <div class="about-btn" id="about-btn">
         <i class="fas fa-user"></i>
     </div>
-
     <div class="about-card glass" id="about-card">
         <div class="about-header">
             <div style="display: flex; align-items: center;">
@@ -2413,7 +2149,6 @@
     <div class="func-btn" id="func-btn">
         <i class="fas fa-star"></i>
     </div>
-
     <div class="func-card glass" id="func-card">
         <div class="func-card-header">
             <div class="func-card-title">功能小窗</div>
@@ -2445,8 +2180,31 @@
 
     <script>
         (function() {
-            document.body.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #ffffff 100%)';
-            document.body.style.backgroundSize = 'cover';
+            function getAuroraTheme() {
+                var hour = new Date().getHours();
+                if (hour >= 18 || hour < 6) {
+                    return 'evening';
+                }
+                return 'morning';
+            }
+
+            var currentTheme = getAuroraTheme();
+            if (currentTheme === 'evening') {
+                document.body.classList.add('theme-evening');
+            }
+
+            var auroraBg = document.getElementById('aurora-bg');
+
+            function hideAuroraBackground() {
+                if (!auroraBg || auroraBg.classList.contains('hidden')) return;
+                auroraBg.classList.add('fade-out');
+                setTimeout(function() {
+                    auroraBg.classList.add('hidden');
+                    auroraBg.style.display = 'none';
+                }, 1200);
+            }
+
+            document.body.style.backgroundImage = 'none';
 
             const luckMessages = {
                 0: "Σ (・□・;)",
@@ -2478,7 +2236,6 @@
                 dateTo: ''
             };
 
-            // ===== 自定义日期选择器状态 =====
             const datePickerState = {
                 from: { year: new Date().getFullYear(), month: new Date().getMonth(), value: '' },
                 to: { year: new Date().getFullYear(), month: new Date().getMonth(), value: '' }
@@ -2550,6 +2307,7 @@
                     var img = new Image();
                     img.onload = function() {
                         document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                        hideAuroraBackground();
                         resolve(true);
                     };
                     img.onerror = function() { resolve(false); };
@@ -2557,6 +2315,7 @@
                     if (img.complete) {
                         if (img.naturalWidth > 0) {
                             document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                            hideAuroraBackground();
                             resolve(true);
                         } else {
                             resolve(false);
@@ -2638,7 +2397,6 @@
                 wrapper.appendChild(cursor);
                 element.appendChild(wrapper);
                 var i = 0;
-
                 function type() {
                     if (i < text.length) {
                         textSpan.textContent += text.charAt(i);
@@ -3106,7 +2864,6 @@
                 document.getElementById('search-input').value = searchFilters.query;
                 updateDatePickerDisplay('from', searchFilters.dateFrom);
                 updateDatePickerDisplay('to', searchFilters.dateTo);
-                // 同步日历内部状态
                 if (searchFilters.dateFrom) {
                     var d = new Date(searchFilters.dateFrom + 'T00:00:00');
                     if (!isNaN(d)) {
@@ -3127,7 +2884,6 @@
                 } else {
                     datePickerState.to.value = '';
                 }
-                // 重新渲染日历
                 renderCalendar('from');
                 renderCalendar('to');
 
@@ -3161,9 +2917,6 @@
                 renderArticles('all');
             }
 
-            // ================================================================
-            // 自定义日期选择器逻辑（已修复：移除 selectDate 中多余的 renderCalendar 调用）
-            // ================================================================
             function updateDatePickerDisplay(type, dateStr) {
                 var input = document.getElementById(type === 'from' ? 'date-from-display' : 'date-to-display');
                 if (!input) return;
@@ -3234,19 +2987,14 @@
             function selectDate(type, dateStr) {
                 var state = datePickerState[type];
                 if (!state) return;
-                // 1. 保存选中的日期到状态
                 state.value = dateStr;
-                // 2. 更新输入框显示
                 updateDatePickerDisplay(type, dateStr);
-                // 3. 更新 searchFilters
                 if (type === 'from') {
                     searchFilters.dateFrom = dateStr;
                 } else {
                     searchFilters.dateTo = dateStr;
                 }
-                // 4. 关闭日历面板（但不销毁内容）
                 closeCalendar(type);
-                // 5. 更新清除按钮状态
                 var clearBtn = document.getElementById('search-clear');
                 if (clearBtn) {
                     if (searchFilters.query || searchFilters.dateFrom || searchFilters.dateTo) {
@@ -3255,10 +3003,7 @@
                         clearBtn.classList.remove('visible');
                     }
                 }
-                // 6. 重新渲染文章
                 renderArticles(currentCategory);
-                // 注意：不在这里调用 renderCalendar，因为面板已关闭。
-                // 用户再次打开面板时，toggleCalendar 会调用 renderCalendar 来正确显示高亮。
             }
 
             function closeCalendar(type) {
@@ -3269,14 +3014,12 @@
             function toggleCalendar(type) {
                 var popup = document.getElementById('calendar-' + type);
                 if (!popup) return;
-                // 关闭另一个
                 var otherType = (type === 'from' ? 'to' : 'from');
                 var otherPopup = document.getElementById('calendar-' + otherType);
                 if (otherPopup) otherPopup.classList.remove('open');
 
                 popup.classList.toggle('open');
                 if (popup.classList.contains('open')) {
-                    // 打开时重新渲染，确保高亮正确
                     renderCalendar(type);
                 }
             }
@@ -3384,9 +3127,6 @@
                 renderCalendar('to');
             }
 
-            // ================================================================
-            // 原有事件绑定（修改日期部分）
-            // ================================================================
             function bindEvents() {
                 var catBtns = document.querySelectorAll('.category-btn');
                 for (var i = 0; i < catBtns.length; i++) {
@@ -3475,7 +3215,6 @@
                     });
                 }
 
-                // 初始化日期选择器
                 initDatePickers();
 
                 document.getElementById('about-btn').addEventListener('click', function() {
@@ -3570,9 +3309,11 @@
                     updateLoadingProgress(80, '美句加载完成');
 
                     loadWallpaperBackground().then(function(ok) {
-                        if (!ok) addLoadingError('壁纸加载失败，已使用天空渐变背景');
+                        if (!ok) {
+                            console.log('壁纸加载失败，保持极光背景显示');
+                        }
                     }).catch(function(e) {
-                        console.warn('壁纸加载异常:', e);
+                        console.warn('壁纸加载异常，保持极光背景:', e);
                     });
 
                     updateLoadingProgress(92, '即将完成...');
