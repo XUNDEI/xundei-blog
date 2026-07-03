@@ -996,11 +996,14 @@
                 loadingErrors.length = 0;
             }
 
+            // 加载壁纸图片，并在背景上叠加 15% 透明度的黑色层以降低亮度
             function loadImage(imgUrl) {
                 return new Promise((resolve) => {
                     const img = new Image();
+                    // 构建带亮度调节的背景：叠加 rgba(0,0,0,0.15) 降低 15% 亮度
+                    const bgValue = 'linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url(' + imgUrl + ')';
                     img.onload = () => {
-                        document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                        document.body.style.backgroundImage = bgValue;
                         hideAuroraBackground();
                         resolve(true);
                     };
@@ -1008,7 +1011,7 @@
                     img.src = imgUrl;
                     if (img.complete) {
                         if (img.naturalWidth > 0) {
-                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                            document.body.style.backgroundImage = bgValue;
                             hideAuroraBackground();
                             resolve(true);
                         } else {
