@@ -2092,7 +2092,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.5">xundei-blog V2.11.5</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.6">xundei-blog V2.11.6</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -2219,6 +2219,8 @@
             let currentPage = 1;
             let currentSearchQuery = '';
             let currentTag = '';
+            let searchResultCache = { query: '', filenames: [] };
+            let searchAbortController = null;
             let loadingOverlayHidden = false;
             let wallpaperResolved = false;
 
@@ -2712,14 +2714,21 @@
                 var query = (searchQuery !== undefined ? searchQuery : searchFilters.query);
                 if (query) {
                     var q = query.toLowerCase().trim();
-                    var fields = searchFilters.fields;
-                    filtered = filtered.filter(function(a) {
-                        if (fields.title && (a.title || '').toLowerCase().indexOf(q) !== -1) return true;
-                        if (fields.body && (a.searchText || '').toLowerCase().indexOf(q) !== -1) return true;
-                        if (fields.tags && (a.tags || '').toLowerCase().indexOf(q) !== -1) return true;
-                        if (fields.excerpt && (a.excerpt || '').toLowerCase().indexOf(q) !== -1) return true;
-                        return false;
-                    });
+                    // 如果已有 Worker API 搜索缓存且匹配当前查询，使用缓存结果（含全文搜索）
+                    if (searchResultCache.query === q && searchResultCache.filenames.length > 0) {
+                        filtered = filtered.filter(function(a) {
+                            return searchResultCache.filenames.indexOf(a.filename) !== -1;
+                        });
+                    } else {
+                        // 本地搜索（仅 title/tags/excerpt，不含 body 全文搜索）
+                        var fields = searchFilters.fields;
+                        filtered = filtered.filter(function(a) {
+                            if (fields.title && (a.title || '').toLowerCase().indexOf(q) !== -1) return true;
+                            if (fields.tags && (a.tags || '').toLowerCase().indexOf(q) !== -1) return true;
+                            if (fields.excerpt && (a.excerpt || '').toLowerCase().indexOf(q) !== -1) return true;
+                            return false;
+                        });
+                    }
                 }
 
                 if (currentTag) {
@@ -2907,6 +2916,7 @@
                 updateDatePickerDisplay('from', '');
                 updateDatePickerDisplay('to', '');
                 syncSearchFiltersToUI();
+                searchResultCache = { query: '', filenames: [] };
                 renderArticles('all');
             }
 
@@ -3136,6 +3146,33 @@
                 var searchClear = document.getElementById('search-clear');
                 var searchTimer = null;
 
+                // ===== Worker API 搜索 =====
+                function searchViaAPI(query) {
+                    if (!query) {
+                        searchResultCache = { query: '', filenames: [] };
+                        return;
+                    }
+                    // 取消上一次请求
+                    if (searchAbortController) {
+                        try { searchAbortController.abort(); } catch(e) {}
+                    }
+                    searchAbortController = new AbortController();
+                    var url = '/api/search?q=' + encodeURIComponent(query);
+                    fetch(url, { signal: searchAbortController.signal })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (data && Array.isArray(data)) {
+                                searchResultCache = { query: query.toLowerCase().trim(), filenames: data };
+                            }
+                            renderArticles(currentCategory);
+                        })
+                        .catch(function(err) {
+                            if (err.name === 'AbortError') return;
+                            console.warn('API搜索失败，使用本地搜索:', err);
+                            searchResultCache = { query: '', filenames: [] };
+                        });
+                }
+
                 function openSearch() {
                     searchPanel.classList.add('active');
                     searchToggle.classList.add('active');
@@ -3159,6 +3196,7 @@
                     updateDatePickerDisplay('from', '');
                     updateDatePickerDisplay('to', '');
                     syncSearchFiltersToUI();
+                    searchResultCache = { query: '', filenames: [] };
                     renderArticles('all');
                 }
 
@@ -3182,6 +3220,8 @@
                         } else {
                             searchClear.classList.remove('visible');
                         }
+                        // 调用 Worker API 进行全文搜索
+                        searchViaAPI(searchFilters.query);
                         renderArticles(currentCategory);
                     }, 250);
                 });
@@ -3280,7 +3320,15 @@
             async function initializePage() {
                 try {
                     updateLoadingProgress(8, '正在初始化...');
-                    articlesData = window.__ARTICLES__ || [];
+
+                    // 异步加载 articles.json（不再依赖内联注入的 window.__ARTICLES__）
+                    try {
+                        var resp = await fetch('/articles.json');
+                        articlesData = await resp.json();
+                    } catch(e) {
+                        console.warn('articles.json 加载失败:', e);
+                        articlesData = [];
+                    }
                     updateLoadingProgress(20, articlesData.length ? '文章数据已就绪' : '无文章数据');
 
                     updateLoadingProgress(30, '正在渲染文章...');

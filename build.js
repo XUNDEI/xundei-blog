@@ -235,6 +235,8 @@ function generateSitemap(articles, siteUrl) {
   </url>`;
 
   for (const article of articles) {
+    // 跳过友链文章，不加入 sitemap
+    if (article.category === 'friend_link') continue;
     const slug = path.basename(article.filename, '.md');
     const lastmod = article.latest || article.date || now;
     urls += `
@@ -331,17 +333,26 @@ function appendSitemapToRobots(distDir, siteUrl) {
   }
 }
 
-// ========== 注入文章数据到 index.html（爬虫友好） ==========
-function injectArticlesIntoIndex(articlesIndex, distDir) {
+// ========== 注入硬编码文章链接到 index.html（爬虫友好，纯HTML，无需JS渲染） ==========
+function injectArticleLinks(articlesIndex, distDir) {
   const indexPath = path.join(distDir, 'index.html');
   let html = fs.readFileSync(indexPath, 'utf-8');
 
-  const scriptTag = `<script>window.__ARTICLES__ = ${JSON.stringify(articlesIndex)};</script>`;
+  // 生成硬编码的文章链接列表（只含非友链文章）
+  const links = articlesIndex
+    .filter(a => a.category !== 'friend_link')
+    .map(a =>
+      `      <a href="${a.url}" title="${a.title.replace(/"/g, '&quot;')}">${a.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</a>`
+    )
+    .join('\n');
 
-  html = html.replace('</head>', `  ${scriptTag}\n</head>`);
+  const seoNavHtml = `  <!-- ===== 硬编码文章链接（供爬虫直接抓取） ===== -->\n  <nav class="seo-article-list" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;" aria-hidden="true">\n${links}\n  </nav>`;
+
+  // 插入到 <header> 之前，保证爬虫能抓到
+  html = html.replace('<header class="glass">', seoNavHtml + '\n        <header class="glass">');
 
   fs.writeFileSync(indexPath, html);
-  console.log('✅ 已注入文章数据到 index.html');
+  console.log('✅ 已注入硬编码文章链接到 index.html');
 }
 
 // ========== 主构建函数 ==========
@@ -448,22 +459,22 @@ function build() {
     console.log(`✅ 生成: articles/${slug}.html`);
   }
 
-  // 构建文章索引（不含 body，但添加 searchText 供前端搜索使用）
+  // 构建文章索引（不含 body，不含 searchText，添加 url 供前端展示和链接跳转）
   const articlesIndex = articles.map(({ body, ...rest }) => {
-    const searchText = stripMarkdown(body || '');
+    const slug = path.basename(rest.filename, '.md');
     return {
       ...rest,
       tags: normalizeTags(rest.tags),
-      searchText: searchText
+      url: `${SITE_URL}/articles/${slug}`
     };
   });
 
-  // 生成 articles.json（供文章页面读取 license 等信息）
+  // 生成 articles.json（供前端获取文章元数据，不含全文内容，体积小）
   fs.writeFileSync(
     path.join(distDir, 'articles.json'),
     JSON.stringify(articlesIndex, null, 2)
   );
-  console.log('✅ 生成 articles.json');
+  console.log('✅ 生成 articles.json（元数据，不含全文）');
 
   // 同时写入源目录（方便 git 追踪文章元数据变化）
   fs.writeFileSync(
@@ -472,8 +483,26 @@ function build() {
   );
   console.log('✅ 更新源目录 articles.json');
 
-  // 注入文章数据到 index.html（硬编码，爬虫可直接抓取）
-  injectArticlesIntoIndex(articlesIndex, distDir);
+  // 生成 search-index.json（含 searchText 完整搜索文本，供 Worker API 使用）
+  const searchIndex = articles
+    .filter(a => a.category !== 'friend_link')
+    .map(({ body, ...rest }) => {
+      const slug = path.basename(rest.filename, '.md');
+      return {
+        ...rest,
+        tags: normalizeTags(rest.tags),
+        url: `${SITE_URL}/articles/${slug}`,
+        searchText: stripMarkdown(body || '')
+      };
+    });
+  fs.writeFileSync(
+    path.join(distDir, 'search-index.json'),
+    JSON.stringify(searchIndex, null, 2)
+  );
+  console.log(`✅ 生成 search-index.json（${searchIndex.length} 篇可搜索文章，供 Worker API 使用）`);
+
+  // 注入硬编码文章链接到 index.html（爬虫可抓取，无需等待 JS 渲染）
+  injectArticleLinks(articlesIndex, distDir);
 
   // 生成 sitemap.xml
   const sitemap = generateSitemap(articles, SITE_URL);
