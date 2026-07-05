@@ -7,7 +7,8 @@ async function loadSearchIndex(request, env) {
   try {
     // 构造基于当前请求的绝对 URL
     const indexUrl = new URL('/search-index.json', request.url);
-    console.log(`[加载] 尝试从 ${indexUrl.toString()} 获取索引 (通过 ASSETS)`);
+    console.log(`[加载] 尝试从 ${indexUrl.toString()} 获取索引`);
+
     const req = new Request(indexUrl.toString());
     const resp = await env.ASSETS.fetch(req);
 
@@ -61,6 +62,7 @@ export default {
       const query = url.searchParams.get('q') || '';
       console.log(`[API] 查询词: "${query}"`);
 
+      // ✅ 关键修复：传入 env
       const articles = await loadSearchIndex(request, env);
       console.log(`[API] 索引条目数: ${articles.length}`);
 
@@ -76,7 +78,7 @@ export default {
       });
     }
 
-    // 静态资源（包括 /search-index.json）由 env.ASSETS 正常处理
+    // 其他静态资源（包括 wallpaper.json）由 ASSETS 正常返回
     return env.ASSETS.fetch(request);
   }
 };
