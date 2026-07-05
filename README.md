@@ -1,1 +1,3 @@
 这是我的blog，deepseek生成，只有前端，适合部署在CloudflarePages，现在有点懒得写readme，以后再说吧
+
+站点：https://xundei.qzz.io
