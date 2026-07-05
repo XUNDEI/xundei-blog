@@ -1,6 +1,5 @@
 {
   "name": "xundei-blog",
-  "main": "worker.js",
   "compatibility_date": "2026-07-05",
   "assets": {
     "directory": "./dist",
@@ -10,8 +9,8 @@
   "preview_urls": false,
   "observability": {
     "logs": {
-      "enabled": true,
-      "invocation_logs": true
+      "enabled": false,
+      "invocation_logs": false
     }
   }
 }

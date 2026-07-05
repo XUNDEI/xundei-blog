@@ -499,7 +499,14 @@ function build() {
     path.join(distDir, 'search-index.json'),
     JSON.stringify(searchIndex, null, 2)
   );
-  console.log(`✅ 生成 search-index.json（${searchIndex.length} 篇可搜索文章，供 Worker API 使用）`);
+  console.log(`✅ 生成 search-index.json（${searchIndex.length} 篇可搜索文章）`);
+
+  // 同时写入源目录（方便 git 追踪搜索索引变化）
+  fs.writeFileSync(
+    path.join(__dirname, 'search-index.json'),
+    JSON.stringify(searchIndex, null, 2)
+  );
+  console.log('✅ 更新源目录 search-index.json');
 
   // 注入硬编码文章链接到 index.html（爬虫可抓取，无需等待 JS 渲染）
   injectArticleLinks(articlesIndex, distDir);

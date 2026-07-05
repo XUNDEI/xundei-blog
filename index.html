@@ -1588,6 +1588,31 @@
         .search-panel .search-info.visible {
             display: block;
         }
+        .search-panel .search-info .search-loading {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .search-panel .search-info .search-loading i {
+            animation: fa-spin 1s linear infinite;
+        }
+        .search-panel .search-info .search-loaded {
+            color: rgba(76, 175, 80, 0.8);
+        }
+        .search-panel .search-info .search-error {
+            color: rgba(244, 67, 54, 0.8);
+        }
+        .search-panel .search-info .search-progress-bar {
+            height: 3px;
+            background: rgba(66, 133, 244, 0.3);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .search-panel .search-info .search-progress-bar .search-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4285F4, #7BA7BC);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
 
         .search-filters {
             margin-top: 14px;
@@ -2102,7 +2127,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.5">xundei-blog V2.11.5</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.7">xundei-blog V2.11.7</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -2229,8 +2254,8 @@
             let currentPage = 1;
             let currentSearchQuery = '';
             let currentTag = '';
-            let searchResultCache = { query: '', filenames: [] };
-            let searchAbortController = null;
+            let searchIndexData = null;          // search-index.json 缓存
+            let searchIndexLoading = false;     // search-index.json 加载状态
             let loadingOverlayHidden = false;
             let wallpaperResolved = false;
 
@@ -2724,13 +2749,14 @@
                 var query = (searchQuery !== undefined ? searchQuery : searchFilters.query);
                 if (query) {
                     var q = query.toLowerCase().trim();
-                    // 如果已有 Worker API 搜索缓存且匹配当前查询，使用缓存结果（含全文搜索）
-                    if (searchResultCache.query === q && searchResultCache.filenames.length > 0) {
+                    // 优先使用已加载的搜索索引（含全文 searchText 搜索）
+                    var localResults = searchLocally(query);
+                    if (localResults !== null && localResults !== undefined) {
                         filtered = filtered.filter(function(a) {
-                            return searchResultCache.filenames.indexOf(a.filename) !== -1;
+                            return localResults.indexOf(a.filename) !== -1;
                         });
                     } else {
-                        // 本地搜索（仅 title/tags/excerpt，不含 body 全文搜索）
+                        // 搜索索引未加载时，fallback 到基础搜索（仅 title/tags/excerpt）
                         var fields = searchFilters.fields;
                         filtered = filtered.filter(function(a) {
                             if (fields.title && (a.title || '').toLowerCase().indexOf(q) !== -1) return true;
@@ -2926,8 +2952,102 @@
                 updateDatePickerDisplay('from', '');
                 updateDatePickerDisplay('to', '');
                 syncSearchFiltersToUI();
-                searchResultCache = { query: '', filenames: [] };
                 renderArticles('all');
+            }
+
+            // ===== 懒加载 search-index.json（用户打开搜索栏时才加载） =====
+            function loadSearchIndex() {
+                if (searchIndexData) return Promise.resolve(searchIndexData);
+                if (searchIndexLoading) return searchIndexLoading;
+
+                var infoEl = document.getElementById('search-info');
+                if (infoEl) {
+                    infoEl.innerHTML = '<span class="search-loading"><i class="fas fa-spinner"></i> 正在加载搜索索引...</span><div class="search-progress-bar"><div class="search-progress-fill" id="search-progress-fill" style="width:10%"></div></div>';
+                    infoEl.classList.add('visible');
+                }
+
+                searchIndexLoading = new Promise(function(resolve, reject) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '/search-index.json', true);
+
+                    xhr.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            var pct = Math.round(e.loaded / e.total * 100);
+                            var fill = document.getElementById('search-progress-fill');
+                            if (fill) fill.style.width = pct + '%';
+                            if (infoEl) {
+                                infoEl.innerHTML = '<span class="search-loading"><i class="fas fa-spinner"></i> 正在加载搜索索引... ' + pct + '%</span><div class="search-progress-bar"><div class="search-progress-fill" id="search-progress-fill" style="width:' + pct + '%"></div></div>';
+                            }
+                        }
+                    };
+
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                searchIndexData = JSON.parse(xhr.responseText);
+                                var count = searchIndexData.length;
+                                if (infoEl) {
+                                    infoEl.innerHTML = '<span class="search-loaded"><i class="fas fa-check-circle"></i> 搜索索引已加载（' + count + ' 篇文章）</span>';
+                                    setTimeout(function() {
+                                        if (infoEl) infoEl.classList.remove('visible');
+                                    }, 2500);
+                                }
+                                resolve(searchIndexData);
+                            } catch(e) {
+                                if (infoEl) {
+                                    infoEl.innerHTML = '<span class="search-error"><i class="fas fa-exclamation-triangle"></i> 搜索索引解析失败</span>';
+                                }
+                                searchIndexData = [];
+                                reject(e);
+                            }
+                        } else {
+                            if (infoEl) {
+                                infoEl.innerHTML = '<span class="search-error"><i class="fas fa-exclamation-triangle"></i> 搜索索引加载失败（' + xhr.status + '）</span>';
+                            }
+                            searchIndexData = [];
+                            reject(new Error('HTTP ' + xhr.status));
+                        }
+                        searchIndexLoading = false;
+                    };
+
+                    xhr.onerror = function() {
+                        if (infoEl) {
+                            infoEl.innerHTML = '<span class="search-error"><i class="fas fa-exclamation-triangle"></i> 搜索索引加载失败（网络错误）</span>';
+                        }
+                        searchIndexData = [];
+                        searchIndexLoading = false;
+                        reject(new Error('Network error'));
+                    };
+
+                    xhr.send();
+                });
+
+                return searchIndexLoading;
+            }
+
+            // ===== 本地全文搜索（基于已加载的 searchIndexData） =====
+            function searchLocally(query) {
+                if (!query || !searchIndexData || !searchIndexData.length) return null;
+
+                var q = query.toLowerCase().trim();
+                if (!q) return [];
+
+                var fields = searchFilters.fields;
+                var results = [];
+
+                for (var i = 0; i < searchIndexData.length; i++) {
+                    var article = searchIndexData[i];
+                    var match = false;
+
+                    if (fields.title && (article.title || '').toLowerCase().indexOf(q) !== -1) match = true;
+                    if (!match && fields.body && (article.searchText || '').toLowerCase().indexOf(q) !== -1) match = true;
+                    if (!match && fields.tags && (article.tags || '').toLowerCase().indexOf(q) !== -1) match = true;
+                    if (!match && fields.excerpt && (article.excerpt || '').toLowerCase().indexOf(q) !== -1) match = true;
+
+                    if (match) results.push(article.filename);
+                }
+
+                return results;
             }
 
             function updateDatePickerDisplay(type, dateStr) {
@@ -3156,59 +3276,25 @@
                 var searchClear = document.getElementById('search-clear');
                 var searchTimer = null;
 
-                // ===== Worker API 搜索 =====
-                function setBodySearchEnabled(enabled) {
-                    var bodyCheckbox = document.querySelector('input[data-field="body"]');
-                    if (!bodyCheckbox) return;
-                    var item = bodyCheckbox.closest('.checkbox-item');
-                    if (enabled) {
-                        bodyCheckbox.disabled = false;
-                        if (item) item.classList.remove('disabled');
-                    } else {
-                        bodyCheckbox.disabled = true;
-                        bodyCheckbox.checked = false;
-                        searchFilters.fields.body = false;
-                        if (item) item.classList.add('disabled');
-                    }
-                }
-
-                function searchViaAPI(query) {
-                    if (!query) {
-                        searchResultCache = { query: '', filenames: [] };
-                        return;
-                    }
-                    // 取消上一次请求
-                    if (searchAbortController) {
-                        try { searchAbortController.abort(); } catch(e) {}
-                    }
-                    searchAbortController = new AbortController();
-                    var url = '/api/search?q=' + encodeURIComponent(query);
-                    fetch(url, { signal: searchAbortController.signal })
-                        .then(function(res) {
-                            if (!res.ok) throw new Error('API responded with ' + res.status);
-                            return res.json();
-                        })
-                        .then(function(data) {
-                            if (data && Array.isArray(data)) {
-                                searchResultCache = { query: query.toLowerCase().trim(), filenames: data };
-                            }
-                            // API 可用，启用正文搜索
-                            setBodySearchEnabled(true);
-                            renderArticles(currentCategory);
-                        })
-                        .catch(function(err) {
-                            if (err.name === 'AbortError') return;
-                            console.warn('API搜索失败，使用本地搜索:', err);
-                            searchResultCache = { query: '', filenames: [] };
-                            // API 不可用，禁用正文搜索变灰
-                            setBodySearchEnabled(false);
+                // ===== 懒加载搜索索引（search-index.json），点击搜索栏时触发 =====
+                function triggerSearchLoad() {
+                    if (!searchIndexData && !searchIndexLoading) {
+                        loadSearchIndex().then(function() {
+                            // 索引加载完成，如有当前搜索则刷新结果
+                            if (searchFilters.query) renderArticles(currentCategory);
+                        }).catch(function() {
+                            // 加载失败，body 搜索不可用，但基础搜索（title/tags/excerpt）仍可用
+                            console.warn('search-index.json 加载失败，全文搜索不可用');
                         });
+                    }
                 }
 
                 function openSearch() {
                     searchPanel.classList.add('active');
                     searchToggle.classList.add('active');
                     setTimeout(function() { searchInput.focus(); }, 200);
+                    // 首次打开搜索栏时懒加载 search-index.json
+                    triggerSearchLoad();
                 }
 
                 function closeSearch() {
@@ -3228,7 +3314,6 @@
                     updateDatePickerDisplay('from', '');
                     updateDatePickerDisplay('to', '');
                     syncSearchFiltersToUI();
-                    searchResultCache = { query: '', filenames: [] };
                     renderArticles('all');
                 }
 
@@ -3252,8 +3337,10 @@
                         } else {
                             searchClear.classList.remove('visible');
                         }
-                        // 调用 Worker API 进行全文搜索
-                        searchViaAPI(searchFilters.query);
+                        // 首次输入时触发懒加载（若尚未加载）
+                        if (searchFilters.query && !searchIndexData && !searchIndexLoading) {
+                            triggerSearchLoad();
+                        }
                         renderArticles(currentCategory);
                     }, 250);
                 });
