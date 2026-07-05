@@ -3,30 +3,30 @@
 //   1. 提供静态资源服务（通过 env.ASSETS.fetch）
 //   2. /api/search?q=... 全文搜索 API（读取 search-index.json）
 
-// 缓存 search-index.json，避免每次请求都读取
 let searchIndexCache = null;
-let searchIndexPromise = null;
 
-async function loadSearchIndex(env) {
+async function loadSearchIndex(request) {
   if (searchIndexCache) return searchIndexCache;
-  if (searchIndexPromise) return searchIndexPromise;
 
-  searchIndexPromise = (async () => {
-    try {
-      const resp = await env.ASSETS.fetch('https://fake/search-index.json');
-      if (!resp.ok) {
-        console.error('search-index.json 加载失败:', resp.status);
-        return [];
-      }
-      searchIndexCache = await resp.json();
-      return searchIndexCache;
-    } catch (e) {
-      console.error('search-index.json 加载异常:', e);
+  // 通过 fetch() 请求自身域名的 /search-index.json，
+  // worker 收到后会走 env.ASSETS.fetch(request) 返回静态文件
+  try {
+    const url = new URL(request.url);
+    url.pathname = '/search-index.json';
+    url.search = '';
+
+    const resp = await fetch(url.toString());
+    if (!resp.ok) {
+      console.error('search-index.json 加载失败:', resp.status);
       return [];
     }
-  })();
-
-  return searchIndexPromise;
+    searchIndexCache = await resp.json();
+    return searchIndexCache;
+  } catch (e) {
+    console.error('search-index.json 加载异常:', e);
+    // 出错时不缓存空值，下次请求会重试
+    return [];
+  }
 }
 
 function searchArticles(articles, query) {
@@ -63,7 +63,7 @@ export default {
     // ===== 搜索 API =====
     if (url.pathname === '/api/search') {
       const query = url.searchParams.get('q') || '';
-      const articles = await loadSearchIndex(env);
+      const articles = await loadSearchIndex(request);
       const results = searchArticles(articles, query);
 
       return new Response(JSON.stringify(results), {

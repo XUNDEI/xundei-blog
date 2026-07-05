@@ -1633,6 +1633,16 @@
             cursor: pointer;
             margin: 0;
         }
+        .checkbox-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .checkbox-item.disabled input[type="checkbox"] {
+            cursor: not-allowed;
+        }
+        .checkbox-item.disabled:hover {
+            color: rgba(255, 255, 255, 0.85);
+        }
 
         /* 自定义日期选择器样式 */
         .date-range {
@@ -2092,7 +2102,7 @@
         <footer class="glass">
             <div class="footer-content">
                 <span>made by <strong>xundei</strong> with ❤️ |</span>
-                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.6">xundei-blog V2.11.6</a>
+                <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.5">xundei-blog V2.11.5</a>
                 <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
                 <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
                 <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -3147,6 +3157,21 @@
                 var searchTimer = null;
 
                 // ===== Worker API 搜索 =====
+                function setBodySearchEnabled(enabled) {
+                    var bodyCheckbox = document.querySelector('input[data-field="body"]');
+                    if (!bodyCheckbox) return;
+                    var item = bodyCheckbox.closest('.checkbox-item');
+                    if (enabled) {
+                        bodyCheckbox.disabled = false;
+                        if (item) item.classList.remove('disabled');
+                    } else {
+                        bodyCheckbox.disabled = true;
+                        bodyCheckbox.checked = false;
+                        searchFilters.fields.body = false;
+                        if (item) item.classList.add('disabled');
+                    }
+                }
+
                 function searchViaAPI(query) {
                     if (!query) {
                         searchResultCache = { query: '', filenames: [] };
@@ -3159,17 +3184,24 @@
                     searchAbortController = new AbortController();
                     var url = '/api/search?q=' + encodeURIComponent(query);
                     fetch(url, { signal: searchAbortController.signal })
-                        .then(function(res) { return res.json(); })
+                        .then(function(res) {
+                            if (!res.ok) throw new Error('API responded with ' + res.status);
+                            return res.json();
+                        })
                         .then(function(data) {
                             if (data && Array.isArray(data)) {
                                 searchResultCache = { query: query.toLowerCase().trim(), filenames: data };
                             }
+                            // API 可用，启用正文搜索
+                            setBodySearchEnabled(true);
                             renderArticles(currentCategory);
                         })
                         .catch(function(err) {
                             if (err.name === 'AbortError') return;
                             console.warn('API搜索失败，使用本地搜索:', err);
                             searchResultCache = { query: '', filenames: [] };
+                            // API 不可用，禁用正文搜索变灰
+                            setBodySearchEnabled(false);
                         });
                 }
 
