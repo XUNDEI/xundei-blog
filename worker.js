@@ -5,36 +5,44 @@
 
 let searchIndexCache = null;
 
-async function loadSearchIndex(request) {
+/**
+ * 加载全文搜索索引
+ * @param {object} env - Worker 环境变量（包含 ASSETS 绑定）
+ * @returns {Promise<Array>} 索引数组
+ */
+async function loadSearchIndex(env) {
   if (searchIndexCache) return searchIndexCache;
 
-  // 通过 fetch() 请求自身域名的 /search-index.json，
-  // worker 收到后会走 env.ASSETS.fetch(request) 返回静态文件
   try {
-    const url = new URL(request.url);
-    url.pathname = '/search-index.json';
-    url.search = '';
+    // 直接通过 ASSETS 绑定读取静态文件，路径为站点根目录下的 search-index.json
+    // （因为 dist/ 被设为站点根目录，所以直接使用 /search-index.json）
+    const req = new Request('/search-index.json');
+    const resp = await env.ASSETS.fetch(req);
 
-    const resp = await fetch(url.toString());
     if (!resp.ok) {
-      console.error('search-index.json 加载失败:', resp.status);
+      console.error(`search-index.json 加载失败，状态码: ${resp.status}`);
       return [];
     }
+
     searchIndexCache = await resp.json();
     return searchIndexCache;
   } catch (e) {
     console.error('search-index.json 加载异常:', e);
-    // 出错时不缓存空值，下次请求会重试
     return [];
   }
 }
 
+/**
+ * 在索引中搜索匹配的文章文件名
+ * @param {Array} articles - 索引数组
+ * @param {string} query - 搜索关键词
+ * @returns {Array<string>} 匹配的文章文件名列表
+ */
 function searchArticles(articles, query) {
   if (!query || !articles || !articles.length) return [];
   const q = query.toLowerCase().trim();
   if (!q) return [];
 
-  // 在所有可搜索字段中匹配
   const results = [];
   for (let i = 0; i < articles.length; i++) {
     const a = articles[i];
@@ -63,7 +71,7 @@ export default {
     // ===== 搜索 API =====
     if (url.pathname === '/api/search') {
       const query = url.searchParams.get('q') || '';
-      const articles = await loadSearchIndex(request);
+      const articles = await loadSearchIndex(env);
       const results = searchArticles(articles, query);
 
       return new Response(JSON.stringify(results), {
