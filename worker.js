@@ -1,26 +1,29 @@
+// ========== Cloudflare Worker - xundei-blog ==========
 let searchIndexCache = null;
 
-async function loadSearchIndex(env) {
+async function loadSearchIndex(request, env) {
   if (searchIndexCache !== null) return searchIndexCache;
 
-  // 只使用 ASSETS 绑定读取静态文件
   try {
-    console.log('[ASSETS] 尝试加载 /search-index.json');
-    const req = new Request('/search-index.json');
+    // 构造基于当前请求的绝对 URL
+    const indexUrl = new URL('/search-index.json', request.url);
+    console.log(`[加载] 尝试从 ${indexUrl.toString()} 获取索引 (通过 ASSETS)`);
+    const req = new Request(indexUrl.toString());
     const resp = await env.ASSETS.fetch(req);
-    console.log(`[ASSETS] 响应状态: ${resp.status}`);
-    if (resp.ok) {
-      const data = await resp.json();
-      console.log(`[ASSETS] 成功，条目数: ${data.length}`);
-      searchIndexCache = data;
-      return data;
-    } else {
-      console.error(`[ASSETS] 加载失败，状态码: ${resp.status}`);
+
+    console.log(`[加载] 响应状态: ${resp.status}`);
+    if (!resp.ok) {
+      console.error(`[加载] 失败，状态码 ${resp.status}`);
       searchIndexCache = [];
       return [];
     }
+
+    const data = await resp.json();
+    console.log(`[加载] 成功，条目数: ${data.length}`);
+    searchIndexCache = data;
+    return data;
   } catch (e) {
-    console.error('[ASSETS] 异常:', e.message);
+    console.error('[加载] 异常:', e);
     searchIndexCache = [];
     return [];
   }
@@ -58,7 +61,7 @@ export default {
       const query = url.searchParams.get('q') || '';
       console.log(`[API] 查询词: "${query}"`);
 
-      const articles = await loadSearchIndex(env);
+      const articles = await loadSearchIndex(request, env);
       console.log(`[API] 索引条目数: ${articles.length}`);
 
       const results = searchArticles(articles, query);
@@ -73,6 +76,7 @@ export default {
       });
     }
 
+    // 静态资源（包括 /search-index.json）由 env.ASSETS 正常处理
     return env.ASSETS.fetch(request);
   }
 };
