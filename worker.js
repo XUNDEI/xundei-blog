@@ -1,66 +1,71 @@
 // ========== Cloudflare Worker - xundei-blog ==========
-// 功能：
-//   1. 提供静态资源服务（通过 env.ASSETS.fetch）
-//   2. /api/search?q=... 全文搜索 API（读取 search-index.json）
-
 let searchIndexCache = null;
 
-/**
- * 加载全文搜索索引
- * @param {object} env - Worker 环境变量（包含 ASSETS 绑定）
- * @returns {Promise<Array>} 索引数组
- */
-async function loadSearchIndex(env) {
-  if (searchIndexCache) return searchIndexCache;
+async function loadSearchIndex(env, request) {
+  if (searchIndexCache !== null) return searchIndexCache; // 用 !== null 可缓存空数组
 
+  // 方式1: 使用 env.ASSETS.fetch（官方推荐）
   try {
-    // 直接通过 ASSETS 绑定读取静态文件，路径为站点根目录下的 search-index.json
-    // （因为 dist/ 被设为站点根目录，所以直接使用 /search-index.json）
     const req = new Request('/search-index.json');
     const resp = await env.ASSETS.fetch(req);
-
-    if (!resp.ok) {
-      console.error(`search-index.json 加载失败，状态码: ${resp.status}`);
-      return [];
+    console.log(`[ASSETS] 状态码: ${resp.status}`);
+    if (resp.ok) {
+      const data = await resp.json();
+      console.log(`[ASSETS] 加载成功，条目数: ${data.length}`);
+      searchIndexCache = data;
+      return data;
+    } else {
+      console.error(`[ASSETS] 加载失败，状态码: ${resp.status}`);
     }
-
-    searchIndexCache = await resp.json();
-    return searchIndexCache;
   } catch (e) {
-    console.error('search-index.json 加载异常:', e);
-    return [];
+    console.error('[ASSETS] 异常:', e);
   }
+
+  // 方式2: 备选，使用 fetch 请求自身域名（若 ASSETS 失败）
+  try {
+    const url = new URL(request.url);
+    url.pathname = '/search-index.json';
+    url.search = '';
+    const resp = await fetch(url.toString());
+    console.log(`[FETCH] 状态码: ${resp.status}`);
+    if (resp.ok) {
+      const data = await resp.json();
+      console.log(`[FETCH] 加载成功，条目数: ${data.length}`);
+      searchIndexCache = data;
+      return data;
+    } else {
+      console.error(`[FETCH] 加载失败，状态码: ${resp.status}`);
+    }
+  } catch (e) {
+    console.error('[FETCH] 异常:', e);
+  }
+
+  // 两种方式均失败，返回空数组并缓存（避免重复请求）
+  searchIndexCache = [];
+  return [];
 }
 
-/**
- * 在索引中搜索匹配的文章文件名
- * @param {Array} articles - 索引数组
- * @param {string} query - 搜索关键词
- * @returns {Array<string>} 匹配的文章文件名列表
- */
 function searchArticles(articles, query) {
   if (!query || !articles || !articles.length) return [];
   const q = query.toLowerCase().trim();
   if (!q) return [];
 
   const results = [];
-  for (let i = 0; i < articles.length; i++) {
-    const a = articles[i];
+  for (const a of articles) {
     const title = (a.title || '').toLowerCase();
     const excerpt = (a.excerpt || '').toLowerCase();
     const tags = (a.tags || '').toLowerCase();
     const searchText = (a.searchText || '').toLowerCase();
 
     if (
-      title.indexOf(q) !== -1 ||
-      excerpt.indexOf(q) !== -1 ||
-      tags.indexOf(q) !== -1 ||
-      searchText.indexOf(q) !== -1
+      title.includes(q) ||
+      excerpt.includes(q) ||
+      tags.includes(q) ||
+      searchText.includes(q)
     ) {
       results.push(a.filename);
     }
   }
-
   return results;
 }
 
@@ -68,11 +73,13 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // ===== 搜索 API =====
     if (url.pathname === '/api/search') {
       const query = url.searchParams.get('q') || '';
-      const articles = await loadSearchIndex(env);
+      console.log(`[API] 查询词: "${query}"`);
+      const articles = await loadSearchIndex(env, request);
+      console.log(`[API] 索引条目数: ${articles.length}`);
       const results = searchArticles(articles, query);
+      console.log(`[API] 匹配结果数: ${results.length}`);
 
       return new Response(JSON.stringify(results), {
         headers: {
@@ -83,7 +90,6 @@ export default {
       });
     }
 
-    // ===== 静态资源 =====
     return env.ASSETS.fetch(request);
   }
 };
