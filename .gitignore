@@ -3,4 +3,6 @@ build.bat
 node_modules/
 start.bat
 dist/
+article.json
+search-index.jsons
 

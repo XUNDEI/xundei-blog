@@ -109,14 +109,11 @@
             --scrollbar-width: 10px;
             --glow-color: rgba(66, 133, 244, 0.7);
 
-            /* 极光背景渐变（底色） */
             --aurora-gradient: linear-gradient(135deg, #B8D8E3 0%, #D4C5D9 50%, #E8D5D0 100%);
-            /* 光斑颜色 */
             --aurora-primary: #7BA7BC;
             --aurora-secondary: #C4A6C2;
         }
 
-        /* 黄昏睡莲主题 */
         body.theme-evening {
             --aurora-gradient: linear-gradient(135deg, #F4C4A8 0%, #C9A0B6 50%, #5B6D8A 100%);
             --aurora-primary: #E2B49A;
@@ -144,7 +141,6 @@
             background-image: none;
         }
 
-        /* ===== 极光背景容器 ===== */
         .aurora-background {
             position: fixed;
             top: 0;
@@ -154,8 +150,7 @@
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            /* 在渐变上叠加一层 5% 透明度的黑色，柔和降低亮度 */
-            background: 
+            background:
                 linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)),
                 var(--aurora-gradient);
             transition: opacity 0.8s ease;
@@ -170,7 +165,24 @@
             display: none;
         }
 
-        /* 主容器提升层级 */
+        /* 亮度自适应调节层 */
+        .brightness-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            background: transparent;
+        }
+        .brightness-overlay.active {
+            opacity: 1;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -179,15 +191,12 @@
             z-index: 1;
         }
 
-        /* 光斑基础样式 */
         .aurora-orb {
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
             will-change: transform;
         }
-
-        /* 光斑1 — 左上，主色 */
         .aurora-orb-1 {
             width: min(600px, 80vw);
             height: min(600px, 80vw);
@@ -198,8 +207,6 @@
             top: 5%;
             animation: orb1-drift 22s ease-in-out infinite;
         }
-
-        /* 光斑2 — 右下，辅色 */
         .aurora-orb-2 {
             width: min(500px, 65vw);
             height: min(500px, 65vw);
@@ -210,8 +217,6 @@
             bottom: 10%;
             animation: orb2-drift 26s ease-in-out infinite;
         }
-
-        /* 光斑3 — 中间偏左，主色 */
         .aurora-orb-3 {
             width: min(450px, 55vw);
             height: min(450px, 55vw);
@@ -222,8 +227,6 @@
             top: 40%;
             animation: orb3-drift 30s ease-in-out infinite;
         }
-
-        /* 光斑4 — 右上，辅色 */
         .aurora-orb-4 {
             width: min(300px, 40vw);
             height: min(300px, 40vw);
@@ -235,7 +238,6 @@
             animation: orb4-drift 18s ease-in-out infinite;
         }
 
-        /* 光斑动画 — 带缩放效果 */
         @keyframes orb1-drift {
             0% { transform: translate(0, 0) scale(1); }
             25% { transform: translate(10%, 8%) scale(1.15); }
@@ -791,13 +793,14 @@
     </style>
 </head>
 <body>
-    <!-- 极光背景 -->
     <div class="aurora-background" id="aurora-bg">
         <div class="aurora-orb aurora-orb-1"></div>
         <div class="aurora-orb aurora-orb-2"></div>
         <div class="aurora-orb aurora-orb-3"></div>
         <div class="aurora-orb aurora-orb-4"></div>
     </div>
+
+    <div class="brightness-overlay" id="brightness-overlay"></div>
 
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-card">
@@ -907,7 +910,6 @@
 
     <script>
         (function() {
-            // 极光主题切换
             function getAuroraTheme() {
                 var hour = new Date().getHours();
                 if (hour >= 18 || hour < 6) {
@@ -936,7 +938,6 @@
             let loadingOverlayHidden = false;
             let wallpaperResolved = false;
 
-            // 不再设置天空渐变背景
             document.body.style.backgroundImage = 'none';
 
             async function simpleFetch(url, options = {}) {
@@ -996,23 +997,125 @@
                 loadingErrors.length = 0;
             }
 
-            // 加载壁纸图片，并在背景上叠加 15% 透明度的黑色层以降低亮度
+            // 亮度分析与自适应调节
+            function analyzeWallpaperBrightness(img) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const sampleSize = 100;
+                canvas.width = sampleSize;
+                canvas.height = sampleSize;
+                ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+                const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize);
+                const data = imageData.data;
+
+                const centerXStart = Math.floor(sampleSize * 0.25);
+                const centerXEnd = Math.floor(sampleSize * 0.75);
+                const centerYStart = Math.floor(sampleSize * 0.25);
+                const centerYEnd = Math.floor(sampleSize * 0.75);
+                const cornerSize = Math.floor(sampleSize * 0.15);
+
+                let totalLum = 0, totalPixels = 0;
+                let centerLum = 0, centerPixels = 0;
+                let cornersLum = 0, cornersPixels = 0;
+
+                for (let y = 0; y < sampleSize; y++) {
+                    for (let x = 0; x < sampleSize; x++) {
+                        const idx = (y * sampleSize + x) * 4;
+                        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+                        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                        totalLum += lum;
+                        totalPixels++;
+
+                        if (x >= centerXStart && x < centerXEnd && y >= centerYStart && y < centerYEnd) {
+                            centerLum += lum;
+                            centerPixels++;
+                        }
+
+                        if ((x < cornerSize && y < cornerSize) ||
+                            (x >= sampleSize - cornerSize && y < cornerSize) ||
+                            (x < cornerSize && y >= sampleSize - cornerSize) ||
+                            (x >= sampleSize - cornerSize && y >= sampleSize - cornerSize)) {
+                            cornersLum += lum;
+                            cornersPixels++;
+                        }
+                    }
+                }
+
+                const avgLum = totalLum / totalPixels;
+                const avgCenter = centerLum / centerPixels;
+                const avgCorners = cornersLum / cornersPixels;
+
+                return { avg: avgLum, center: avgCenter, corners: avgCorners };
+            }
+
+            function applyBrightnessAdjustment(brightness) {
+                const overlay = document.getElementById('brightness-overlay');
+                if (!overlay) return;
+
+                const avg = brightness.avg;
+                const center = brightness.center;
+                const corners = brightness.corners;
+
+                const overallAlpha = Math.max(0, Math.min(0.65, (avg - 150) / 105 * 0.65));
+                let backgroundStyle = '';
+
+                if (overallAlpha > 0.01) {
+                    backgroundStyle += `linear-gradient(rgba(0,0,0,${overallAlpha}), rgba(0,0,0,${overallAlpha}))`;
+                }
+
+                const centerDiff = center - corners;
+                const cornersDiff = corners - center;
+                const threshold = 18;
+
+                let radialGradient = '';
+                if (centerDiff > threshold) {
+                    const centerAlpha = Math.min(0.55, centerDiff / 80 * 0.55);
+                    radialGradient = `radial-gradient(ellipse at 50% 50%, rgba(0,0,0,${centerAlpha}) 0%, rgba(0,0,0,0) 70%)`;
+                } else if (cornersDiff > threshold) {
+                    const cornerAlpha = Math.min(0.5, cornersDiff / 80 * 0.5);
+                    radialGradient = `radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,${cornerAlpha}) 100%)`;
+                }
+
+                if (radialGradient) {
+                    backgroundStyle = backgroundStyle ? backgroundStyle + ', ' + radialGradient : radialGradient;
+                }
+
+                if (backgroundStyle) {
+                    overlay.style.background = backgroundStyle;
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                    overlay.style.background = 'transparent';
+                }
+            }
+
             function loadImage(imgUrl) {
                 return new Promise((resolve) => {
                     const img = new Image();
-                    // 构建带亮度调节的背景：叠加 rgba(0,0,0,0.15) 降低 15% 亮度
-                    const bgValue = 'linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url(' + imgUrl + ')';
+                    img.crossOrigin = 'anonymous';
                     img.onload = () => {
-                        document.body.style.backgroundImage = bgValue;
+                        document.body.style.backgroundImage = 'url(' + imgUrl + ')';
                         hideAuroraBackground();
+
+                        try {
+                            const brightness = analyzeWallpaperBrightness(img);
+                            applyBrightnessAdjustment(brightness);
+                        } catch (e) {
+                            console.warn('亮度分析失败，跳过自适应调节', e);
+                        }
+
                         resolve(true);
                     };
                     img.onerror = () => resolve(false);
                     img.src = imgUrl;
                     if (img.complete) {
                         if (img.naturalWidth > 0) {
-                            document.body.style.backgroundImage = bgValue;
+                            document.body.style.backgroundImage = 'url(' + imgUrl + ')';
                             hideAuroraBackground();
+                            try {
+                                const brightness = analyzeWallpaperBrightness(img);
+                                applyBrightnessAdjustment(brightness);
+                            } catch (e) {}
                             resolve(true);
                         } else {
                             resolve(false);
@@ -1400,7 +1503,6 @@
 
                 loadWallpaperBackground().then(ok => {
                     if (!ok) {
-                        // 壁纸加载失败，极光背景保持显示
                         console.log('壁纸加载失败，保持极光背景显示');
                     }
                 }).catch(e => {
