@@ -13,7 +13,9 @@
     <meta property="og:url" content="{{OG_URL}}">
     <meta property="og:site_name" content="xundei's blog">
     <meta name="twitter:card" content="summary">
-    <script type="application/ld+json">{{JSON_LD}}</script>
+    <script type="application/ld+json">
+        {{JSON_LD}}
+    </script>
     <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -165,7 +167,6 @@
             display: none;
         }
 
-        /* 亮度自适应调节层 */
         .brightness-overlay {
             position: fixed;
             top: 0;
@@ -560,6 +561,23 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             max-width: 100%;
             box-sizing: border-box;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .article-full-content pre.code-folded {
+            overflow: hidden;
+            position: relative;
+        }
+        .article-full-content pre.code-folded::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent 0%, var(--code-bg) 85%);
+            pointer-events: none;
+            border-radius: 0 0 10px 10px;
+            z-index: 1;
         }
         .article-full-content code {
             font-family: 'Fira Code', 'Courier New', monospace;
@@ -606,11 +624,12 @@
             text-transform: uppercase;
             font-weight: 500;
             letter-spacing: 0.5px;
+            z-index: 2;
         }
-        .copy-btn {
+        .copy-btn,
+        .fold-btn {
             position: absolute;
             top: 10px;
-            right: 10px;
             background: var(--code-copy-bg);
             border: none;
             border-radius: 4px;
@@ -622,9 +641,16 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            z-index: 2;
+            z-index: 3;
         }
-        .copy-btn:hover {
+        .copy-btn {
+            right: 10px;
+        }
+        .fold-btn {
+            right: 100px; /* 防止与复制按钮重叠 */
+        }
+        .copy-btn:hover,
+        .fold-btn:hover {
             background: var(--code-copy-hover);
             color: white;
             box-shadow: 0 0 10px var(--glow-color);
@@ -748,13 +774,17 @@
             .article-full-content img.lazy-error { min-height:100px; }
             .lightbox-close,.lightbox-rotate-cw,.lightbox-rotate-ccw { width:40px; height:40px; font-size:1.3rem; }
             .lightbox-close { right:15px; } .lightbox-rotate-cw { right:65px; } .lightbox-rotate-ccw { right:115px; }
+            .fold-btn { right: 75px; }
         }
         @media (max-width:480px) {
             .article-title { font-size:1.6rem; }
             .article-meta { font-size:0.9rem; }
             .article-full-content { font-size:1rem; }
             .code-language { font-size:0.7rem; right:45px; }
-            .copy-btn { padding:5px 8px; font-size:0.7rem; }
+            .copy-btn,
+            .fold-btn { padding:5px 8px; font-size:0.7rem; }
+            .copy-btn { right: 6px; }
+            .fold-btn { right: 55px; }
             .toc-container { max-width:250px; }
             .loading-card { width:260px; padding:24px 18px 16px; }
             .loading-card .loader { width:38px; height:38px; border-width:3px; }
@@ -1216,20 +1246,79 @@
                 }
             }
 
+            // 代码块折叠行数阈值
+            const CODE_FOLD_LINE_THRESHOLD = 15;
+            // 折叠时最大高度
+            const CODE_FOLD_MAX_HEIGHT = '26rem';
+
             function addCopyButtonsToCodeBlocks() {
                 const codeBlocks = document.querySelectorAll('.article-full-content pre');
                 codeBlocks.forEach((pre) => {
-                    const copyButton = document.createElement('button');
-                    copyButton.className = 'copy-btn';
-                    copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
                     const code = pre.querySelector('code');
-                    const language = code.className.replace('language-', '') || 'code';
+                    if (!code) return;
+
+                    const codeText = code.innerText || code.textContent || '';
+                    const lines = codeText.split('\n');
+                    const lineCount = lines.length;
+                    const needsFold = lineCount > CODE_FOLD_LINE_THRESHOLD;
+
+                    const language = (code.className || '').replace('language-', '') || 'code';
                     const langLabel = document.createElement('span');
                     langLabel.className = 'code-language';
                     langLabel.textContent = language;
                     pre.appendChild(langLabel);
+
+                    if (needsFold) {
+                        const foldButton = document.createElement('button');
+                        foldButton.className = 'fold-btn';
+                        foldButton.innerHTML = '<i class="fas fa-chevron-down"></i> 展开';
+                        foldButton.setAttribute('aria-label', '展开代码');
+                        foldButton.setAttribute('title', '展开代码块');
+
+                        // 初始折叠状态
+                        pre.classList.add('code-folded');
+                        pre.style.maxHeight = CODE_FOLD_MAX_HEIGHT;
+                        pre.style.overflow = 'hidden';
+                        let isFolded = true;
+
+                        foldButton.addEventListener('click', () => {
+                            if (isFolded) {
+                                // 展开：先获取实际高度，然后过渡到实际高度
+                                pre.classList.remove('code-folded');
+                                const actualHeight = pre.scrollHeight;
+                                pre.style.maxHeight = actualHeight + 'px';
+                                pre.style.overflow = 'hidden'; // 过渡期间保持hidden，防止滚动条闪现
+                                foldButton.innerHTML = '<i class="fas fa-chevron-up"></i> 折叠';
+                                foldButton.setAttribute('aria-label', '折叠代码');
+                                foldButton.setAttribute('title', '折叠代码块');
+                                
+                                const onTransitionEnd = () => {
+                                    pre.style.maxHeight = 'none';
+                                    pre.style.overflow = 'auto';
+                                    pre.removeEventListener('transitionend', onTransitionEnd);
+                                };
+                                pre.addEventListener('transitionend', onTransitionEnd);
+                                isFolded = false;
+                            } else {
+                                // 折叠：过渡到固定折叠高度
+                                pre.classList.add('code-folded');
+                                pre.style.maxHeight = CODE_FOLD_MAX_HEIGHT;
+                                pre.style.overflow = 'hidden';
+                                foldButton.innerHTML = '<i class="fas fa-chevron-down"></i> 展开';
+                                foldButton.setAttribute('aria-label', '展开代码');
+                                foldButton.setAttribute('title', '展开代码块');
+                                isFolded = true;
+                            }
+                        });
+
+                        pre.appendChild(foldButton);
+                    }
+
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-btn';
+                    copyButton.innerHTML = '<i class="fas fa-copy"></i> 复制';
                     copyButton.addEventListener('click', () => {
-                        const textToCopy = code.innerText;
+                        const textToCopy = code.innerText || code.textContent;
                         navigator.clipboard.writeText(textToCopy).then(() => {
                             copyButton.innerHTML = '<i class="fas fa-check"></i> 已复制';
                             copyButton.classList.add('success');
@@ -1250,6 +1339,24 @@
                     });
                     pre.appendChild(copyButton);
                 });
+            }
+
+            // 重新计算阅读时间（仅计算中文字符）
+            function recalculateReadingTime() {
+                const readingTimeEl = document.querySelector('.reading-time');
+                if (!readingTimeEl) return;
+
+                const contentEl = document.querySelector('.article-full-content');
+                if (!contentEl) return;
+
+                const textContent = contentEl.textContent || contentEl.innerText || '';
+                const chineseChars = textContent.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g);
+                const chineseCount = chineseChars ? chineseChars.length : 0;
+
+                const wordsPerMinute = 400;
+                const minutes = Math.max(1, Math.ceil(chineseCount / wordsPerMinute));
+
+                readingTimeEl.textContent = '预计阅读时间: ' + minutes + ' 分钟';
             }
 
             function handleImageClick(e) {
@@ -1512,6 +1619,9 @@
                 updateLoadingProgress(55, '正在渲染文章...');
                 if (hasLazyImages) startArticleImageLazyLoading();
                 addCopyButtonsToCodeBlocks();
+
+                // 优化后的阅读时间（仅中文字符）
+                recalculateReadingTime();
 
                 const codeElements = document.querySelectorAll('pre code');
                 let codeIndex = 0;
