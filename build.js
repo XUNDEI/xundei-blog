@@ -390,7 +390,8 @@ function build() {
     'wallpaper.json',
     'sentences.txt', 'portrait.png', 'favicon.ico',
     '404.html', '_redirects',
-    'robots.txt'
+    'robots.txt',
+    'googlef0e95b2d4c6c4c90.html'
   ];
   for (const file of rootFiles) {
     const src = path.join(__dirname, file);
