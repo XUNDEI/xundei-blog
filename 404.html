@@ -1,51 +1,152 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>页面未找到 - xundei's blog</title>
-    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
     <style>
+        /* ===== 极光背景样式（已提亮） ===== */
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --aurora-gradient: linear-gradient(135deg, #c8e8f3 0%, #e4d5e9 50%, #f0e0db 100%);
+            --aurora-primary: #7BA7BC;
+            --aurora-secondary: #C4A6C2;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
             --primary-color: #4285F4;
             --light-text: #fff;
             --transition: all 0.3s ease;
             --blur-amount: 12px;
             --glow-color: rgba(66, 133, 244, 0.7);
         }
+        body.theme-evening {
+            --aurora-gradient: linear-gradient(135deg, #fad4b8 0%, #d9b0c6 50%, #8a9db8 100%);
+            --aurora-primary: #E2B49A;
+            --aurora-secondary: #B08AA3;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
+            min-height: 100vh;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            min-height: 100vh;
             background-attachment: fixed;
             transition: background-image 1.5s ease-in-out;
-            background-image: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
         }
-        body::before {
-            content: '';
-            position: absolute;
+
+        /* 极光背景容器 - 移除黑色叠加层 */
+        .aurora-background {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
+            width: 100%;
+            height: 100%;
             z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: var(--aurora-gradient); /* 直接使用渐变，不加暗色遮罩 */
+            transition: opacity 0.8s ease;
+            opacity: 1;
+            will-change: opacity;
         }
+        .aurora-background.fade-out {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .aurora-background.hidden {
+            display: none;
+        }
+
+        .aurora-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .aurora-orb-1 {
+            width: min(600px, 80vw);
+            height: min(600px, 80vw);
+            background: var(--aurora-primary);
+            opacity: 0.25;
+            filter: blur(120px);
+            left: 10%;
+            top: 5%;
+            animation: orb1-drift 22s ease-in-out infinite;
+        }
+        .aurora-orb-2 {
+            width: min(500px, 65vw);
+            height: min(500px, 65vw);
+            background: var(--aurora-secondary);
+            opacity: 0.20;
+            filter: blur(100px);
+            right: 5%;
+            bottom: 10%;
+            animation: orb2-drift 26s ease-in-out infinite;
+        }
+        .aurora-orb-3 {
+            width: min(450px, 55vw);
+            height: min(450px, 55vw);
+            background: var(--aurora-primary);
+            opacity: 0.15;
+            filter: blur(130px);
+            left: 40%;
+            top: 40%;
+            animation: orb3-drift 30s ease-in-out infinite;
+        }
+        .aurora-orb-4 {
+            width: min(300px, 40vw);
+            height: min(300px, 40vw);
+            background: var(--aurora-secondary);
+            opacity: 0.18;
+            filter: blur(80px);
+            left: 55%;
+            top: 15%;
+            animation: orb4-drift 18s ease-in-out infinite;
+        }
+
+        @keyframes orb1-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(10%, 8%) scale(1.15); }
+            50% { transform: translate(5%, 15%) scale(0.9); }
+            75% { transform: translate(8%, 3%) scale(1.08); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes orb2-drift {
+            0% { transform: translate(0, 0) scale(0.9); }
+            25% { transform: translate(-5%, 5%) scale(1.12); }
+            50% { transform: translate(-8%, -3%) scale(1); }
+            75% { transform: translate(-3%, -8%) scale(1.08); }
+            100% { transform: translate(0, 0) scale(0.9); }
+        }
+        @keyframes orb3-drift {
+            0% { transform: translate(0, 0) scale(1.05); }
+            25% { transform: translate(-10%, 5%) scale(0.88); }
+            50% { transform: translate(5%, 10%) scale(1.1); }
+            75% { transform: translate(-5%, -3%) scale(0.95); }
+            100% { transform: translate(0, 0) scale(1.05); }
+        }
+        @keyframes orb4-drift {
+            0% { transform: translate(0, 0) scale(0.85); }
+            25% { transform: translate(-10%, -5%) scale(1.1); }
+            50% { transform: translate(5%, 5%) scale(0.95); }
+            75% { transform: translate(-8%, 10%) scale(1.05); }
+            100% { transform: translate(0, 0) scale(0.85); }
+        }
+
+        /* ===== 404 页面样式 ===== */
         .error-container {
             position: relative;
             z-index: 1;
@@ -53,6 +154,7 @@
             margin: 20px;
             text-align: center;
         }
+
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -63,11 +165,13 @@
             padding: 50px 40px;
             transition: var(--transition);
             color: var(--light-text);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         .glass-card:hover {
             box-shadow: 0 0 22px var(--glow-color), 0 0 45px rgba(66, 133, 244, 0.3);
             border-color: rgba(255, 255, 255, 0.5);
         }
+
         .error-code {
             font-size: 6rem;
             font-weight: 800;
@@ -77,16 +181,19 @@
             color: transparent;
             margin-bottom: 20px;
         }
+
         .error-title {
             font-size: 2rem;
             margin-bottom: 20px;
         }
+
         .error-message {
             font-size: 1.1rem;
-            opacity: 0.9;
+            opacity: 0.95;
             margin-bottom: 30px;
             line-height: 1.6;
         }
+
         .home-btn {
             display: inline-flex;
             align-items: center;
@@ -98,7 +205,7 @@
             text-decoration: none;
             font-weight: 600;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .home-btn:hover {
             background: #2b6de0;
@@ -106,6 +213,7 @@
             box-shadow: 0 0 20px var(--glow-color);
             letter-spacing: 0.5px;
         }
+
         @media (max-width: 768px) {
             .glass-card { padding: 35px 25px; }
             .error-code { font-size: 4rem; }
@@ -115,11 +223,19 @@
     </style>
 </head>
 <body>
+    <!-- 极光背景 -->
+    <div class="aurora-background" id="aurora-bg">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+        <div class="aurora-orb aurora-orb-4"></div>
+    </div>
+
     <div class="error-container">
         <div class="glass-card">
             <div class="error-code">404</div>
             <h1 class="error-title">你来到了一片未知的领域</h1>
-            <p class="error-message">保持好奇心是好事<br>但不是用在这里啊喂</p>
+            <p class="error-message">保持好奇心是好事<br />但不是用在这里啊喂</p>
             <a href="/" class="home-btn">
                 <i class="fas fa-home"></i> 返回首页
             </a>
@@ -127,134 +243,75 @@
     </div>
 
     <script>
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(timeoutId);
-                return response;
-            } catch (e) {
-                clearTimeout(timeoutId);
-                if (e.name === 'AbortError') {
-                    throw new Error('请求超时');
+        // ===== 壁纸加载逻辑（仅从 wallpaper.json） =====
+        (function() {
+            // 时间感知：晚间切换极光色调
+            function getAuroraTheme() {
+                var hour = new Date().getHours();
+                if (hour >= 18 || hour < 6) {
+                    return 'evening';
                 }
-                throw e;
+                return 'morning';
             }
-        }
+            var currentTheme = getAuroraTheme();
+            if (currentTheme === 'evening') {
+                document.body.classList.add('theme-evening');
+            }
 
-        async function loadWallpapers() {
-            try {
-                const response = await fetchWithTimeout('./wallpaper.json', {}, 10000);
-                if (!response.ok) throw new Error('请求失败');
-                const wallpapersData = await response.json();
-                if (wallpapersData && wallpapersData.length > 0) {
-                    const randomEntry = wallpapersData[Math.floor(Math.random() * wallpapersData.length)];
-                    const wallpaperPath = randomEntry.path;
-                    const timestamp = new Date().getTime();
-                    let fullPath;
-                    if (/^https?:\/\//i.test(wallpaperPath)) {
-                        fullPath = `${wallpaperPath}?t=${timestamp}`;
-                    } else {
-                        fullPath = `./${wallpaperPath}?t=${timestamp}`;
-                    }
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            document.body.style.backgroundImage = `url(${fullPath})`;
-                            resolve(true);
-                        };
-                        img.onerror = () => resolve(false);
-                        img.src = fullPath;
-                    });
-                }
-                return false;
-            } catch (error) {
-                return false;
-            }
-        }
+            var auroraBg = document.getElementById('aurora-bg');
 
-        async function loadBingWallpaper() {
-            const bingApis = [
-                'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN',
-                'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
-                'https://bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN'
-            ];
-            for (const api of bingApis) {
-                try {
-                    const res = await fetchWithTimeout(api, {}, 8000);
-                    if (!res.ok) continue;
-                    const data = await res.json();
-                    if (data && data.images && data.images[0]) {
-                        const imgUrl = 'https://www.bing.com' + data.images[0].url;
-                        document.body.style.backgroundImage = `url(${imgUrl})`;
-                        return true;
-                    }
-                } catch (e) {
-                    continue;
-                }
+            function hideAuroraBackground() {
+                if (!auroraBg || auroraBg.classList.contains('hidden')) return;
+                auroraBg.classList.add('fade-out');
+                setTimeout(function() {
+                    auroraBg.classList.add('hidden');
+                    auroraBg.style.display = 'none';
+                }, 1200);
             }
-            return false;
-        }
 
-        async function load360Wallpaper() {
-            const apiList = [
-                'https://www.yumus.cn/api/?target=img&brand=360&type=3',
-                'https://api.xygeng.cn/Bing/rand.php?type=json',
-                'https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images'
-            ];
-            for (const api of apiList) {
-                try {
-                    const res = await fetchWithTimeout(api, {}, 8000);
-                    if (!res.ok) continue;
-                    const cloned = res.clone();
-                    const blob = await cloned.blob();
-                    if (blob.type.startsWith('image/')) {
-                        const blobUrl = URL.createObjectURL(blob);
-                        document.body.style.backgroundImage = `url(${blobUrl})`;
-                        return true;
-                    }
-                    const text = await res.text();
-                    try {
-                        const json = JSON.parse(text);
-                        const imgUrl = json.imgurl || json.url;
-                        if (imgUrl) {
-                            document.body.style.backgroundImage = `url(${imgUrl})`;
-                            return true;
-                        }
-                    } catch (e) {
-                    }
-                } catch (e) {
-                    continue;
-                }
-            }
-            return false;
-        }
+            // 加载壁纸（仅从 wallpaper.json）
+            function loadWallpaperFromConfig() {
+                return new Promise(function(resolve) {
+                    fetch('./wallpaper.json')
+                        .then(function(response) {
+                            if (!response.ok) throw new Error('请求失败');
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            if (data && data.length) {
+                                var entry = data[Math.floor(Math.random() * data.length)];
+                                var imgUrl = entry.path;
+                                if (!/^https?:\/\//i.test(imgUrl)) {
+                                    imgUrl = './' + imgUrl;
+                                }
+                                var timestamp = new Date().getTime();
+                                imgUrl += (imgUrl.indexOf('?') === -1 ? '?' : '&') + 't=' + timestamp;
 
-        (async function initWallpaper() {
-            let wallOk = false;
-            try {
-                wallOk = await loadWallpapers();
-            } catch (e) {
-                console.warn('自定义壁纸加载异常', e);
+                                var img = new Image();
+                                img.onload = function() {
+                                    document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                                    hideAuroraBackground();
+                                    resolve(true);
+                                };
+                                img.onerror = function() {
+                                    resolve(false);
+                                };
+                                img.src = imgUrl;
+                            } else {
+                                resolve(false);
+                            }
+                        })
+                        .catch(function() {
+                            resolve(false);
+                        });
+                });
             }
-            if (!wallOk) {
-                try {
-                    wallOk = await loadBingWallpaper();
-                } catch (e) {
-                    console.warn('Bing壁纸加载异常', e);
+
+            loadWallpaperFromConfig().then(function(ok) {
+                if (!ok) {
+                    console.log('壁纸加载失败，保留提亮后的极光背景');
                 }
-            }
-            if (!wallOk) {
-                try {
-                    wallOk = await load360Wallpaper();
-                } catch (e) {
-                    console.warn('360壁纸加载异常', e);
-                }
-            }
-            if (!wallOk) {
-                console.log('使用默认蓝白渐变背景');
-            }
+            });
         })();
     </script>
 </body>
