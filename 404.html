@@ -272,7 +272,7 @@
             // 加载壁纸（仅从 wallpaper.json）
             function loadWallpaperFromConfig() {
                 return new Promise(function(resolve) {
-                    fetch('./wallpaper.json')
+                    fetch('/wallpaper.json')
                         .then(function(response) {
                             if (!response.ok) throw new Error('请求失败');
                             return response.json();
