@@ -2130,7 +2130,7 @@
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.9">xundei-blog V2.11.9</a>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.10">xundei-blog V2.11.10</a>
         <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
         <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
         <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
@@ -3543,7 +3543,7 @@ function loadImage(imgUrl) {
           var urlParams = new URLSearchParams(window.location.search);
           var urlTag = urlParams.get('tag');
           if (urlTag) {
-            currentTag = urlTag;
+            currentTag = urlTag.toLowerCase();
           }
           syncSearchFiltersToUI();
           renderArticles('all');

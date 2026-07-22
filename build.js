@@ -113,8 +113,8 @@ function stripMarkdown(md) {
 
 function normalizeTags(tags) {
   if (!tags) return '';
-  if (Array.isArray(tags)) return tags.join(', ');
-  return String(tags).split(',').map(s => s.trim()).filter(Boolean).join(', ');
+  if (Array.isArray(tags)) return tags.map(t => t.toLowerCase().trim()).filter(Boolean).join(', ');
+  return String(tags).split(',').map(s => s.toLowerCase().trim()).filter(Boolean).join(', ');
 }
 
 function calcReadingTime(text) {
