@@ -20,6 +20,8 @@
     <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"></noscript>
+    <!-- ===== 新增不蒜子统计脚本（页面 PV） ===== -->
+    <script defer src="//cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>
     <style>
         .article-full-content a:not(:has(img)) {
             text-decoration: none;
@@ -418,6 +420,8 @@
             align-items: center;
             color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
+            flex-wrap: wrap;
+            gap: 5px 10px;
         }
         .article-tags-bar {
             display: flex;
@@ -915,6 +919,9 @@
                         </span>
                         <span> | </span>
                         <span id="article-category">{{ARTICLE_CATEGORY}}</span>
+                        <!-- ===== 新增：页面 PV 显示 ===== -->
+                        <span> | </span>
+                        <span>阅读量: <span id="busuanzi_page_pv">加载中...</span> 次</span>
                     </div>
                     <div class="reading-time">预计阅读时间: {{READING_TIME}}</div>
                 </div>

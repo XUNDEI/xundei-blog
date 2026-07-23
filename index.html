@@ -17,10 +17,10 @@
   </script>
   <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
-  </script>
+  <!-- ===== 替换为不蒜子新域名脚本 ===== -->
+  <script defer src="//cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>
   <style>
-    /* ===== 原有全局样式 ===== */
+    /* ===== 原有全局样式（不变） ===== */
     a {
       text-decoration: none;
       position: relative;
@@ -2127,11 +2127,13 @@
       <div class="pagination-container" id="pagination-container"></div>
     </main>
 
+    <!-- ===== 修改 footer 统计：显示总 UV 和今日 UV ===== -->
     <footer class="glass">
       <div class="footer-content">
         <span>made by <strong>xundei</strong> with ❤️ |</span>
-        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.10">xundei-blog V2.11.10</a>
-        <span>| 访问量: <span id="busuanzi_value_site_pv">加载中...</span></span>
+        <a href="https://github.com/XUNDEI/xundei-blog" data-text="xundei-blog V2.11.11">xundei-blog V2.11.11</a>
+        <span>| 总访客: <span id="busuanzi_site_uv">加载中...</span></span>
+        <span>| 今日访客: <span id="busuanzi_today_uv">加载中...</span></span>
         <span>| <a href="/articles/friend_link" data-text="友链">友链</a></span>
         <span>| <a href="/rss.xml" data-text="RSS" id="rss-link"><i class="fas fa-rss"></i> RSS</a></span>
       </div>
