@@ -1,4 +1,6 @@
 # .pages.yml
+# 已修复缩进，确保 content 被识别为数组
+
 media:
   - name: images
     input: public/images
@@ -17,7 +19,7 @@ content:
         type: string
         required: true
         pattern: "^[a-z0-9-]+$"
-        description: "只能包含小写字母、数字和连字符，例如：my-first-post"
+        description: "只能包含小写字母、数字和连字符"
 
       - name: title
         label: 文章标题
@@ -32,12 +34,16 @@ content:
       - name: category
         label: 分类
         type: select
-        options:
-          - { label: 技术, value: technology }
-          - { label: 日记, value: diary }
-          - { label: 杂碎, value: something }
-          - { label: 友链, value: friend_link }
         default: technology
+        options:
+          - label: 技术
+            value: technology
+          - label: 日记
+            value: diary
+          - label: 杂碎
+            value: something
+          - label: 友链
+            value: friend_link
         required: true
 
       - name: excerpt
@@ -60,14 +66,22 @@ content:
         type: select
         default: "保留所有权利"
         options:
-          - { label: "保留所有权利", value: "保留所有权利" }
-          - { label: "CC BY 4.0", value: "CC BY" }
-          - { label: "CC BY-SA 4.0", value: "CC BY-SA" }
-          - { label: "CC BY-NC 4.0", value: "CC BY-NC" }
-          - { label: "CC BY-ND 4.0", value: "CC BY-ND" }
-          - { label: "CC BY-NC-SA 4.0", value: "CC BY-NC-SA" }
-          - { label: "CC BY-NC-ND 4.0", value: "CC BY-NC-ND" }
-          - { label: "CC0 1.0 (公有领域)", value: "CC0" }
+          - label: "保留所有权利"
+            value: "保留所有权利"
+          - label: "CC BY 4.0"
+            value: "CC BY"
+          - label: "CC BY-SA 4.0"
+            value: "CC BY-SA"
+          - label: "CC BY-NC 4.0"
+            value: "CC BY-NC"
+          - label: "CC BY-ND 4.0"
+            value: "CC BY-ND"
+          - label: "CC BY-NC-SA 4.0"
+            value: "CC BY-NC-SA"
+          - label: "CC BY-NC-ND 4.0"
+            value: "CC BY-NC-ND"
+          - label: "CC0 1.0 (公有领域)"
+            value: "CC0"
         required: true
 
       - name: code-license
@@ -75,10 +89,14 @@ content:
         type: select
         default: "none"
         options:
-          - { label: "不设置", value: "none" }
-          - { label: "MIT", value: "MIT" }
-          - { label: "Apache 2.0", value: "Apache 2.0" }
-          - { label: "GPL", value: "GPL" }
+          - label: "不设置"
+            value: "none"
+          - label: "MIT"
+            value: "MIT"
+          - label: "Apache 2.0"
+            value: "Apache 2.0"
+          - label: "GPL"
+            value: "GPL"
         required: false
 
       - name: body
