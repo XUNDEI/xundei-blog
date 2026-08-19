@@ -1,0 +1,74 @@
+# .pages.yml
+
+# 1. 媒体文件配置：告诉 CMS 上传的图片存哪里[reference:2]
+media:
+  - name: images                # 媒体库名称
+    input: public/images        # 文件在仓库中的存储路径
+    output: /images             # 在 Markdown 中显示的 URL 路径[reference:3]
+
+# 2. 内容配置：定义你的文章集合[reference:4]
+content:
+  - name: posts                 # 集合的唯一标识
+    label: 文章                 # 在 CMS 界面显示的名称
+    type: collection            # 类型为“集合”[reference:5]
+    path: blog                  # 你的文章目录[reference:6]
+    format: yaml-frontmatter    # 指定 front matter 格式为 YAML[reference:7]
+    filename: "{fields.slug}.md" # 文件名规则，使用 slug 字段的值[reference:8]
+    fields:                     # 开始定义你的文章字段[reference:9]
+      - name: slug
+        label: Slug (URL标识)
+        type: string
+        required: true
+        pattern: "^[a-z0-9-]+$" # 只允许小写字母、数字和连字符[reference:10]
+        description: "用于生成文件名和 URL，如：my-first-post"
+
+      - name: title
+        label: 文章标题
+        type: string
+        required: true
+
+      - name: date
+        label: 日期
+        type: date                # 日期选择器[reference:11]
+        required: true
+
+      - name: category
+        label: 分类
+        type: select              # 下拉选择框[reference:12]
+        options:                  # 定义选项
+          - { label: 技术, value: technology }
+          - { label: 日记, value: diary }
+          - { label: 杂碎, value: something }
+          - { label: 友链, value: friend_link }
+        default: technology
+
+      - name: excerpt
+        label: 文章简介
+        type: text                # 多行文本框[reference:13]
+        required: true
+        options:
+          minlength: 10
+          maxlength: 200
+
+      - name: tags
+        label: 标签
+        type: list                # 列表类型[reference:14]
+        field:                    # 定义列表内元素的类型
+          type: string
+        description: "输入标签后按回车添加"
+
+      - name: license
+        label: 正文协议
+        type: string
+        default: "保留所有权利"
+
+      - name: code-license
+        label: 代码协议
+        type: string
+        required: false
+
+      # 这是最关键的一步：将文章正文映射到 body 字段[reference:15]
+      - name: body
+        label: 文章正文
+        type: rich-text           # 富文本编辑器[reference:16]
+        required: true
