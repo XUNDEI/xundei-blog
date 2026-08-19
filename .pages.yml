@@ -1,6 +1,4 @@
 # .pages.yml
-# 已修复缩进，确保 content 被识别为数组
-
 media:
   - name: images
     input: public/images
@@ -9,28 +7,24 @@ media:
 content:
   - name: posts
     label: 文章
-    type: collection
+    type: group            # ← 关键修改：collection → group
     path: blog
     format: yaml-frontmatter
-    filename: "{fields.slug}.md"
+    filename: "{fields.slug}.md"   # 如果 group 不支持 filename，可删除此行
     fields:
       - name: slug
         label: Slug (URL标识)
         type: string
         required: true
         pattern: "^[a-z0-9-]+$"
-        description: "只能包含小写字母、数字和连字符"
-
       - name: title
-        label: 文章标题
+        label: 标题
         type: string
         required: true
-
       - name: date
         label: 日期
         type: date
         required: true
-
       - name: category
         label: 分类
         type: select
@@ -44,23 +38,15 @@ content:
             value: something
           - label: 友链
             value: friend_link
-        required: true
-
       - name: excerpt
-        label: 文章简介
+        label: 简介
         type: text
         required: true
-        options:
-          minlength: 10
-          maxlength: 200
-
       - name: tags
         label: 标签
         type: list
         field:
           type: string
-        description: "输入标签后按回车添加"
-
       - name: license
         label: 正文协议
         type: select
@@ -82,8 +68,6 @@ content:
             value: "CC BY-NC-ND"
           - label: "CC0 1.0 (公有领域)"
             value: "CC0"
-        required: true
-
       - name: code-license
         label: 代码协议（可选）
         type: select
@@ -97,9 +81,7 @@ content:
             value: "Apache 2.0"
           - label: "GPL"
             value: "GPL"
-        required: false
-
       - name: body
-        label: 文章正文
+        label: 正文
         type: rich-text
         required: true
