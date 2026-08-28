@@ -3,7 +3,7 @@
  * 所有排序、转义、格式化逻辑均与 build.js 保持一致，保证产物逐字节相同。
  */
 
-export const SITE_URL = 'https://xundei.qzz.io';
+export const SITE_URL = 'https://xundei.eu.cc';
 export const SITE_NAME = "xundei's blog";
 export const SITE_DESCRIPTION = 'xundei的个人博客——仰望星空，脚踏实地';
 
