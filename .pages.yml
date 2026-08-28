@@ -17,7 +17,7 @@ content:
         options: { values: [technology, diary, something] }
         default: technology
       - { name: excerpt, label: 摘要, type: text }
-      - { name: tags, label: 标签, type: list }
+      - { name: tags, label: 标签, type: string, list: true }
       - name: license
         label: 正文协议
         type: select
