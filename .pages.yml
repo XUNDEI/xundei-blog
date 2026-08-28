@@ -1,0 +1,29 @@
+content:
+  - name: posts
+    label: 文章
+    path: src/content/posts
+    type: collection
+    view: { fields: [title, date, category], primary: title, sortby: date, sort: desc }
+    fields:
+      - { name: slug, label: URL文件名, type: string, required: true }
+      - { name: title, label: 标题, type: string, required: true }
+      - name: date
+        label: 发布时间
+        type: date
+        options: { format: "yyyy-MM-dd'T'HH:mm:ss", parsed: false }
+      - name: category
+        label: 分类
+        type: select
+        options: { values: [technology, diary, something] }
+        default: technology
+      - { name: excerpt, label: 摘要, type: text }
+      - { name: tags, label: 标签, type: list }
+      - name: license
+        label: 正文协议
+        type: select
+        options: { values: [CC BY, CC BY-SA, CC BY-NC, CC0, 保留所有权利] }
+      - name: code-license
+        label: 代码协议
+        type: select
+        options: { values: [MIT, Apache 2.0, GPL, BSD] }
+        required: false
