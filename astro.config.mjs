@@ -56,7 +56,7 @@ const giscusThemeCors = {
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://xundei.eu.cc',
+  site: 'https://xundei.qzz.io',
   output: 'static',
   security: {
     // 允许 giscus.app 在 dev server 上跨站加载评论主题 CSS
