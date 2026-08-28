@@ -11,7 +11,7 @@ content:
       - name: date
         label: 发布时间
         type: date
-        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss" }
+        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1 }
       - name: category
         label: 分类
         type: select
