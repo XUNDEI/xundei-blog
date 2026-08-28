@@ -256,6 +256,8 @@ const layoutCss = `
         grid-template-columns: 260px minmax(0, 1fr) 260px;
         gap: 25px;
         align-items: start;
+        /* [fix] 侧栏 sticky 会贴到布局容器底部，留出与页脚的间距避免贴在一起 */
+        padding-bottom: 40px;
       }
       /* DOM 顺序 main 在前（SEO），显式落位到中间列，左右栏经 grid-column 分居两侧 */
       .home-layout > main {

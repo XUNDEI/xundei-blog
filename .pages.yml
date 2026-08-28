@@ -4,7 +4,7 @@ content:
     path: src/content/posts
     type: collection
     filename: "{fields.slug}.md"
-    view: { fields: [title, date, category], primary: title, sortby: date, sort: desc }
+    view: { fields: [title, date, latest, category], primary: title, sortby: date, sort: desc }
     fields:
       - { name: slug, label: URL文件名, type: string, required: true }
       - { name: title, label: 标题, type: string, required: true }
@@ -17,6 +17,11 @@ content:
         type: select
         options: { values: [technology, diary, something] }
         default: technology
+      - name: latest
+        label: 更新时间
+        type: date
+        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1 }
+        required: false
       - { name: excerpt, label: 摘要, type: text }
       - { name: tags, label: 标签, type: string, list: true }
       - { name: body, label: 正文, type: rich-text }
