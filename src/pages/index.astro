@@ -1,0 +1,439 @@
+---
+// 首页：结构、CSS、JS 行为均由旧版 index.html 原样迁移（scripts/migrate-from-old.mjs 提取）。
+// [v2] 新增桌面端侧栏（日历/标签云/归档）：
+//   - 三卡数据全部来自构建期 Content Collections 元数据（与 articles.json 同源同排序）；
+//   - <1280px 侧栏整体 display:none，退回单栏，不占任何空间。
+// [v5] 两栏改三栏杂志式布局：
+//   - ≥1280px 三栏 grid：左栏 260px（日历卡+标签云卡）+ 中间 minmax(0,1fr) 文章流 +
+//     右栏 260px（归档时间线卡）；左右侧栏均 position:sticky; top:100px；
+//   - DOM 顺序中间文章流在前（SEO），左右栏在后，经显式 grid-column 落位到视觉两侧。
+// [v5] 文章卡片由网格卡改为单列信息流：全宽横向卡片（标题+日期/分类同行、摘要两行截断、
+//   标签行+阅读全文），取消固定 320px 高度；整卡点击弹窗、标签筛选、分页等交互不变，
+//   .card-hint 浮标移除。
+import { getCollection } from 'astro:content';
+import path from 'node:path';
+import INDEX_FRAME from '../lib/index.frame.json';
+import INDEX_SCRIPT from '../lib/index.script.json';
+import { sortByArticlesOrder, buildLegacyIndexItem } from '../lib/site';
+
+const posts = await getCollection('posts');
+const postsSrcDir = path.resolve(process.cwd(), 'src/content/posts');
+const articlesIndex = sortByArticlesOrder(
+  posts.map((p) => buildLegacyIndexItem(p, postsSrcDir))
+) as Array<Record<string, any>>;
+
+// ===== 硬编码文章链接（供爬虫直接抓取）——逻辑复刻 build.js injectArticleLinks() =====
+const links = articlesIndex
+  .filter((a) => a.category !== 'friend_link')
+  .map((a) => {
+    const titleEscaped = String(a.title).replace(/"/g, '&quot;');
+    const titleText = String(a.title).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    return `      <a href="${a.url}" title="${titleEscaped}">${titleText}</a>`;
+  })
+  .join('\n');
+
+const seoNavHtml = `  <!-- ===== 硬编码文章链接（供爬虫直接抓取） ===== -->\n  <nav class="seo-article-list" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;" aria-hidden="true">\n${links}\n  </nav>`;
+
+// ===== [v2] 侧栏数据（构建期生成；friend_link 与文章流口径一致，不参与三卡） =====
+const slugOf = (filename: unknown) => String(filename).replace(/^blog\//, '').replace(/\.md$/, '');
+const escapeHtmlAttr = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// 日历卡：日期 → 当天最新一篇（articlesIndex 已按 latest||date 倒序，同一天首见即最新）
+const postsByDate: Record<string, { u: string; t: string }> = {};
+for (const a of articlesIndex) {
+  if (a.category === 'friend_link') continue;
+  const day = String(a.date).slice(0, 10);
+  if (!postsByDate[day]) {
+    postsByDate[day] = { u: '/articles/' + slugOf(a.filename), t: String(a.title) };
+  }
+}
+
+// 标签云卡：按文章数降序、名称升序；字号按数量分 3 档（tag-s3 最大）
+const tagCounts = new Map<string, number>();
+for (const a of articlesIndex) {
+  if (a.category === 'friend_link') continue;
+  for (const raw of String(a.tags || '').split(', ')) {
+    const t = raw.trim();
+    if (t) tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+  }
+}
+const tagList = [...tagCounts.entries()].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
+const tierSize = Math.max(1, Math.ceil(tagList.length / 3));
+const tierOf = (i: number) => (i < tierSize ? 3 : i < tierSize * 2 ? 2 : 1);
+const tagCloudHtml = tagList
+  .map(
+    ([tag], i) =>
+      `<a href="/?tag=${encodeURIComponent(tag)}" class="article-tag sidebar-tag tag-s${tierOf(
+        i
+      )}" data-tag="${escapeHtmlAttr(tag)}" title="${tagCounts.get(tag)} 篇">${escapeHtmlAttr(tag)}</a>`
+  )
+  .join('\n          ');
+
+// 归档卡：按年月分组的时间线（倒序），条目为 日期 + 标题
+const archiveKeys: string[] = [];
+const archiveMap = new Map<string, string[]>();
+for (const a of articlesIndex) {
+  if (a.category === 'friend_link') continue;
+  const d = String(a.date);
+  const ym = d.slice(0, 7);
+  if (!archiveMap.has(ym)) {
+    archiveMap.set(ym, []);
+    archiveKeys.push(ym);
+  }
+  const dateLabel = `${Number(d.slice(5, 7))}月${Number(d.slice(8, 10))}日`;
+  const href = '/articles/' + slugOf(a.filename);
+  const title = String(a.title);
+  archiveMap.get(ym)!.push(
+    `<a class="archive-item" href="${href}" title="${escapeHtmlAttr(title)}">` +
+      `<span class="archive-dot"></span>` +
+      `<span class="archive-date">${dateLabel}</span>` +
+      `<span class="archive-title">${escapeHtmlAttr(title)}</span>` +
+      `</a>`
+  );
+}
+const archiveHtml = archiveKeys
+  .map((ym) => {
+    const label = `${Number(ym.slice(0, 4))}年${Number(ym.slice(5, 7))}月`;
+    return `          <div class="archive-month">${label}</div>\n          ${archiveMap
+      .get(ym)!
+      .join('\n          ')}`;
+  })
+  .join('\n');
+
+// ===== [v5] 侧栏 HTML：拆为左右两 aside（左=日历卡+标签云卡，右=归档时间线卡；
+//       复用 .glass 与搜索日历的 .calendar-* 类名体系，三卡内部结构不变） =====
+const sidebarLeftHtml = `      <aside class="sidebar" id="sidebar-left" aria-label="博客左侧栏">
+        <div class="glass sidebar-card">
+          <h3 class="sidebar-card-title"><i class="fas fa-calendar-alt"></i> 日历</h3>
+          <div class="calendar-nav">
+            <button class="nav-btn" id="sidebar-cal-prev" aria-label="上一月"><i class="fas fa-chevron-left"></i></button>
+            <span class="nav-title" id="sidebar-cal-title">日历</span>
+            <button class="nav-btn" id="sidebar-cal-next" aria-label="下一月"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div class="calendar-days" id="sidebar-cal-days"></div>
+        </div>
+        <div class="glass sidebar-card">
+          <h3 class="sidebar-card-title"><i class="fas fa-tags"></i> 标签云</h3>
+          <div class="sidebar-tag-cloud">
+          ${tagCloudHtml}
+          </div>
+        </div>
+      </aside>`;
+
+const sidebarRightHtml = `      <aside class="sidebar" id="sidebar-right" aria-label="博客右侧栏">
+        <div class="glass sidebar-card">
+          <h3 class="sidebar-card-title"><i class="fas fa-history"></i> 归档</h3>
+          <div class="archive-list">
+${archiveHtml}
+          </div>
+        </div>
+      </aside>`;
+
+// ===== [v5] 布局 CSS（只使用现有配色变量与色值，追加到原样式块末尾；后置规则覆盖基础卡片样式） =====
+const layoutCss = `
+    /* ===== [v5] 三栏杂志式布局：≥1280px 左右双栏 + 中间文章流 ===== */
+    .home-layout > main {
+      min-width: 0;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      min-width: 0;
+      align-self: start;
+    }
+    .sidebar-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .sidebar-card-title i {
+      color: var(--primary-color);
+      font-size: 0.95rem;
+    }
+    .sidebar-tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+      /* [fix] 标签过多时限制高度内部滚动，避免撑破 sticky 侧栏挤出屏幕 */
+      max-height: 300px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 4px;
+    }
+    /* [fix] 单个超长标签不撑破卡片宽度 */
+    .sidebar-tag {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sidebar-tag.tag-s1 { font-size: 0.78rem; }
+    .sidebar-tag.tag-s2 { font-size: 0.95rem; }
+    .sidebar-tag.tag-s3 { font-size: 1.12rem; }
+    .archive-list {
+      position: relative;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-left: 16px;
+      overscroll-behavior: contain;
+    }
+    .archive-list::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: rgba(66, 133, 244, 0.25);
+      border-radius: 2px;
+    }
+    .archive-month {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin: 12px 0 6px;
+    }
+    .archive-month:first-child { margin-top: 0; }
+    .archive-item {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background-image: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      color: rgba(255, 255, 255, 0.85) !important;
+      transition: all 0.3s ease;
+    }
+    .archive-item::before,
+    .archive-item::after { content: none !important; }
+    .archive-item:hover {
+      background: rgba(66, 133, 244, 0.12);
+      transform: translateX(3px);
+      color: #fff !important;
+    }
+    .archive-dot {
+      position: absolute;
+      left: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      box-shadow: 0 0 6px rgba(66, 133, 244, 0.5);
+      flex-shrink: 0;
+    }
+    .archive-date {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.55);
+      flex-shrink: 0;
+    }
+    .archive-title {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (min-width: 1280px) {
+      .home-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr) 260px;
+        gap: 25px;
+        align-items: start;
+      }
+      /* DOM 顺序 main 在前（SEO），显式落位到中间列，左右栏经 grid-column 分居两侧 */
+      .home-layout > main {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      #sidebar-left,
+      #sidebar-right {
+        grid-row: 1;
+        position: sticky;
+        top: 100px;
+      }
+      #sidebar-left { grid-column: 1; }
+      #sidebar-right { grid-column: 3; }
+    }
+    @media (max-width: 1279.98px) {
+      #sidebar-left,
+      #sidebar-right { display: none; }
+    }
+
+    /* ===== [v5] 文章卡片单列信息流（覆盖上方基础 .articles-grid / .article-card 规则） ===== */
+    .articles-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .article-card {
+      height: auto;
+      gap: 10px;
+      padding: 22px 28px;
+    }
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--glow-strong);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+    .article-head-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .article-head-row .article-title {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .article-head-row .article-meta {
+      margin-bottom: 0;
+      justify-content: flex-end;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.65);
+    }
+    .article-content {
+      padding: 0;
+      flex-grow: 0;
+      font-size: 0.92rem;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      color: rgba(255, 255, 255, 0.78);
+    }
+    .article-foot-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .article-foot-row .article-tags {
+      padding: 0;
+      min-width: 0;
+    }
+    .article-foot-row .read-more {
+      margin-left: auto;
+      flex-shrink: 0;
+      align-self: center;
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .article-card { padding: 20px; }
+    }
+`;
+
+// ===== [v2] 侧栏脚本：日历渲染/翻月（数据为构建期内联映射）+ 标签云点击走桥接 =====
+const sidebarDataJson = JSON.stringify(postsByDate).replace(/</g, '\\u003c');
+const sidebarScript = [
+  '(function () {',
+  "  var POSTS_BY_DATE = " + sidebarDataJson + ";",
+  "  var MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];",
+  '  var now = new Date();',
+  '  var state = { y: now.getFullYear(), m: now.getMonth() };',
+  '  function pad2(n) { return (n < 10 ? "0" : "") + n; }',
+  '  function escapeAttr(s) {',
+  '    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");',
+  '  }',
+  '  function renderCalendar() {',
+  "    var daysEl = document.getElementById('sidebar-cal-days');",
+  "    var titleEl = document.getElementById('sidebar-cal-title');",
+  '    if (!daysEl || !titleEl) return;',
+  '    var firstDay = new Date(state.y, state.m, 1).getDay();',
+  '    var daysInMonth = new Date(state.y, state.m + 1, 0).getDate();',
+  "    titleEl.textContent = state.y + '年' + MONTH_NAMES[state.m];",
+  "    var todayStr = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());",
+  "    var html = '';",
+  '    for (var i = 0; i < firstDay; i++) html += \'<div class="day-cell empty"></div>\';',
+  '    for (var d = 1; d <= daysInMonth; d++) {',
+  "      var dateStr = state.y + '-' + pad2(state.m + 1) + '-' + pad2(d);",
+  "      var cls = 'day-cell';",
+  "      if (dateStr === todayStr) cls += ' today';",
+  '      var post = POSTS_BY_DATE[dateStr];',
+  '      if (post) {',
+  "        cls += ' selected';",
+  '        html += \'<div class="\' + cls + \'" data-href="\' + escapeAttr(post.u) + \'" title="\' + escapeAttr(post.t) + \'">\' + d + \'</div>\';',
+  '      } else {',
+  '        html += \'<div class="\' + cls + \'">\' + d + \'</div>\';',
+  '      }',
+  '    }',
+  '    daysEl.innerHTML = html;',
+  "    var dayLinks = daysEl.querySelectorAll('.day-cell[data-href]');",
+  '    for (var j = 0; j < dayLinks.length; j++) {',
+  '      dayLinks[j].addEventListener("click", function () {',
+  '        window.location.href = this.getAttribute("data-href");',
+  '      });',
+  '    }',
+  '  }',
+  '  function shiftMonth(dir) {',
+  '    state.m += dir;',
+  '    if (state.m < 0) { state.m = 11; state.y--; }',
+  '    if (state.m > 11) { state.m = 0; state.y++; }',
+  '    renderCalendar();',
+  '  }',
+  '  function initSidebar() {',
+  "    var prevBtn = document.getElementById('sidebar-cal-prev');",
+  "    var nextBtn = document.getElementById('sidebar-cal-next');",
+  '    if (prevBtn) prevBtn.addEventListener("click", function (e) { e.preventDefault(); shiftMonth(-1); });',
+  '    if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); shiftMonth(1); });',
+  '    renderCalendar();',
+  "    var tagLinks = document.querySelectorAll('.sidebar-tag[data-tag]');",
+  '    for (var k = 0; k < tagLinks.length; k++) {',
+  '      tagLinks[k].addEventListener("click", function (e) {',
+  '        e.preventDefault();',
+  '        e.stopPropagation();',
+  '        var tag = this.getAttribute("data-tag");',
+  '        var wasActive = this.classList.contains("tag-active");',
+  "        var actives = document.querySelectorAll('.sidebar-tag.tag-active');",
+  '        for (var q = 0; q < actives.length; q++) actives[q].classList.remove("tag-active");',
+  '        if (!wasActive) this.classList.add("tag-active");',
+  '        if (typeof window.xundeiFilterByTag === "function") window.xundeiFilterByTag(tag);',
+  '      });',
+  '    }',
+  '  }',
+  '  initSidebar();',
+  '})();',
+].join('\n');
+
+const frame = INDEX_FRAME.frame.replace(
+  '<header class="glass">',
+  seoNavHtml + '\n        <header class="glass">'
+)
+  // [v4] 友链改为独立页面 /friends（footer 唯一改动点）
+  .replace('href="/articles/friend_link"', 'href="/friends"')
+  .replace('<main>', '<div class="home-layout">\n        <main>')
+  .replace('</main>', '</main>\n\n' + sidebarLeftHtml + '\n      ' + sidebarRightHtml + '\n      </div>')
+  .replace('</style>', layoutCss + '  </style>');
+// 侧栏脚本必须位于主脚本 IIFE 闭合（tail 含 "})();" 与 </script>）之后、</body> 之前
+const tailWithSidebar = INDEX_FRAME.tail.replace(
+  '</body>',
+  '  <script>\n' + sidebarScript + '\n  </script>\n</body>'
+);
+---
+
+<Fragment set:html={frame} />
+<Fragment set:html={INDEX_FRAME.pre} />
+<Fragment set:html={INDEX_SCRIPT} />
+<Fragment set:html={tailWithSidebar} />

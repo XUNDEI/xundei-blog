@@ -1,0 +1,148 @@
+/*! xundei's blog · giscus 自定义主题「glass-dark」
+ * 基于 giscus 官方 transparent_dark 主题（MIT License, Copyright (c) 2018 GitHub Inc.）
+ * 修改要点：
+ *  1. 画布保持透明，评论区透出文章页玻璃卡与极光背景；
+ *  2. 边框由近黑色（#30363d）改为玻璃卡片同款半透明白，消除浅色/暗色壁纸上
+ *     都显得突兀的"黑框"；
+ *  3. 按钮主色与强调色对齐站点主色 #4285F4（替换 GitHub 绿）；
+ *  4. 文字保持原主题浅色系——与全站玻璃卡白字风格一致（站点壁纸明暗轮换，
+ *     玻璃卡始终以白字呈现，深色文字会在暗色壁纸上不可读）。
+ */
+
+main {
+  color-scheme: dark;
+
+  /* 语法高亮：沿用 transparent_dark（浅色文字） */
+  --color-prettylights-syntax-comment: #8b949e;
+  --color-prettylights-syntax-constant: #79c0ff;
+  --color-prettylights-syntax-entity: #d2a8ff;
+  --color-prettylights-syntax-storage-modifier-import: #c9d1d9;
+  --color-prettylights-syntax-entity-tag: #7ee787;
+  --color-prettylights-syntax-keyword: #ff7b72;
+  --color-prettylights-syntax-string: #a5d6ff;
+  --color-prettylights-syntax-variable: #ffa657;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
+  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-string-regexp: #7ee787;
+  --color-prettylights-syntax-markup-list: #f2cc60;
+  --color-prettylights-syntax-markup-heading: #79c0ff;
+  --color-prettylights-syntax-markup-italic: #c9d1d9;
+  --color-prettylights-syntax-markup-bold: #c9d1d9;
+  --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
+  --color-prettylights-syntax-markup-deleted-bg: rgb(103 6 12 / 75%);
+  --color-prettylights-syntax-markup-inserted-text: #aff5b4;
+  --color-prettylights-syntax-markup-inserted-bg: rgb(3 58 22 / 75%);
+  --color-prettylights-syntax-markup-changed-text: #ffdfb6;
+  --color-prettylights-syntax-markup-changed-bg: rgb(90 30 2 / 75%);
+  --color-prettylights-syntax-markup-ignored-text: #c9d1d9;
+  --color-prettylights-syntax-markup-ignored-bg: #1158c7;
+  --color-prettylights-syntax-meta-diff-range: #d2a8ff;
+  --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #6e7681;
+  --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
+
+  /* 普通按钮：玻璃白描边 */
+  --color-btn-text: #e6e9ef;
+  --color-btn-bg: rgb(255 255 255 / 14%);
+  --color-btn-border: rgb(255 255 255 / 40%);
+  --color-btn-shadow: 0 0 transparent;
+  --color-btn-inset-shadow: 0 0 transparent;
+  --color-btn-hover-bg: rgb(255 255 255 / 24%);
+  --color-btn-hover-border: rgb(255 255 255 / 60%);
+  --color-btn-active-bg: rgb(255 255 255 / 18%);
+  --color-btn-active-border: rgb(255 255 255 / 60%);
+  --color-btn-selected-bg: rgb(255 255 255 / 18%);
+
+  /* 主按钮（登录等）：站点主色蓝 */
+  --color-btn-primary-text: #fff;
+  --color-btn-primary-bg: #4285f4;
+  --color-btn-primary-border: rgb(255 255 255 / 30%);
+  --color-btn-primary-shadow: 0 0 transparent;
+  --color-btn-primary-inset-shadow: 0 0 transparent;
+  --color-btn-primary-hover-bg: #3372dd;
+  --color-btn-primary-hover-border: rgb(255 255 255 / 30%);
+  --color-btn-primary-selected-bg: #2f68cc;
+  --color-btn-primary-selected-shadow: 0 0 transparent;
+  --color-btn-primary-disabled-text: rgb(255 255 255 / 80%);
+  --color-btn-primary-disabled-bg: rgb(66 133 244 / 60%);
+  --color-btn-primary-disabled-border: rgb(255 255 255 / 30%);
+
+  --color-action-list-item-default-hover-bg: rgb(255 255 255 / 12%);
+
+  /* 输入/预览 分段控件（选项卡） */
+  --color-segmented-control-bg: rgb(255 255 255 / 12%);
+  --color-segmented-control-button-bg: transparent;
+  --color-segmented-control-button-selected-border: rgb(255 255 255 / 65%);
+
+  /* 文字：浅色系，与全站玻璃卡白字一致 */
+  --color-fg-default: #e6e9ef;
+  --color-fg-muted: #b3bac6;
+  --color-fg-subtle: #939aa6;
+
+  /* 画布：全部透明，透出极光背景 */
+  --color-canvas-default: transparent;
+  --color-canvas-overlay: rgb(22 27 34 / 92%);
+  --color-canvas-inset: transparent;
+  --color-canvas-subtle: rgb(255 255 255 / 10%);
+
+  /* 边框：核心修改——玻璃白半透明，替代原主题的近黑边框 */
+  --color-border-default: rgb(255 255 255 / 38%);
+  --color-border-muted: rgb(255 255 255 / 18%);
+
+  --color-neutral-muted: rgb(255 255 255 / 12%);
+  --color-neutral-subtle: rgb(255 255 255 / 8%);
+
+  /* 强调色：站点主色蓝 */
+  --color-accent-fg: #8ab4f8;
+  --color-accent-emphasis: #4285f4;
+  --color-accent-muted: rgb(66 133 244 / 40%);
+  --color-accent-subtle: rgb(66 133 244 / 16%);
+
+  --color-success-fg: #3fb950;
+  --color-attention-fg: #d29922;
+  --color-attention-muted: rgb(174 124 20 / 40%);
+  --color-attention-subtle: rgb(174 124 20 / 15%);
+  --color-danger-fg: #f85149;
+  --color-danger-muted: rgb(229 83 75 / 40%);
+  --color-danger-subtle: rgb(229 83 75 / 10%);
+
+  --color-primer-shadow-inset: 0 0 transparent;
+  --color-scale-gray-7: #4a5160;
+  --color-scale-blue-8: #1f4a8f;
+
+  /*! Extensions from @primer/css/alerts/flash.scss */
+  --color-social-reaction-bg-hover: var(--color-scale-gray-7);
+  --color-social-reaction-bg-reacted-hover: var(--color-scale-blue-8);
+}
+
+main .pagination-loader-container {
+  background-image: url("https://github.com/images/modules/pulls/progressive-disclosure-line-dark.svg");
+}
+
+/* giscus 首页链接卡片背景：对齐站点极光配色 */
+.gsc-homepage-bg {
+  background: linear-gradient(135deg, #b8d8e3, #d4c5d9, #e8d5d0);
+  background-size: 600% 600%;
+  animation: gradient 21s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 2% 0%;
+  }
+
+  50% {
+    background-position: 99% 100%;
+  }
+
+  100% {
+    background-position: 2% 0%;
+  }
+}
+
+main .gsc-loading-image {
+  background-image: url("https://github.githubassets.com/images/mona-loading-dark.gif");
+}

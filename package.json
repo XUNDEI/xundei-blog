@@ -1,14 +1,23 @@
 {
-  "name": "xundei-blog",
+  "name": "xundei-blog-astro",
+  "type": "module",
   "version": "1.0.0",
-  "description": "xundei's blog",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "build": "node build.js"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "marked": "^15.0.12"
+    "@astrojs/markdown-remark": "^7.2.4",
+    "astro": "^7.2.8",
+    "marked": "^18.0.11"
   },
-  "devDependencies": {
-    "wrangler": "^4.110.0"
-  }
+  "allowScripts": {
+    "esbuild": true
+  },
+  "description": "xundei's blog - Astro migration"
 }

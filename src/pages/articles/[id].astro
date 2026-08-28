@@ -1,0 +1,102 @@
+---
+// 文章页 /articles/{id}：以旧版 templates/article.html 为基准的 1:1 移植。
+// 生成逻辑（阅读时长、SEO 标签、协议、标签 HTML、占位符替换顺序）复刻自 build.js。
+import { getCollection, render } from 'astro:content';
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import PostBody from '../../components/PostBody.astro';
+import Giscus from '../../components/Giscus.astro';
+import ARTICLE_FRAME from '../../lib/article.frame.json';
+import ARTICLE_SCRIPT from '../../lib/article.script.json';
+import {
+  getCategoryName,
+  normalizeTags,
+  calcReadingTime,
+  generateSEOTags,
+  getLicenseDisplayAndHtml,
+  markedizeAstroHtml,
+  removeHeadingIdAttrs
+} from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const data = post.data;
+const slug = post.id;
+
+// ===== 与 build.js 相同的处理流程 =====
+const markdown = post.body ?? '';
+const readingTime = calcReadingTime(markdown);
+const seo = generateSEOTags(data, slug);
+const license = getLicenseDisplayAndHtml(data);
+const tagsStr = normalizeTags(data.tags);
+const tagsHtml = tagsStr
+  ? tagsStr
+      .split(', ')
+      .map(
+        (t) =>
+          `<a href="/?tag=${encodeURIComponent(t)}" class="article-tag" data-tag="${t.replace(/"/g, '&quot;')}">${t}</a>`
+      )
+      .join('')
+  : '';
+
+// 正文 HTML：Astro 内置 Markdown 渲染（替代 marked.parse），
+// 再做文本转义后处理使产物与旧版 marked 输出一致。
+// marked 的块级输出以单个换行结尾且无前导空白，此处对齐该形状（模板插入后形成 </p>\n\n</div>）。
+const container = await AstroContainer.create();
+let htmlContent = await container.renderToString(PostBody, { props: { post } });
+htmlContent = removeHeadingIdAttrs(markedizeAstroHtml(htmlContent));
+htmlContent = htmlContent.replace(/^\s+/, '');
+if (htmlContent && !htmlContent.endsWith('\n')) htmlContent += '\n';
+
+// ===== 占位符替换（字符串替换语义与 build.js 完全一致，含 $ 模式行为） =====
+function tplReplace(page: string, key: string, value: string): string {
+  return page.replace(new RegExp('{{' + key + '}}', 'g'), value);
+}
+
+let page = ARTICLE_FRAME.frame;
+page = tplReplace(page, 'ARTICLE_TITLE', data.title);
+page = tplReplace(page, 'ARTICLE_DATE', data.date);
+page = tplReplace(page, 'ARTICLE_LATEST', data.latest ? data.latest : '');
+page = tplReplace(page, 'ARTICLE_CATEGORY', getCategoryName(data.category));
+page = tplReplace(page, 'ARTICLE_TAGS_HTML', tagsHtml);
+page = tplReplace(page, 'ARTICLE_TAGS_STR', tagsStr);
+page = tplReplace(page, 'READING_TIME', readingTime + ' 分钟');
+page = tplReplace(page, 'META_DESCRIPTION', seo.metaDescription);
+page = tplReplace(page, 'CANONICAL_URL', seo.canonicalUrl);
+page = tplReplace(page, 'OG_TITLE', seo.ogTitle);
+page = tplReplace(page, 'OG_DESCRIPTION', seo.ogDescription);
+page = tplReplace(page, 'OG_URL', seo.ogUrl);
+page = tplReplace(page, 'JSON_LD', seo.jsonLD);
+// 与 build.js 相同：以下三项仅替换首次出现
+page = page.replace('{{ARTICLE_CONTENT}}', '\u0000CONTENT\u0000');
+page = page.replace('{{LICENSE_DISPLAY}}', license.display);
+page = page.replace('{{LICENSE_HTML}}', license.html);
+
+// 正文 HTML 占位符单独拆分处理（由 Astro 内置 Markdown 渲染注入）
+const contentPh = '\u0000CONTENT\u0000';
+const cIdx = page.indexOf(contentPh);
+if (cIdx < 0) throw new Error('未找到 ARTICLE_CONTENT 占位符');
+const pageBefore = page.slice(0, cIdx);
+const pageAfter = page.slice(cIdx + contentPh.length);
+
+// Giscus 评论区：插入在文章容器内、协议 footer 之后（仅文章页有此区块）
+const giscusContainer = container;
+const giscusHtml = (await giscusContainer.renderToString(Giscus)).replace(/^\s+|\s+$/g, '');
+const footerClose = '</footer>';
+const fIdx = pageAfter.indexOf(footerClose);
+if (fIdx < 0) throw new Error('未找到 footer 闭合标签，无法挂载评论区');
+const pageMid = pageAfter.slice(0, fIdx + footerClose.length);
+const pageTail = pageAfter.slice(fIdx + footerClose.length);
+---
+
+<Fragment set:html={pageBefore} />
+<Fragment set:html={htmlContent} />
+<Fragment set:html={pageMid} />
+<Fragment set:html={giscusHtml} />
+<Fragment set:html={pageTail} />
+<Fragment set:html={ARTICLE_FRAME.pre} />
+<Fragment set:html={ARTICLE_SCRIPT} />
+<Fragment set:html={ARTICLE_FRAME.tail} />

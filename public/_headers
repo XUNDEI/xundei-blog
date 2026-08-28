@@ -1,0 +1,6 @@
+# Cloudflare 静态资源自定义响应头。
+# giscus 自定义评论主题由 giscus.app 的 iframe 以 <link crossorigin="anonymous">
+# 跨域加载，必须返回 Access-Control-Allow-Origin，否则样式表被浏览器拦截，
+# 评论区会回退为无主题的默认近黑边框（突兀黑框）。
+/giscus-glass.css
+  Access-Control-Allow-Origin: *

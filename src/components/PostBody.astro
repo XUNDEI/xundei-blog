@@ -1,0 +1,10 @@
+---
+// 文章正文渲染容器：使用 Astro 内置 Markdown 渲染（替代旧版 marked），
+// 通过 Container API 渲染为 HTML 字符串，注入与旧版相同的模板占位符位置。
+import { render } from 'astro:content';
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Content />

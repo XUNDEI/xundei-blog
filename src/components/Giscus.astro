@@ -1,0 +1,241 @@
+---
+// Giscus 评论组件（基于 GitHub Discussions），仅由文章页 src/pages/articles/[id].astro 引入。
+//
+// 配置已就绪：Discussions 已开启、giscus App 已安装，
+// category-id 来自 giscus.app 生成配置（2026-08）。
+//
+// 懒加载：评论区进入视口（IntersectionObserver，rootMargin 0）后才注入 giscus script，
+// 页面初始加载不产生任何 giscus.app 请求。
+interface Props {
+  repo?: string;
+  repoId?: string;
+  category?: string;
+  categoryId?: string;
+  lang?: string;
+}
+
+const {
+  repo = 'XUNDEI/xundei-blog',
+  repoId = 'R_kgDOPGnTCw', // = data-repo-id
+  category = 'General',
+  categoryId = 'DIC_kwDOPGnTC84DETa3',
+  lang = 'zh-CN',
+} = Astro.props;
+
+const cfg = {
+  repo,
+  repoId,
+  category,
+  categoryId,
+  mapping: 'pathname', // 页面 ↔ discussion 映射：pathname
+  strict: '0',
+  reactionsEnabled: '1', // 开启主帖子 reactions
+  emitMetadata: '0',
+  inputPosition: 'bottom',
+  lang,
+  // 站点不跟随系统明暗偏好。giscus 内置 transparent_dark 的近黑边框（#30363d）
+  // 在玻璃卡上会形成突兀"黑框"，因此使用自定义主题 CSS：
+  // public/giscus-glass.css —— 透明画布（透出玻璃卡与极光背景）+ 玻璃白半透明
+  // 边框 + 原主题浅色文字（与全站玻璃卡白字一致）+ 站点主色蓝按钮。
+  // giscus 的 data-theme 传 URL 时要求完整地址，运行时按当前 origin 拼接（见 loaderScript）。
+  // 注意：该 CSS 需带 Access-Control-Allow-Origin 响应头（dev 见 astro.config.mjs，
+  // 生产见 public/_headers），否则会被浏览器静默拦截、回退成无主题样式。
+  theme: '',
+};
+
+const cfgJson = JSON.stringify(cfg).replace(/</g, '\\u003c');
+
+// [v5] 不再探测 prefers-color-scheme，也无 postMessage 热切换逻辑；仅保留懒加载。
+// [v6] 评论区观感优化：加载占位（呼吸圆点）、加载失败提示、iframe 加载完成后收起占位。
+// [v7] 主题切换为自定义玻璃主题（public/giscus-glass.css），
+//      data-theme 在注入 script 前按 location.origin 补全为完整 URL。
+const loaderScript = [
+  '(function () {',
+  '  var CFG = ' + cfgJson + ';',
+  '  CFG.theme = window.location.origin + "/giscus-glass.css";',
+  "  var section = document.getElementById('giscus-section');",
+  "  var body = document.getElementById('giscus-body');",
+  "  var loadingEl = document.getElementById('giscus-loading');",
+  '  if (!section || !body) return;',
+  '  var loaded = false;',
+  '  var frameDone = false;',
+  '  var pollTimer = null;',
+  '  function hideLoading() {',
+  '    if (frameDone) return;',
+  '    frameDone = true;',
+  '    if (pollTimer) clearInterval(pollTimer);',
+  '    if (loadingEl) loadingEl.classList.add("giscus-hidden");',
+  '  }',
+  '  function markLoadFailed() {',
+  '    if (frameDone) return;',
+  '    if (pollTimer) clearInterval(pollTimer);',
+  '    if (!loadingEl) return;',
+  '    var dots = loadingEl.querySelector(".giscus-loading-dots");',
+  '    var txt = loadingEl.querySelector(".giscus-loading-text");',
+  '    if (dots) dots.style.display = "none";',
+  '    if (txt) txt.textContent = "评论加载失败（需能访问 giscus.app），请检查网络后刷新重试";',
+  '    loadingEl.classList.add("giscus-failed");',
+  '  }',
+  '  function watchFrame() {',
+  '    pollTimer = setInterval(function () {',
+  '      var f = body.querySelector(".giscus-frame");',
+  '      if (!f) return;',
+  '      clearInterval(pollTimer);',
+  '      pollTimer = null;',
+  '      f.addEventListener("load", hideLoading);',
+  '      // 兜底：load 事件丢失或 giscus 二次重载时也收起占位',
+  '      setTimeout(function () { hideLoading(); }, 8000);',
+  '    }, 300);',
+  '  }',
+  '  function loadGiscus() {',
+  '    if (loaded) return;',
+  '    loaded = true;',
+  '    var s = document.createElement("script");',
+  '    s.src = "https://giscus.app/client.js";',
+  '    s.async = true;',
+  '    s.crossOrigin = "anonymous";',
+  '    s.setAttribute("data-repo", CFG.repo);',
+  '    s.setAttribute("data-repo-id", CFG.repoId);',
+  '    s.setAttribute("data-category", CFG.category);',
+  '    s.setAttribute("data-category-id", CFG.categoryId);',
+  '    s.setAttribute("data-mapping", CFG.mapping);',
+  '    s.setAttribute("data-strict", CFG.strict);',
+  '    s.setAttribute("data-reactions-enabled", CFG.reactionsEnabled);',
+  '    s.setAttribute("data-emit-metadata", CFG.emitMetadata);',
+  '    s.setAttribute("data-input-position", CFG.inputPosition);',
+  '    s.setAttribute("data-theme", CFG.theme);',
+  '    s.setAttribute("data-lang", CFG.lang);',
+  '    s.onerror = function () { markLoadFailed(); };',
+  '    body.appendChild(s);',
+  '    watchFrame();',
+  '    // client.js 加载成功但 iframe 长时间未就绪（网络受限）时给出提示',
+  '    setTimeout(function () { if (!frameDone) markLoadFailed(); }, 15000);',
+  '  }',
+  '  if (!("IntersectionObserver" in window)) { loadGiscus(); return; }',
+  '  var io = new IntersectionObserver(function (entries) {',
+  '    for (var i = 0; i < entries.length; i++) {',
+  '      if (entries[i].isIntersecting) {',
+  '        io.disconnect();',
+  '        loadGiscus();',
+  '        return;',
+  '      }',
+  '    }',
+  '  }, { root: null, rootMargin: "0px 0px", threshold: 0 });',
+  '  io.observe(section);',
+  '})();',
+].join('\n');
+---
+
+<section class="giscus-section" id="giscus-section" aria-label="评论">
+  <h2 class="giscus-title"><i class="fas fa-comments"></i> 评论</h2>
+  <div class="giscus-body" id="giscus-body">
+    <div class="giscus-loading" id="giscus-loading" aria-hidden="true">
+      <div class="giscus-loading-dots">
+        <span class="giscus-dot"></span><span class="giscus-dot"></span><span class="giscus-dot"></span>
+      </div>
+      <span class="giscus-loading-text">正在加载评论…</span>
+    </div>
+    <noscript>
+      <p class="giscus-noscript">评论基于 GitHub Discussions，需要启用 JavaScript 后加载。</p>
+    </noscript>
+  </div>
+</section>
+
+<style is:inline>
+  /* 样式与文章页 article-footer 玻璃卡体系一致，配色仅取现有变量/色值 */
+  .giscus-section {
+    margin-top: 30px;
+    padding: 20px 22px 22px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    backdrop-filter: blur(var(--blur-amount));
+    -webkit-backdrop-filter: blur(var(--blur-amount));
+    background: var(--glass-bg);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition);
+  }
+  /* 容器侧适配：跨域限制无法注入 giscus iframe 内部样式，
+     仅对 iframe 元素本身做适配——透明背景、去边框、暗色 color-scheme
+     （配合自定义主题 giscus-glass.css：透明背景透出玻璃容器与极光背景、
+     玻璃白半透明边框替代原主题近黑边框、浅色文字与全站玻璃卡一致）。 */
+  .giscus-body {
+    overflow-x: hidden;
+  }
+  .giscus-body .giscus-frame {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    background: transparent;
+    color-scheme: dark;
+  }
+  .giscus-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+    color: var(--light-text);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .giscus-title i {
+    color: var(--primary-color);
+    font-size: 0.95rem;
+  }
+  .giscus-noscript {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  /* ===== [v6] 加载占位与失败提示 ===== */
+  .giscus-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 180px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.14);
+  }
+  .giscus-loading.giscus-hidden {
+    display: none;
+  }
+  .giscus-loading.giscus-failed {
+    border-color: rgba(244, 67, 54, 0.35);
+    background: rgba(244, 67, 54, 0.06);
+    min-height: 90px;
+  }
+  .giscus-loading-dots {
+    display: flex;
+    gap: 9px;
+  }
+  .giscus-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(161, 196, 253, 0.9);
+    box-shadow: 0 0 8px rgba(66, 133, 244, 0.5);
+    animation: giscus-dot-pulse 1.1s ease-in-out infinite;
+  }
+  .giscus-dot:nth-child(2) { animation-delay: 0.18s; }
+  .giscus-dot:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes giscus-dot-pulse {
+    0%, 100% { transform: scale(0.7); opacity: 0.35; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+  .giscus-loading-text {
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .giscus-loading.giscus-failed .giscus-loading-text {
+    color: rgba(255, 160, 160, 0.85);
+    letter-spacing: 0;
+    padding: 0 20px;
+    text-align: center;
+    line-height: 1.7;
+  }
+</style>
+
+<Fragment set:html={'<script>\n' + loaderScript + '\n</script>'} />

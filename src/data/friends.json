@@ -1,0 +1,12 @@
+{
+  "title": "友链",
+  "intro": "欢迎交换友链！目前已有以下小伙伴：",
+  "friends": [
+    {
+      "name": "NewMaths-gjm的博客",
+      "url": "https://neolguo.top/",
+      "description": "分享数学，又不只是分享数学。",
+      "icon": ""
+    }
+  ]
+}

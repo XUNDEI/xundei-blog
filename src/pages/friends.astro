@@ -1,0 +1,358 @@
+---
+// 友链独立页 /friends（数据来自 src/data/friends.json，原 friend_link.md 的内容完整保留）。
+// 布局：桌面 3 列 / 平板 2 列 / 手机 1 列；样式沿用全站 glass/极光体系，配色取现有变量与色值。
+import friendsData from '../data/friends.json';
+
+interface Friend {
+  name: string;
+  url: string;
+  description: string;
+  icon?: string; // 手动指定 favicon 地址（可选，自动获取失败时使用）
+}
+
+const { title, intro } = friendsData;
+const friends = friendsData.friends as Friend[];
+
+// favicon 来源优先级：手动 icon 字段 > 对方站点根目录 /favicon.ico > favicon.im 代理 > 回退链接图标
+function faviconSources(f: Friend): string[] {
+  const sources: string[] = [];
+  if (f.icon) {
+    sources.push(f.icon);
+  } else {
+    const u = new URL(f.url);
+    sources.push(u.origin + '/favicon.ico');
+    sources.push('https://favicon.im/' + u.hostname + '?larger=true');
+  }
+  return sources;
+}
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - xundei's blog</title>
+    <meta name="description" content={intro} />
+    <link rel="canonical" href="https://xundei.qzz.io/friends" />
+    <link rel="icon" href="/favicon.ico" />
+    <link
+      rel="preload"
+      href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
+    <style is:inline>
+      :root {
+        --aurora-gradient: linear-gradient(135deg, #c8e8f3 0%, #e4d5e9 50%, #f0e0db 100%);
+        --aurora-primary: #7BA7BC;
+        --aurora-secondary: #C4A6C2;
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --glass-border: rgba(255, 255, 255, 0.35);
+        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        --primary-color: #4285F4;
+        --light-text: #fff;
+        --transition: all 0.3s ease;
+        --blur-amount: 12px;
+        --glow-color: rgba(66, 133, 244, 0.7);
+        --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
+      }
+      body.theme-evening {
+        --aurora-gradient: linear-gradient(135deg, #fad4b8 0%, #d9b0c6 50%, #8a9db8 100%);
+        --aurora-primary: #E2B49A;
+        --aurora-secondary: #B08AA3;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+      body {
+        min-height: 100vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        transition: background-image 1.5s ease-in-out;
+        color: var(--light-text);
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .aurora-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: var(--aurora-gradient);
+        transition: opacity 0.8s ease;
+        opacity: 1;
+        will-change: opacity;
+      }
+      .aurora-background.fade-out { opacity: 0; transition: opacity 1.2s ease; }
+      .aurora-background.hidden { display: none; }
+      .aurora-orb { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
+      .aurora-orb-1 { width: min(600px, 80vw); height: min(600px, 80vw); background: var(--aurora-primary); opacity: 0.25; filter: blur(120px); left: 10%; top: 5%; animation: orb1-drift 22s ease-in-out infinite; }
+      .aurora-orb-2 { width: min(500px, 65vw); height: min(500px, 65vw); background: var(--aurora-secondary); opacity: 0.2; filter: blur(100px); right: 5%; bottom: 10%; animation: orb2-drift 26s ease-in-out infinite; }
+      @keyframes orb1-drift {
+        0% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(10%, 8%) scale(1.15); }
+        50% { transform: translate(5%, 15%) scale(0.9); }
+        75% { transform: translate(8%, 3%) scale(1.08); }
+        100% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes orb2-drift {
+        0% { transform: translate(0, 0) scale(0.9); }
+        25% { transform: translate(-5%, 5%) scale(1.12); }
+        50% { transform: translate(-8%, -3%) scale(1); }
+        75% { transform: translate(-3%, -8%) scale(1.08); }
+        100% { transform: translate(0, 0) scale(0.9); }
+      }
+
+      .glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--blur-amount));
+        -webkit-backdrop-filter: blur(var(--blur-amount));
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: var(--glass-shadow);
+        padding: 20px;
+        transition: var(--transition);
+      }
+      .glass:hover {
+        box-shadow: var(--glow-strong);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+      .back-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--glow-color); }
+
+      .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+      .friends-header {
+        text-align: center;
+        margin: 20px 0 30px;
+        animation: fadeInDown 1s ease;
+      }
+      .friends-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 12px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+      .friends-intro {
+        font-size: 1.05rem;
+        font-weight: 300;
+        color: var(--light-text);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      }
+
+      .friends-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+      @media (min-width: 768px) {
+        .friends-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (min-width: 1024px) {
+        .friends-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+
+      .friend-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        padding: 28px 20px 24px;
+        color: var(--light-text);
+        text-decoration: none;
+        min-height: 200px;
+      }
+      .friend-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(66, 133, 244, 0.2);
+        border: 1px solid rgba(66, 133, 244, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        transition: var(--transition);
+        overflow: hidden;
+      }
+      .friend-favicon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: contain;
+      }
+      .friend-card:hover .friend-icon {
+        background: var(--primary-color);
+        color: #fff;
+        box-shadow: 0 0 18px var(--glow-color);
+        transform: translateY(-3px);
+      }
+      .friend-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--light-text);
+        line-height: 1.4;
+      }
+      .friend-desc {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.85);
+        flex-grow: 1;
+      }
+      .friend-url {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.6);
+        word-break: break-all;
+        letter-spacing: 0.3px;
+      }
+
+      .friends-footer {
+        text-align: center;
+        padding: 16px 20px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+      }
+      .friends-footer a {
+        color: #a1c4fd;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (max-width: 768px) {
+        .friends-title { font-size: 2rem; }
+        .back-btn { top: 15px; left: 15px; width: 45px; height: 45px; }
+      }
+
+      ::selection { background: rgba(66, 133, 244, 0.3); color: white; }
+      ::-webkit-scrollbar { width: 10px; height: 10px; }
+      ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.5); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(66, 133, 244, 0.7); }
+      * { scrollbar-width: thin; scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1); }
+    </style>
+  </head>
+  <body>
+    <div class="aurora-background" id="aurora-bg">
+      <div class="aurora-orb aurora-orb-1"></div>
+      <div class="aurora-orb aurora-orb-2"></div>
+    </div>
+
+    <a href="/" class="back-btn" aria-label="返回首页">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="container">
+      <header class="glass friends-header">
+        <h1 class="friends-title">{title}</h1>
+        <p class="friends-intro">{intro}</p>
+      </header>
+
+      <main class="friends-grid">
+        {
+          friends.map((f) => {
+            const sources = faviconSources(f);
+            // 逐级回退：最后一个来源失败后隐藏 img、显示原链接图标
+            const onerror = `var s=${JSON.stringify(sources.slice(1))};var n=+(this.dataset.n||0);if(n<s.length){this.dataset.n=n+1;this.src=s[n];}else{this.style.display='none';this.nextElementSibling.style.display='inline-block';}`;
+            return (
+              <a class="friend-card glass" href={f.url} target="_blank" rel="noopener noreferrer" title={f.name}>
+                <div class="friend-icon">
+                  <img
+                    class="friend-favicon"
+                    src={sources[0]}
+                    alt=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                    onerror={onerror}
+                  />
+                  <i class="fas fa-link" style="display:none;" />
+                </div>
+                <div class="friend-name">{f.name}</div>
+                <p class="friend-desc">{f.description}</p>
+                <span class="friend-url">{f.url}</span>
+              </a>
+            );
+          })
+        }
+      </main>
+    </div>
+
+    <script is:inline>
+      // 时间感知极光 + 壁纸加载（与 404 页一致的既有行为）
+      (function () {
+        function getAuroraTheme() {
+          var hour = new Date().getHours();
+          if (hour >= 18 || hour < 6) return 'evening';
+          return 'morning';
+        }
+        if (getAuroraTheme() === 'evening') document.body.classList.add('theme-evening');
+
+        var auroraBg = document.getElementById('aurora-bg');
+        function hideAuroraBackground() {
+          if (!auroraBg || auroraBg.classList.contains('hidden')) return;
+          auroraBg.classList.add('fade-out');
+          setTimeout(function () {
+            auroraBg.classList.add('hidden');
+            auroraBg.style.display = 'none';
+          }, 1200);
+        }
+
+        fetch('/wallpaper.json')
+          .then(function (r) {
+            if (!r.ok) throw new Error('请求失败');
+            return r.json();
+          })
+          .then(function (data) {
+            if (data && data.length) {
+              var entry = data[Math.floor(Math.random() * data.length)];
+              var imgUrl = entry.path;
+              if (!/^https?:\/\//i.test(imgUrl)) imgUrl = './' + imgUrl;
+              var img = new Image();
+              img.onload = function () {
+                document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                hideAuroraBackground();
+              };
+              img.src = imgUrl;
+            }
+          })
+          .catch(function () {
+            /* 壁纸加载失败时保留极光背景 */
+          });
+      })();
+    </script>
+  </body>
+</html>
