@@ -366,6 +366,8 @@ import path from 'node:path';
 
 export interface PostLike {
   id: string;
+  /** glob loader 提供的源文件绝对路径；id 来自 frontmatter slug 时与文件名不一致 */
+  filePath?: string;
   body?: string;
   data: {
     title: string;
@@ -379,8 +381,9 @@ export interface PostLike {
   };
 }
 
-function getFrontMatterKeyOrder(srcDir: string, id: string): string[] {
-  const filePath = path.join(srcDir, `${id}.md`);
+function getFrontMatterKeyOrder(post: PostLike, srcDir: string): string[] {
+  // 优先用 loader 给出的真实路径；兜底按 id 拼路径（兼容旧数字文件名）
+  const filePath = post.filePath ?? path.join(srcDir, `${post.id}.md`);
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const match = content.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n([\s\S]*))?$/);
@@ -421,7 +424,7 @@ export function buildLegacyIndexItem(post: PostLike, srcDir: string): Record<str
   const emittedCamel = new Set<string>();
   const deferred: Array<[string, unknown]> = [];
 
-  for (const key of getFrontMatterKeyOrder(srcDir, post.id)) {
+  for (const key of getFrontMatterKeyOrder(post, srcDir)) {
     let value: unknown;
     if (key === 'code-license') value = values['code-license'];
     else if (Object.prototype.hasOwnProperty.call(values, key)) value = values[key];
