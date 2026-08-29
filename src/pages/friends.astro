@@ -36,6 +36,13 @@ function faviconSources(f: Friend): string[] {
     <meta name="description" content={intro} />
     <link rel="canonical" href="https://xundei.qzz.io/friends" />
     <link rel="icon" href="/favicon.ico" />
+    <script is:inline>
+      // 按时间段自动定主题：18:00–6:00 夜间（黄昏），其余为白天（清晨）
+      (function () {
+        var h = new Date().getHours();
+        document.documentElement.classList.add(h >= 18 || h < 6 ? 'theme-dark' : 'theme-light');
+      })();
+    </script>
     <link
       rel="preload"
       href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -45,7 +52,7 @@ function faviconSources(f: Friend): string[] {
     <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
     <style is:inline>
       :root {
-        --aurora-gradient: linear-gradient(135deg, #c8e8f3 0%, #e4d5e9 50%, #f0e0db 100%);
+        --aurora-gradient: linear-gradient(135deg, #B8D8E3 0%, #D4C5D9 50%, #E8D5D0 100%);
         --aurora-primary: #7BA7BC;
         --aurora-secondary: #C4A6C2;
         --glass-bg: rgba(255, 255, 255, 0.25);
@@ -58,11 +65,53 @@ function faviconSources(f: Friend): string[] {
         --glow-color: rgba(66, 133, 244, 0.7);
         --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
       }
-      body.theme-evening {
-        --aurora-gradient: linear-gradient(135deg, #fad4b8 0%, #d9b0c6 50%, #8a9db8 100%);
-        --aurora-primary: #E2B49A;
-        --aurora-secondary: #B08AA3;
+
+      /* ===== 亮/深色主题文字变量（默认深色值，html.theme-light 覆盖为深字浅底） ===== */
+      :root {
+        --w-100: #fff;
+        --w-90: rgba(255, 255, 255, 0.9);
+        --w-85: rgba(255, 255, 255, 0.85);
+        --w-70: rgba(255, 255, 255, 0.7);
+        --w-60: rgba(255, 255, 255, 0.6);
       }
+      html.theme-light {
+        --w-100: #2d3a4b;
+        --w-90: rgba(45, 58, 75, 0.9);
+        --w-85: rgba(45, 58, 75, 0.85);
+        --w-70: rgba(45, 58, 75, 0.7);
+        --w-60: rgba(45, 58, 75, 0.6);
+        --glass-bg: rgba(255, 255, 255, 0.42);
+        --glass-border: rgba(255, 255, 255, 0.55);
+        --glass-shadow: 0 8px 32px rgba(70, 90, 120, 0.14);
+      }
+                              html.theme-dark {
+      --w-100: #F5EDE4;
+      --w-90: rgba(245, 237, 228, 0.90);
+      --w-85: rgba(245, 237, 228, 0.85);
+      --w-70: rgba(245, 237, 228, 0.70);
+      --w-60: rgba(245, 237, 228, 0.60);
+      --text-color: #F5EDE4;
+      --aurora-gradient: linear-gradient(135deg, #F4C4A8 0%, #C9A0B6 50%, #5B6D8A 100%);
+      --aurora-primary: #E8A87C;
+      --aurora-secondary: #6B4E71;
+      --glass-bg: rgba(40, 30, 50, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+
+/* 壁纸加载完成后：玻璃与文字恢复博客最初样式（与明暗主题无关） */
+    html.wallpaper-active {
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.35);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --w-100: #fff;
+      --w-90: rgba(255, 255, 255, 0.90);
+      --w-85: rgba(255, 255, 255, 0.85);
+      --w-70: rgba(255, 255, 255, 0.70);
+      --w-60: rgba(255, 255, 255, 0.60);
+      --text-color: #fff;
+    }
+
 
       * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
@@ -73,7 +122,7 @@ function faviconSources(f: Friend): string[] {
         background-repeat: no-repeat;
         background-attachment: fixed;
         transition: background-image 1.5s ease-in-out;
-        color: var(--light-text);
+        color: var(--w-100);
         position: relative;
         overflow-x: hidden;
       }
@@ -97,19 +146,19 @@ function faviconSources(f: Friend): string[] {
       .aurora-orb { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
       .aurora-orb-1 { width: min(600px, 80vw); height: min(600px, 80vw); background: var(--aurora-primary); opacity: 0.25; filter: blur(120px); left: 10%; top: 5%; animation: orb1-drift 22s ease-in-out infinite; }
       .aurora-orb-2 { width: min(500px, 65vw); height: min(500px, 65vw); background: var(--aurora-secondary); opacity: 0.2; filter: blur(100px); right: 5%; bottom: 10%; animation: orb2-drift 26s ease-in-out infinite; }
+      .aurora-orb-3 { width: min(450px, 55vw); height: min(450px, 55vw); background: var(--aurora-primary); opacity: 0.15; filter: blur(130px); left: 40%; top: 40%; animation: orb3-drift 30s ease-in-out infinite; }
+      .aurora-orb-4 { width: min(300px, 40vw); height: min(300px, 40vw); background: var(--aurora-secondary); opacity: 0.18; filter: blur(80px); left: 55%; top: 15%; animation: orb4-drift 18s ease-in-out infinite; }
       @keyframes orb1-drift {
-        0% { transform: translate(0, 0) scale(1); }
-        25% { transform: translate(10%, 8%) scale(1.15); }
-        50% { transform: translate(5%, 15%) scale(0.9); }
-        75% { transform: translate(8%, 3%) scale(1.08); }
-        100% { transform: translate(0, 0) scale(1); }
+        0% { transform: translate(-5%, 0%) scale(1); }
+        33.3% { transform: translate(15%, 12%) scale(1.15); }
+        66.7% { transform: translate(5%, 20%) scale(0.9); }
+        100% { transform: translate(-8%, 3%) scale(1.08); }
       }
       @keyframes orb2-drift {
-        0% { transform: translate(0, 0) scale(0.9); }
-        25% { transform: translate(-5%, 5%) scale(1.12); }
-        50% { transform: translate(-8%, -3%) scale(1); }
-        75% { transform: translate(-3%, -8%) scale(1.08); }
-        100% { transform: translate(0, 0) scale(0.9); }
+        0% { transform: translate(8%, -5%) scale(0.9); }
+        33.3% { transform: translate(-10%, 10%) scale(1.12); }
+        66.7% { transform: translate(5%, -8%) scale(1); }
+        100% { transform: translate(12%, 5%) scale(1.08); }
       }
 
       .glass {
@@ -157,14 +206,18 @@ function faviconSources(f: Friend): string[] {
       .friends-title {
         font-size: 2.6rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--w-100);
         margin-bottom: 12px;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+      html.theme-light .friends-title,
+      html.theme-light .friends-intro {
+        text-shadow: none;
       }
       .friends-intro {
         font-size: 1.05rem;
         font-weight: 300;
-        color: var(--light-text);
+        color: var(--w-100);
         text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
       }
 
@@ -188,7 +241,7 @@ function faviconSources(f: Friend): string[] {
         text-align: center;
         gap: 10px;
         padding: 28px 20px 24px;
-        color: var(--light-text);
+        color: var(--w-100);
         text-decoration: none;
         min-height: 200px;
       }
@@ -221,18 +274,18 @@ function faviconSources(f: Friend): string[] {
       .friend-name {
         font-size: 1.15rem;
         font-weight: 700;
-        color: var(--light-text);
+        color: var(--w-100);
         line-height: 1.4;
       }
       .friend-desc {
         font-size: 0.9rem;
         line-height: 1.6;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--w-85);
         flex-grow: 1;
       }
       .friend-url {
         font-size: 0.78rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--w-60);
         word-break: break-all;
         letter-spacing: 0.3px;
       }
@@ -240,11 +293,11 @@ function faviconSources(f: Friend): string[] {
       .friends-footer {
         text-align: center;
         padding: 16px 20px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--w-70);
         font-size: 0.85rem;
       }
       .friends-footer a {
-        color: #a1c4fd;
+        color: var(--primary-color);
         text-decoration: underline;
         text-underline-offset: 3px;
       }
@@ -258,7 +311,7 @@ function faviconSources(f: Friend): string[] {
         .back-btn { top: 15px; left: 15px; width: 45px; height: 45px; }
       }
 
-      ::selection { background: rgba(66, 133, 244, 0.3); color: white; }
+      ::selection { background: rgba(66, 133, 244, 0.3); color: var(--w-100); }
       ::-webkit-scrollbar { width: 10px; height: 10px; }
       ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
       ::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.5); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
@@ -270,7 +323,10 @@ function faviconSources(f: Friend): string[] {
     <div class="aurora-background" id="aurora-bg">
       <div class="aurora-orb aurora-orb-1"></div>
       <div class="aurora-orb aurora-orb-2"></div>
+      <div class="aurora-orb aurora-orb-3"></div>
+      <div class="aurora-orb aurora-orb-4"></div>
     </div>
+
 
     <a href="/" class="back-btn" aria-label="返回首页">
       <i class="fas fa-arrow-left"></i>
@@ -312,15 +368,8 @@ function faviconSources(f: Friend): string[] {
     </div>
 
     <script is:inline>
-      // 时间感知极光 + 壁纸加载（与 404 页一致的既有行为）
+      // 壁纸为主背景，极光仅作加载失败后备（与首页一致）
       (function () {
-        function getAuroraTheme() {
-          var hour = new Date().getHours();
-          if (hour >= 18 || hour < 6) return 'evening';
-          return 'morning';
-        }
-        if (getAuroraTheme() === 'evening') document.body.classList.add('theme-evening');
-
         var auroraBg = document.getElementById('aurora-bg');
         function hideAuroraBackground() {
           if (!auroraBg || auroraBg.classList.contains('hidden')) return;
@@ -344,6 +393,7 @@ function faviconSources(f: Friend): string[] {
               var img = new Image();
               img.onload = function () {
                 document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+                document.documentElement.classList.add('wallpaper-active');
                 hideAuroraBackground();
               };
               img.src = imgUrl;
@@ -354,5 +404,6 @@ function faviconSources(f: Friend): string[] {
           });
       })();
     </script>
+
   </body>
 </html>

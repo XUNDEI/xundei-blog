@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>玻璃样式实验室 - xundei's blog demo</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:," />
+  <link
+    rel="preload"
+    href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
+  <style is:inline>
+    /* ============================================================
+       玻璃样式实验室（对比页）
+       - 加载过渡（极光 + 磨砂玻璃）与博客完全一致，未做任何改动；
+       - 所有新玻璃样式只作用于 html.wallpaper-active 之后；
+       - 本文件独立于博客源码，不参与构建与部署。
+       ============================================================ */
+
+    :root {
+      --aurora-gradient: linear-gradient(135deg, #B8D8E3 0%, #D4C5D9 50%, #E8D5D0 100%);
+      --aurora-primary: #7BA7BC;
+      --aurora-secondary: #C4A6C2;
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.35);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --primary-color: #4285F4;
+      --light-text: #fff;
+      --transition: all 0.3s ease;
+      --blur-amount: 12px;
+      --glow-color: rgba(66, 133, 244, 0.7);
+      --glow-strong: 0 0 22px rgba(66, 133, 244, 0.55), 0 0 45px rgba(66, 133, 244, 0.3), 0 0 75px rgba(66, 133, 244, 0.15);
+    }
+
+    /* ===== 亮/深色主题文字变量（与博客一致） ===== */
+    :root {
+      --w-100: #fff;
+      --w-90: rgba(255, 255, 255, 0.9);
+      --w-85: rgba(255, 255, 255, 0.85);
+      --w-70: rgba(255, 255, 255, 0.7);
+      --w-60: rgba(255, 255, 255, 0.6);
+      --w-55: rgba(255, 255, 255, 0.55);
+    }
+    html.theme-light {
+      --w-100: #2d3a4b;
+      --w-90: rgba(45, 58, 75, 0.9);
+      --w-85: rgba(45, 58, 75, 0.85);
+      --w-70: rgba(45, 58, 75, 0.7);
+      --w-60: rgba(45, 58, 75, 0.6);
+      --w-55: rgba(45, 58, 75, 0.55);
+      --glass-bg: rgba(255, 255, 255, 0.42);
+      --glass-border: rgba(255, 255, 255, 0.55);
+      --glass-shadow: 0 8px 32px rgba(70, 90, 120, 0.14);
+    }
+    html.theme-dark {
+      --w-100: #F5EDE4;
+      --w-90: rgba(245, 237, 228, 0.90);
+      --w-85: rgba(245, 237, 228, 0.85);
+      --w-70: rgba(245, 237, 228, 0.70);
+      --w-60: rgba(245, 237, 228, 0.60);
+      --w-55: rgba(245, 237, 228, 0.55);
+      --text-color: #F5EDE4;
+      --aurora-gradient: linear-gradient(135deg, #F4C4A8 0%, #C9A0B6 50%, #5B6D8A 100%);
+      --aurora-primary: #E8A87C;
+      --aurora-secondary: #6B4E71;
+      --glass-bg: rgba(40, 30, 50, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 壁纸加载完成后：文字变量与博客保持一致（玻璃表面由各样式类接管） */
+    html.wallpaper-active {
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.35);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --w-100: #fff;
+      --w-90: rgba(255, 255, 255, 0.90);
+      --w-85: rgba(255, 255, 255, 0.85);
+      --w-70: rgba(255, 255, 255, 0.70);
+      --w-60: rgba(255, 255, 255, 0.60);
+      --w-55: rgba(255, 255, 255, 0.55);
+      --text-color: #fff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      min-height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      transition: background-image 1.5s ease-in-out;
+      color: var(--w-100);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 演示后备背景：仅当壁纸源完全不可达时启用（如本地 file:// 直接打开） */
+    body.demo-fallback-bg {
+      background-image:
+        radial-gradient(90rem 60rem at 82% -10%, rgba(94, 129, 172, 0.55), transparent 60%),
+        radial-gradient(70rem 50rem at 8% 110%, rgba(123, 94, 142, 0.5), transparent 60%),
+        linear-gradient(160deg, #10141f 0%, #1b2436 45%, #232437 100%) !important;
+    }
+
+    .aurora-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: var(--aurora-gradient);
+      transition: opacity 0.8s ease;
+      opacity: 1;
+      will-change: opacity;
+    }
+    .aurora-background.fade-out { opacity: 0; transition: opacity 1.2s ease; }
+    .aurora-background.hidden { display: none; }
+    .aurora-orb { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
+    .aurora-orb-1 { width: min(600px, 80vw); height: min(600px, 80vw); background: var(--aurora-primary); opacity: 0.25; filter: blur(120px); left: 10%; top: 5%; animation: orb1-drift 22s ease-in-out infinite; }
+    .aurora-orb-2 { width: min(500px, 65vw); height: min(500px, 65vw); background: var(--aurora-secondary); opacity: 0.2; filter: blur(100px); right: 5%; bottom: 10%; animation: orb2-drift 26s ease-in-out infinite; }
+    .aurora-orb-3 { width: min(450px, 55vw); height: min(450px, 55vw); background: var(--aurora-primary); opacity: 0.15; filter: blur(130px); left: 40%; top: 40%; animation: orb3-drift 30s ease-in-out infinite; }
+    .aurora-orb-4 { width: min(300px, 40vw); height: min(300px, 40vw); background: var(--aurora-secondary); opacity: 0.18; filter: blur(80px); left: 55%; top: 15%; animation: orb4-drift 18s ease-in-out infinite; }
+    @keyframes orb1-drift {
+      0% { transform: translate(-5%, 0%) scale(1); }
+      33.3% { transform: translate(15%, 12%) scale(1.15); }
+      66.7% { transform: translate(5%, 20%) scale(0.9); }
+      100% { transform: translate(-8%, 3%) scale(1.08); }
+    }
+    @keyframes orb2-drift {
+      0% { transform: translate(8%, -5%) scale(0.9); }
+      33.3% { transform: translate(-10%, 10%) scale(1.12); }
+      66.7% { transform: translate(5%, -8%) scale(1); }
+      100% { transform: translate(12%, 5%) scale(1.08); }
+    }
+    @keyframes orb3-drift {
+      0% { transform: translate(-10%, -8%) scale(1.05); }
+      33.3% { transform: translate(20%, 5%) scale(0.88); }
+      66.7% { transform: translate(-5%, 15%) scale(1.1); }
+      100% { transform: translate(10%, -3%) scale(0.95); }
+    }
+    @keyframes orb4-drift {
+      0% { transform: translate(15%, 10%) scale(0.85); }
+      33.3% { transform: translate(-8%, -5%) scale(1.1); }
+      66.7% { transform: translate(10%, 8%) scale(0.95); }
+      100% { transform: translate(-12%, 15%) scale(1.05); }
+    }
+
+    /* 亮度自适应调节层（与博客一致：过亮壁纸自动叠加暗化，保证白字可读） */
+    .brightness-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      background: transparent;
+    }
+    .brightness-overlay.active { opacity: 1; }
+
+    /* ===== 原版磨砂玻璃（加载期与壁纸后的基线，未改动） ===== */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur-amount));
+      -webkit-backdrop-filter: blur(var(--blur-amount));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: var(--glass-shadow);
+      padding: 20px;
+      transition: var(--transition);
+    }
+    .glass:hover {
+      box-shadow: var(--glow-strong);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+    /* ============================================================
+       以下均为「壁纸加载完成后」才生效的玻璃样式
+       （全部限定在 html.wallpaper-active 之下，不影响加载过渡）
+       ============================================================ */
+
+    /* ---------- ② 液体玻璃 Liquid Glass ---------- */
+    html.wallpaper-active .g-liquid {
+      position: relative;
+      background: linear-gradient(120deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.11) 100%);
+      backdrop-filter: blur(7px) saturate(180%) brightness(1.06);
+      -webkit-backdrop-filter: blur(7px) saturate(180%) brightness(1.06);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      border-radius: 20px;
+      box-shadow:
+        inset 1.4px 1.4px 1.5px rgba(255, 255, 255, 0.60),
+        inset -1.4px -1.4px 1.5px rgba(255, 255, 255, 0.16),
+        inset 0 0 20px rgba(255, 255, 255, 0.04),
+        0 8px 24px rgba(0, 0, 0, 0.16);
+    }
+    /* 边缘折射环（Chromium 支持 SVG 滤镜折射；其余内核自动降级为无环，不影响主体） */
+    html.wallpaper-active .g-liquid::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 11px;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      backdrop-filter: url(#liquid-distortion);
+      pointer-events: none;
+    }
+    /* 悬停流光扫过 */
+    html.wallpaper-active .g-liquid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.30) 49%, rgba(255,255,255,0.10) 53%, transparent 66%);
+      opacity: 0;
+      transform: translateX(-12%);
+      transition: opacity 0.45s ease, transform 0.6s ease;
+      pointer-events: none;
+    }
+    html.wallpaper-active .g-liquid:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-3px);
+      box-shadow:
+        inset 1.6px 1.6px 2px rgba(255, 255, 255, 0.70),
+        inset -1.6px -1.6px 2px rgba(255, 255, 255, 0.22),
+        inset 0 0 24px rgba(255, 255, 255, 0.06),
+        0 10px 30px rgba(0, 0, 0, 0.20);
+    }
+    html.wallpaper-active .g-liquid:hover::before { opacity: 1; transform: translateX(6%); }
+
+    /* ---------- ③ 水晶玻璃 Crystal ---------- */
+    html.wallpaper-active .g-crystal {
+      background: linear-gradient(155deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.07) 42%, rgba(255,255,255,0.17) 100%);
+      backdrop-filter: blur(16px) saturate(170%) brightness(1.12);
+      -webkit-backdrop-filter: blur(16px) saturate(170%) brightness(1.12);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 14px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.70),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.20),
+        inset 1px 0 0 rgba(255, 255, 255, 0.28),
+        inset -1px 0 0 rgba(255, 255, 255, 0.28),
+        0 12px 36px rgba(0, 0, 0, 0.24);
+    }
+    html.wallpaper-active .g-crystal:hover {
+      border-color: rgba(255, 255, 255, 0.65);
+      transform: translateY(-3px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+        inset 1px 0 0 rgba(255, 255, 255, 0.32),
+        inset -1px 0 0 rgba(255, 255, 255, 0.32),
+        0 12px 36px rgba(0, 0, 0, 0.24),
+        0 0 26px rgba(66, 133, 244, 0.45);
+    }
+
+    /* ---------- ④ 曜石玻璃 Obsidian（深色烟熏，可读性最佳） ---------- */
+    html.wallpaper-active .g-obsidian {
+      background: linear-gradient(150deg, rgba(22, 28, 42, 0.58) 0%, rgba(12, 16, 26, 0.44) 100%);
+      backdrop-filter: blur(14px) saturate(135%) brightness(0.95);
+      -webkit-backdrop-filter: blur(14px) saturate(135%) brightness(0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+        0 12px 32px rgba(0, 0, 0, 0.38);
+    }
+    html.wallpaper-active .g-obsidian:hover {
+      border-color: rgba(255, 255, 255, 0.30);
+      transform: translateY(-3px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
+        0 12px 32px rgba(0, 0, 0, 0.38),
+        0 0 22px rgba(66, 133, 244, 0.35);
+    }
+
+    /* ---------- ⑤ 虹彩玻璃 Iridescent（珍珠母贝流光） ---------- */
+    @property --ir-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    html.wallpaper-active .g-iridescent {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.14) 100%);
+      backdrop-filter: blur(11px) saturate(155%);
+      -webkit-backdrop-filter: blur(11px) saturate(155%);
+      border: 1px solid transparent;
+      border-radius: 18px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 8px 28px rgba(0, 0, 0, 0.18);
+    }
+    /* 旋转的彩虹描边（不支持 @property 的内核显示为静态描边） */
+    html.wallpaper-active .g-iridescent::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border-radius: inherit;
+      background: conic-gradient(
+        from var(--ir-angle, 0deg),
+        rgba(255, 154, 158, 0.85),
+        rgba(161, 196, 253, 0.85),
+        rgba(194, 233, 251, 0.85),
+        rgba(212, 252, 121, 0.70),
+        rgba(255, 209, 255, 0.85),
+        rgba(255, 154, 158, 0.85)
+      );
+      z-index: -1;
+      animation: ir-rotate 16s linear infinite;
+    }
+    /* 表面珍珠母贝薄纱 */
+    html.wallpaper-active .g-iridescent::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(115deg,
+        rgba(161, 196, 253, 0.14) 0%, rgba(255, 209, 255, 0.08) 30%,
+        rgba(212, 252, 121, 0.10) 55%, rgba(194, 233, 251, 0.13) 100%);
+      pointer-events: none;
+      animation: ir-sheen 9s ease-in-out infinite alternate;
+    }
+    html.wallpaper-active .g-iridescent:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 10px 32px rgba(0, 0, 0, 0.22),
+        0 0 24px rgba(161, 196, 253, 0.35);
+    }
+    @keyframes ir-rotate { to { --ir-angle: 360deg; } }
+    @keyframes ir-sheen {
+      from { opacity: 0.5; transform: translateX(-2%); }
+      to { opacity: 0.9; transform: translateX(2%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.wallpaper-active .g-iridescent::before,
+      html.wallpaper-active .g-iridescent::after { animation: none; }
+    }
+
+    /* ============================================================
+       演示页排版（与玻璃样式无关）
+       ============================================================ */
+    .demo-hero { text-align: center; margin: 24px 0 10px; animation: fadeInDown 1s ease; }
+    .demo-hero h1 { font-size: 2.4rem; font-weight: 800; color: var(--w-100); margin-bottom: 10px; }
+    .demo-hero p { font-size: 1rem; font-weight: 300; color: var(--w-85); line-height: 1.7; }
+    .demo-hero .hero-note {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: var(--w-55);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 12px;
+    }
+
+    .style-section { margin: 46px 0; }
+    .style-info { margin-bottom: 14px; padding-left: 14px; border-left: 3px solid var(--primary-color); }
+    .style-info h2 { font-size: 1.35rem; font-weight: 700; color: var(--w-100); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .style-info .style-no {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 8px;
+      background: rgba(66, 133, 244, 0.25); border: 1px solid rgba(66, 133, 244, 0.45);
+      font-size: 0.85rem; color: var(--w-100);
+    }
+    .style-info p { margin-top: 6px; font-size: 0.88rem; color: var(--w-70); line-height: 1.6; }
+    .style-info .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .style-info .chip {
+      font-size: 0.72rem; padding: 3px 10px; border-radius: 999px;
+      background: rgba(66, 133, 244, 0.16); border: 1px solid rgba(66, 133, 244, 0.35);
+      color: var(--w-85);
+    }
+
+    .style-cards { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+    @media (max-width: 900px) { .style-cards { grid-template-columns: 1fr; } }
+
+    .article-demo { display: flex; flex-direction: column; gap: 10px; padding: 22px 26px; }
+    .article-demo .a-title { font-size: 1.18rem; font-weight: 700; color: var(--w-100); }
+    .article-demo .a-meta { font-size: 0.78rem; color: var(--w-55); display: flex; gap: 14px; flex-wrap: wrap; }
+    .article-demo .a-excerpt { font-size: 0.9rem; line-height: 1.7; color: var(--w-85); }
+    .article-demo .a-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
+    .article-demo .a-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .article-demo .a-tag {
+      font-size: 0.72rem; padding: 3px 10px; border-radius: 999px;
+      background: rgba(66, 133, 244, 0.18); border: 1px solid rgba(66, 133, 244, 0.4);
+      color: var(--w-85);
+    }
+    .article-demo .a-more {
+      font-size: 0.8rem; padding: 6px 16px; border-radius: 999px; text-decoration: none;
+      background: rgba(66, 133, 244, 0.22); border: 1px solid rgba(66, 133, 244, 0.5);
+      color: var(--w-100); white-space: nowrap; transition: var(--transition);
+    }
+    .article-demo .a-more:hover { background: var(--primary-color); }
+
+    .mini-stack { display: flex; flex-direction: column; gap: 18px; }
+    .mini-demo .m-title { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 600; color: var(--w-100); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+    .mini-demo .m-title i { color: var(--primary-color); font-size: 0.9rem; }
+    .mini-demo .m-line { font-size: 0.8rem; color: var(--w-70); line-height: 1.8; }
+
+    /* 壁纸状态徽标 */
+    .wp-badge {
+      position: fixed; right: 18px; bottom: 18px; z-index: 200;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 999px;
+      background: rgba(15, 20, 32, 0.6);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.85); font-size: 0.78rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+    .wp-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #f5c26b; box-shadow: 0 0 8px rgba(245, 194, 107, 0.8); }
+    .wp-badge.ok .dot { background: #6ee7a8; box-shadow: 0 0 8px rgba(110, 231, 168, 0.8); }
+    .wp-badge.fallback .dot { background: #ff8f8f; box-shadow: 0 0 8px rgba(255, 143, 143, 0.8); }
+    .wp-badge .spin { animation: badge-spin 1s linear infinite; }
+    @keyframes badge-spin { to { transform: rotate(360deg); } }
+
+    .demo-footer { text-align: center; padding: 30px 20px 40px; color: var(--w-55); font-size: 0.82rem; }
+    .demo-footer a { color: var(--primary-color); text-decoration: underline; text-underline-offset: 3px; }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    ::selection { background: rgba(66, 133, 244, 0.3); color: var(--w-100); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(66, 133, 244, 0.5); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(66, 133, 244, 0.7); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(66, 133, 244, 0.5) rgba(0, 0, 0, 0.1); }
+
+    @media (max-width: 768px) {
+      .demo-hero h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 液体玻璃边缘折射滤镜（仅 Chromium 的 backdrop-filter 引用生效，其余内核自动降级） -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="liquid-distortion" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.007 0.011" numOctaves="2" seed="7" result="noise" />
+      <feGaussianBlur in="noise" stdDeviation="1.8" result="blurred" />
+      <feDisplacementMap in="SourceGraphic" in2="blurred" scale="60" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <div class="aurora-background" id="aurora-bg">
+    <div class="aurora-orb aurora-orb-1"></div>
+    <div class="aurora-orb aurora-orb-2"></div>
+    <div class="aurora-orb aurora-orb-3"></div>
+    <div class="aurora-orb aurora-orb-4"></div>
+  </div>
+  <div class="brightness-overlay" id="brightness-overlay"></div>
+
+  <div class="container">
+    <header class="glass demo-hero">
+      <h1>玻璃样式实验室</h1>
+      <p>同一张壁纸、同样的加载过渡（极光 + 磨砂），壁纸加载完成后并排对比 5 种玻璃表面方案。<br />
+      将鼠标悬停在卡片上可查看各样式的悬停反馈。</p>
+      <p class="hero-note">
+        本页为独立演示文件（glass-demos/ 目录），不参与博客构建与部署。<br />
+        加载过渡样式与博客完全一致，未做任何改动；新样式仅作用于壁纸加载完成（html.wallpaper-active）之后。
+      </p>
+    </header>
+
+    <!-- ① 原版磨砂（基线） -->
+    <section class="style-section">
+      <div class="style-info">
+        <h2><span class="style-no">1</span>原版磨砂玻璃（当前博客 · 基线）</h2>
+        <p>blur(12px) 均匀模糊 + 半透明白底，中规中矩，作为其余方案的对照组。</p>
+        <div class="chips"><span class="chip">blur 12px</span><span class="chip">均匀磨砂</span><span class="chip">现状</span></div>
+      </div>
+      <div class="style-cards">
+        <article class="glass article-demo">
+          <div class="a-title">用 Astro 重构博客的这一年</div>
+          <div class="a-meta"><span><i class="fas fa-calendar"></i> 2026-08-29</span><span><i class="fas fa-folder"></i> 折腾记录</span></div>
+          <div class="a-excerpt">从旧版静态 HTML 迁移到 Astro 的完整心路历程：内容集合、构建期数据注入、Cloudflare Pages 部署，以及那些踩过的坑。磨砂玻璃是这个方案里最保守也最稳的选择。</div>
+          <div class="a-foot">
+            <div class="a-tags"><span class="a-tag">Astro</span><span class="a-tag">建站</span><span class="a-tag">Cloudflare</span></div>
+            <a class="a-more" href="javascript:void(0)">阅读全文</a>
+          </div>
+        </article>
+        <div class="mini-stack">
+          <aside class="glass mini-demo">
+            <div class="m-title"><i class="fas fa-calendar-alt"></i> 日历</div>
+            <div class="m-line">八月 · 今日有一篇新文章</div>
+            <div class="m-line">磨砂基线 · 卡片 A</div>
+          </aside>
+          <aside class="glass mini-demo">
+            <div class="m-title"><i class="fas fa-tags"></i> 标签云</div>
+            <div class="m-line">Astro / CSS / 玻璃拟态</div>
+            <div class="m-line">磨砂基线 · 卡片 B</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② 液体玻璃 -->
+    <section class="style-section">
+      <div class="style-info">
+        <h2><span class="style-no">2</span>液体玻璃 Liquid Glass</h2>
+        <p>Apple 2025 风格：低模糊高饱和的通透底 + 左上/右下双向高光描边，边缘带折射扭曲（Chromium 生效，其余内核自动降级），悬停有流光扫过。更“活”，但层次多、规则最长。</p>
+        <div class="chips"><span class="chip">blur 7px + saturate 180%</span><span class="chip">镜面高光边</span><span class="chip">边缘折射</span><span class="chip">悬停流光</span></div>
+      </div>
+      <div class="style-cards">
+        <article class="glass g-liquid article-demo">
+          <div class="a-title">液体玻璃：把光装进卡片里</div>
+          <div class="a-meta"><span><i class="fas fa-calendar"></i> 2026-08-29</span><span><i class="fas fa-folder"></i> 视觉设计</span></div>
+          <div class="a-excerpt">更低的模糊换来更高的通透感，饱和度拉到 180% 让壁纸颜色透上来；两道内阴影构成镜面高光，边缘的折射环让卡片像一滴水贴在壁纸上。悬停时一道流光从左扫向右。</div>
+          <div class="a-foot">
+            <div class="a-tags"><span class="a-tag">Liquid Glass</span><span class="a-tag">specular</span><span class="a-tag">refraction</span></div>
+            <a class="a-more" href="javascript:void(0)">阅读全文</a>
+          </div>
+        </article>
+        <div class="mini-stack">
+          <aside class="glass g-liquid mini-demo">
+            <div class="m-title"><i class="fas fa-calendar-alt"></i> 日历</div>
+            <div class="m-line">八月 · 今日有一篇新文章</div>
+            <div class="m-line">液体玻璃 · 卡片 A</div>
+          </aside>
+          <aside class="glass g-liquid mini-demo">
+            <div class="m-title"><i class="fas fa-tags"></i> 标签云</div>
+            <div class="m-line">Astro / CSS / 玻璃拟态</div>
+            <div class="m-line">液体玻璃 · 卡片 B</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ 水晶玻璃 -->
+    <section class="style-section">
+      <div class="style-info">
+        <h2><span class="style-no">3</span>水晶玻璃 Crystal</h2>
+        <p>高模糊高亮度，四边细高光像切割过的宝石切面；比磨砂更“亮”，比液体更利落。规则简单，兼容性最好，性能与原版相当。</p>
+        <div class="chips"><span class="chip">blur 16px + brightness 112%</span><span class="chip">切面高光</span><span class="chip">规则简洁</span></div>
+      </div>
+      <div class="style-cards">
+        <article class="glass g-crystal article-demo">
+          <div class="a-title">水晶玻璃：干净利落的透明感</div>
+          <div class="a-meta"><span><i class="fas fa-calendar"></i> 2026-08-29</span><span><i class="fas fa-folder"></i> 视觉设计</span></div>
+          <div class="a-excerpt">把模糊拉高、亮度提亮，再用四条 1px 内高光描出“切面”。没有多余的装饰，悬停只在切面上加一点辉光——适合想要更清爽、更现代的玻璃，又不想牺牲可读性的场景。</div>
+          <div class="a-foot">
+            <div class="a-tags"><span class="a-tag">Crystal</span><span class="a-tag">bevel</span><span class="a-tag">高可读</span></div>
+            <a class="a-more" href="javascript:void(0)">阅读全文</a>
+          </div>
+        </article>
+        <div class="mini-stack">
+          <aside class="glass g-crystal mini-demo">
+            <div class="m-title"><i class="fas fa-calendar-alt"></i> 日历</div>
+            <div class="m-line">八月 · 今日有一篇新文章</div>
+            <div class="m-line">水晶玻璃 · 卡片 A</div>
+          </aside>
+          <aside class="glass g-crystal mini-demo">
+            <div class="m-title"><i class="fas fa-tags"></i> 标签云</div>
+            <div class="m-line">Astro / CSS / 玻璃拟态</div>
+            <div class="m-line">水晶玻璃 · 卡片 B</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 曜石玻璃 -->
+    <section class="style-section">
+      <div class="style-info">
+        <h2><span class="style-no">4</span>曜石玻璃 Obsidian</h2>
+        <p>深色烟熏底：白字可读性全场最佳，亮壁纸下也不刺眼；顶边一道细高光保留“玻璃”的质感。喜欢内容优先、低干扰的选择。</p>
+        <div class="chips"><span class="chip">深色底</span><span class="chip">可读性最佳</span><span class="chip">亮壁纸友好</span></div>
+      </div>
+      <div class="style-cards">
+        <article class="glass g-obsidian article-demo">
+          <div class="a-title">曜石玻璃：把可读性还给文字</div>
+          <div class="a-meta"><span><i class="fas fa-calendar"></i> 2026-08-29</span><span><i class="fas fa-folder"></i> 视觉设计</span></div>
+          <div class="a-excerpt">磨砂和液体都依赖“白底白字赌壁纸偏暗”，曜石直接把底色压暗——无论抽到多亮的壁纸，正文对比度都有保障。烟熏感也更有夜间氛围，与博客的黄昏主题天然契合。</div>
+          <div class="a-foot">
+            <div class="a-tags"><span class="a-tag">Obsidian</span><span class="a-tag">对比度</span><span class="a-tag">夜间友好</span></div>
+            <a class="a-more" href="javascript:void(0)">阅读全文</a>
+          </div>
+        </article>
+        <div class="mini-stack">
+          <aside class="glass g-obsidian mini-demo">
+            <div class="m-title"><i class="fas fa-calendar-alt"></i> 日历</div>
+            <div class="m-line">八月 · 今日有一篇新文章</div>
+            <div class="m-line">曜石玻璃 · 卡片 A</div>
+          </aside>
+          <aside class="glass g-obsidian mini-demo">
+            <div class="m-title"><i class="fas fa-tags"></i> 标签云</div>
+            <div class="m-line">Astro / CSS / 玻璃拟态</div>
+            <div class="m-line">曜石玻璃 · 卡片 B</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑤ 虹彩玻璃 -->
+    <section class="style-section">
+      <div class="style-info">
+        <h2><span class="style-no">5</span>虹彩玻璃 Iridescent</h2>
+        <p>珍珠母贝：缓慢旋转的彩虹描边 + 表面流转变幻的薄纱。个性最强、最有记忆点；持续动画有轻微性能与“耐看度”成本，适合点缀而非全站。</p>
+        <div class="chips"><span class="chip">彩虹描边</span><span class="chip">母贝薄纱</span><span class="chip">个性最强</span></div>
+      </div>
+      <div class="style-cards">
+        <article class="glass g-iridescent article-demo">
+          <div class="a-title">虹彩玻璃：流动的一圈彩虹</div>
+          <div class="a-meta"><span><i class="fas fa-calendar"></i> 2026-08-29</span><span><i class="fas fa-folder"></i> 视觉设计</span></div>
+          <div class="a-excerpt">描边用 conic-gradient 缓慢旋转，表面再罩一层低透明度的珍珠薄纱。注意观察卡片边缘那圈颜色在慢慢流动——这是五个方案里唯一“自己会动”的玻璃。已内置 prefers-reduced-motion 降级。</div>
+          <div class="a-foot">
+            <div class="a-tags"><span class="a-tag">Iridescent</span><span class="a-tag">conic</span><span class="a-tag">动效</span></div>
+            <a class="a-more" href="javascript:void(0)">阅读全文</a>
+          </div>
+        </article>
+        <div class="mini-stack">
+          <aside class="glass g-iridescent mini-demo">
+            <div class="m-title"><i class="fas fa-calendar-alt"></i> 日历</div>
+            <div class="m-line">八月 · 今日有一篇新文章</div>
+            <div class="m-line">虹彩玻璃 · 卡片 A</div>
+          </aside>
+          <aside class="glass g-iridescent mini-demo">
+            <div class="m-title"><i class="fas fa-tags"></i> 标签云</div>
+            <div class="m-line">Astro / CSS / 玻璃拟态</div>
+            <div class="m-line">虹彩玻璃 · 卡片 B</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <footer class="demo-footer">
+      <p>想看整页效果？打开 <a href="preview.html">preview.html</a>：博客式整页布局 + 顶栏实时切换 5 种玻璃样式（壁纸不重载）。</p>
+    </footer>
+  </div>
+
+  <div class="wp-badge" id="wp-badge"><span class="dot"></span><span id="wp-badge-text"><i class="fas fa-circle-notch spin"></i> 正在加载壁纸…</span></div>
+
+  <script is:inline>
+    // 按时间段自动定主题：18:00–6:00 夜间（黄昏），其余为白天（清晨）——与博客一致
+    (function () {
+      var h = new Date().getHours();
+      document.documentElement.classList.add(h >= 18 || h < 6 ? 'theme-dark' : 'theme-light');
+    })();
+
+    // 壁纸为主背景，极光仅作加载后备（与博客一致）
+    (function () {
+      var auroraBg = document.getElementById('aurora-bg');
+      var badge = document.getElementById('wp-badge');
+      var badgeText = document.getElementById('wp-badge-text');
+
+      function setBadge(state, text) {
+        badge.classList.remove('ok', 'fallback');
+        if (state === 'ok') badge.classList.add('ok');
+        if (state === 'fallback') badge.classList.add('fallback');
+        badgeText.innerHTML = text;
+      }
+
+      function hideAuroraBackground() {
+        if (!auroraBg || auroraBg.classList.contains('hidden')) return;
+        auroraBg.classList.add('fade-out');
+        setTimeout(function () {
+          auroraBg.classList.add('hidden');
+          auroraBg.style.display = 'none';
+        }, 1200);
+      }
+
+      // ===== 亮度自适应（简化自博客：过亮壁纸叠加暗化层，保证白字可读） =====
+      function analyzeWallpaperBrightness(img) {
+        var canvas = document.createElement('canvas');
+        canvas.width = 64; canvas.height = 64;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 64, 64);
+        var data = ctx.getImageData(0, 0, 64, 64).data;
+        var sum = 0, centerSum = 0, centerN = 0, cornerSum = 0, cornerN = 0, n = 0;
+        for (var y = 0; y < 64; y++) {
+          for (var x = 0; x < 64; x++) {
+            var i = (y * 64 + x) * 4;
+            var lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            sum += lum; n++;
+            var inCenter = x > 16 && x < 48 && y > 16 && y < 48;
+            var inCorner = (x < 10 || x > 54) && (y < 10 || y > 54);
+            if (inCenter) { centerSum += lum; centerN++; }
+            if (inCorner) { cornerSum += lum; cornerN++; }
+          }
+        }
+        return { avg: sum / n, center: centerSum / centerN, corners: cornerSum / cornerN };
+      }
+
+      function applyBrightnessAdjustment(brightness) {
+        var overlay = document.getElementById('brightness-overlay');
+        if (!overlay) return;
+        var avg = brightness.avg, center = brightness.center, corners = brightness.corners;
+        var overallAlpha = Math.max(0, Math.min(0.65, (avg - 150) / 105 * 0.65));
+        var backgroundStyle = '';
+        if (overallAlpha > 0.01) {
+          backgroundStyle += 'linear-gradient(rgba(0,0,0,' + overallAlpha + '), rgba(0,0,0,' + overallAlpha + '))';
+        }
+        var centerDiff = center - corners, cornersDiff = corners - center, threshold = 18;
+        var radialGradient = '';
+        if (centerDiff > threshold) {
+          var centerAlpha = Math.min(0.55, centerDiff / 80 * 0.55);
+          radialGradient = 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,' + centerAlpha + ') 0%, rgba(0,0,0,0) 70%)';
+        } else if (cornersDiff > threshold) {
+          var cornerAlpha = Math.min(0.5, cornersDiff / 80 * 0.5);
+          radialGradient = 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,' + cornerAlpha + ') 100%)';
+        }
+        if (radialGradient) {
+          backgroundStyle = backgroundStyle ? backgroundStyle + ', ' + radialGradient : radialGradient;
+        }
+        if (backgroundStyle) {
+          overlay.style.background = backgroundStyle;
+          overlay.classList.add('active');
+        } else {
+          overlay.classList.remove('active');
+          overlay.style.background = 'transparent';
+        }
+      }
+
+      function applyWallpaper(imgUrl, img) {
+        document.body.style.backgroundImage = 'url(' + imgUrl + ')';
+        document.documentElement.classList.add('wallpaper-active');
+        hideAuroraBackground();
+        try { applyBrightnessAdjustment(analyzeWallpaperBrightness(img)); } catch (e) { /* 跳过自适应 */ }
+        setBadge('ok', '<i class="fas fa-check"></i> 壁纸已加载 · 新玻璃样式生效中');
+      }
+
+      // 演示专用后备：壁纸源完全不可达（如 file:// 直开）时，用渐变背景演示玻璃效果
+      function fallbackWallpaper() {
+        if (document.documentElement.classList.contains('wallpaper-active')) return;
+        document.body.classList.add('demo-fallback-bg');
+        document.documentElement.classList.add('wallpaper-active');
+        hideAuroraBackground();
+        setBadge('fallback', '<i class="fas fa-triangle-exclamation"></i> 壁纸源不可用 · 演示背景');
+      }
+
+      // 依次尝试多个 wallpaper.json 位置（博客根路径 / 项目根 public 目录）
+      var CANDIDATES = ['./wallpaper.json', '/wallpaper.json', '../public/wallpaper.json', 'wallpaper.json'];
+      function fetchWallpaperConfig() {
+        var i = 0;
+        function next() {
+          if (i >= CANDIDATES.length) return Promise.reject(new Error('全部失败'));
+          var url = CANDIDATES[i++];
+          return fetch(url)
+            .then(function (r) { if (!r.ok) throw new Error('请求失败'); return r.json().then(function (d) { return { url: url, data: d }; }); })
+            .catch(function () { return next(); });
+        }
+        return next();
+      }
+
+      fetchWallpaperConfig()
+        .then(function (res) {
+          var data = res.data;
+          if (!data || !data.length) { fallbackWallpaper(); return; }
+          var entry = data[Math.floor(Math.random() * data.length)];
+          var imgUrl = entry.path;
+          if (!/^https?:\/\//i.test(imgUrl)) {
+            var base = res.url.replace(/[^/]*$/, '');
+            imgUrl = base + String(imgUrl).replace(/^\.?\//, '');
+          }
+          var img = new Image();
+          img.crossOrigin = 'anonymous'; // 与博客一致：匿名跨域，供 canvas 亮度分析
+          img.onload = function () { applyWallpaper(imgUrl, img); };
+          img.onerror = function () {
+            // CORS 拉取失败时退回普通加载（仅显示，跳过亮度分析）
+            var img2 = new Image();
+            img2.onload = function () { applyWallpaper(imgUrl, null); };
+            img2.onerror = fallbackWallpaper;
+            img2.src = imgUrl;
+          };
+          img.src = imgUrl;
+        })
+        .catch(fallbackWallpaper);
+    })();
+  </script>
+</body>
+</html>

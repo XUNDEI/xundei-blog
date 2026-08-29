@@ -152,7 +152,7 @@ const layoutCss = `
       gap: 8px;
       font-size: 1.05rem;
       font-weight: 600;
-      color: var(--light-text);
+      color: var(--w-100);
       margin-bottom: 12px;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -202,7 +202,7 @@ const layoutCss = `
     .archive-month {
       font-size: 0.92rem;
       font-weight: 600;
-      color: var(--light-text);
+      color: var(--w-100);
       margin: 12px 0 6px;
     }
     .archive-month:first-child { margin-top: 0; }
@@ -216,7 +216,7 @@ const layoutCss = `
       background-image: none !important;
       -webkit-background-clip: unset !important;
       background-clip: unset !important;
-      color: rgba(255, 255, 255, 0.85) !important;
+      color: var(--w-85) !important;
       transition: all 0.3s ease;
     }
     .archive-item::before,
@@ -224,7 +224,7 @@ const layoutCss = `
     .archive-item:hover {
       background: rgba(66, 133, 244, 0.12);
       transform: translateX(3px);
-      color: #fff !important;
+      color: var(--w-100) !important;
     }
     .archive-dot {
       position: absolute;
@@ -240,7 +240,7 @@ const layoutCss = `
     }
     .archive-date {
       font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.55);
+      color: var(--w-55);
       flex-shrink: 0;
     }
     .archive-title {
@@ -314,7 +314,7 @@ const layoutCss = `
       white-space: nowrap;
       flex-shrink: 0;
       font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.65);
+      color: var(--w-65);
     }
     .article-content {
       padding: 0;
@@ -322,7 +322,7 @@ const layoutCss = `
       font-size: 0.92rem;
       -webkit-line-clamp: 2;
       line-clamp: 2;
-      color: rgba(255, 255, 255, 0.78);
+      color: var(--w-78);
     }
     .article-foot-row {
       display: flex;

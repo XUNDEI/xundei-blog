@@ -20,7 +20,7 @@ content:
       - name: latest
         label: 更新时间
         type: date
-        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1 }
+        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1, default: '' }
         required: false
       - { name: excerpt, label: 摘要, type: text }
       - { name: tags, label: 标签, type: string, list: true }
