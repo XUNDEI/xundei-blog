@@ -32,6 +32,8 @@ const posts = defineCollection({
     tags: z.array(z.string()).optional(),
     license: z.string().optional(),
     'code-license': z.string().optional(),
+    // [cover] 可选封面图：完整 URL 或以 / 开头的站内路径；缺省时文章页不渲染封面
+    cover: z.string().optional(),
   }),
 });
 

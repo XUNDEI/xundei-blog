@@ -1,4 +1,9 @@
 // rss.xml：复刻 build.js generateRSS()（跳过友链，CDATA 注入完整正文 HTML，pubDate 转 UTC）。
+//
+// [v3.1] 只输出最近 RSS_ITEM_LIMIT 篇：
+//   正文以 content:encoded 全文内嵌，若把全部文章都写进 feed，rss.xml 会随文章总量
+//   线性膨胀（实测每篇约 7KB），订阅器每次轮询都要整份重下。RSS 的用途是"最近更新"，
+//   因此按排序（latest 优先）截断，其余文章由站内归档 / sitemap 覆盖。
 import { getCollection, render } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import PostBody from '../components/PostBody.astro';
@@ -14,6 +19,9 @@ import {
   removeHeadingIdAttrs
 } from '../lib/site';
 
+/** RSS 最多输出的文章数（含全文正文，数值越大 feed 越大） */
+const RSS_ITEM_LIMIT = 20;
+
 export async function GET() {
   const now = new Date().toUTCString();
 
@@ -23,12 +31,16 @@ export async function GET() {
 
   // 与 build.js 相同的排序（latest 优先，其次 date），再逐篇生成
   let items = '';
+  let emitted = 0;
   for (const data of sortByArticlesOrder(
     posts.map((p) => ({ id: p.id, body: p.body ?? '', ...p.data }))
   )) {
     // 跳过友链文章，不加入 RSS
     if (data.category === 'friend_link') continue;
     if (!data.title) continue;
+    // 只取最新的 N 篇（在跳过友链之后再计数）
+    if (emitted >= RSS_ITEM_LIMIT) break;
+    emitted++;
 
     const post = postById.get(data.id)!;
     const url = `${SITE_URL}/articles/${data.id}`;

@@ -3,7 +3,7 @@
  * 所有排序、转义、格式化逻辑均与 build.js 保持一致，保证产物逐字节相同。
  */
 
-export const SITE_URL = 'https://xundei.qzz.io';
+export const SITE_URL = 'https://xundei.eu.cc';
 export const SITE_NAME = "xundei's blog";
 export const SITE_DESCRIPTION = 'xundei的个人博客——仰望星空，脚踏实地';
 
@@ -80,6 +80,8 @@ export interface SEOTagsResult {
   ogTitle: string;
   ogDescription: string;
   ogUrl: string;
+  /** [cover] 封面绝对地址；未设置封面时为 '' */
+  ogImage: string;
   jsonLD: string;
 }
 
@@ -89,6 +91,14 @@ interface ArticleMetaLike {
   category: string;
   excerpt?: string;
   tags?: string[];
+  cover?: string;
+}
+
+/** [cover] 把封面地址规范成绝对 URL（og:image 需要绝对地址；// 开头补全协议） */
+export function toAbsoluteUrl(src: string): string {
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith('//')) return `https:${src}`;
+  return `${SITE_URL}${src.startsWith('/') ? '' : '/'}${src}`;
 }
 
 export function generateSEOTags(article: ArticleMetaLike, slug: string): SEOTagsResult {
@@ -99,6 +109,9 @@ export function generateSEOTags(article: ArticleMetaLike, slug: string): SEOTags
   const tagsStr = normalizeTags(article.tags);
   const keywords = tagsStr || description;
 
+  // [cover] 有封面时补进 og:image 与 BlogPosting.image
+  const ogImage = article.cover ? toAbsoluteUrl(article.cover) : '';
+
   const jsonLD = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -107,6 +120,7 @@ export function generateSEOTags(article: ArticleMetaLike, slug: string): SEOTags
     keywords: keywords,
     datePublished: article.date,
     url: url,
+    ...(ogImage ? { image: ogImage } : {}),
     author: {
       '@type': 'Person',
       name: 'xundei'
@@ -119,6 +133,7 @@ export function generateSEOTags(article: ArticleMetaLike, slug: string): SEOTags
     ogTitle: title,
     ogDescription: description,
     ogUrl: url,
+    ogImage,
     jsonLD: JSON.stringify(jsonLD)
   };
 }
@@ -378,6 +393,8 @@ export interface PostLike {
     tags?: string[];
     license?: string;
     'code-license'?: string;
+    /** [cover] 可选封面图；仅新增字段，未书写的文章产物与旧版一致 */
+    cover?: string;
   };
 }
 
@@ -409,6 +426,8 @@ export function buildLegacyIndexItem(post: PostLike, srcDir: string): Record<str
     ...(d.latest !== undefined ? { latest: d.latest } : {}),
     category: d.category,
     ...(d.excerpt !== undefined ? { excerpt: d.excerpt } : {}),
+    // [cover] 供首页卡片渲染封面；未写 cover 的文章不产生该键，产物与旧版逐字节一致
+    ...(d.cover !== undefined ? { cover: d.cover } : {}),
     ...(d.license !== undefined ? { license: d.license } : {}),
     ...(d['code-license'] !== undefined ? { 'code-license': d['code-license'] } : {}),
     ...(d.tags !== undefined ? { tags: normalizeTags(d.tags) } : {})

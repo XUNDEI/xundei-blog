@@ -14,7 +14,8 @@ import {
   generateSEOTags,
   getLicenseDisplayAndHtml,
   markedizeAstroHtml,
-  removeHeadingIdAttrs
+  removeHeadingIdAttrs,
+  toAbsoluteUrl
 } from '../../lib/site';
 
 export async function getStaticPaths() {
@@ -42,6 +43,45 @@ const tagsHtml = tagsStr
       .join('')
   : '';
 
+// ===== [cover] 可选封面：正文前的头图 + og:image / twitter:image =====
+const coverUrl = data.cover ? toAbsoluteUrl(data.cover) : '';
+const escapeAttr = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const coverHtml = data.cover
+  ? `            <figure class="article-cover">\n` +
+    `                <img src="${escapeAttr(data.cover)}" alt="${escapeAttr(data.title)}" loading="eager" decoding="async">\n` +
+    `            </figure>\n`
+  : '';
+
+const coverCss = `
+        /* ===== [cover] 文章封面头图（仅有 cover 的文章会渲染 figure） ===== */
+        .article-cover {
+            margin: 0 0 30px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+            line-height: 0;
+        }
+        .article-cover img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 420px;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .article-cover:hover img {
+            transform: scale(1.03);
+        }
+        @media (max-width: 768px) {
+            .article-cover { margin-bottom: 22px; border-radius: 12px; }
+            .article-cover img { max-height: 240px; }
+        }
+`;
+
 // 正文 HTML：Astro 内置 Markdown 渲染（替代 marked.parse），
 // 再做文本转义后处理使产物与旧版 marked 输出一致。
 // marked 的块级输出以单个换行结尾且无前导空白，此处对齐该形状（模板插入后形成 </p>\n\n</div>）。
@@ -57,6 +97,37 @@ function tplReplace(page: string, key: string, value: string): string {
 }
 
 let page = ARTICLE_FRAME.frame;
+
+// ===== [cover] 注入封面相关的 head 标签、样式与正文头图 =====
+function mustReplace(text: string, find: string, repl: string, label: string): string {
+  if (!text.includes(find)) throw new Error(`未找到锚点：${label}`);
+  return text.replace(find, () => repl);
+}
+
+// og:image / twitter:image（在占位符替换前注入，锚点为模板原文）
+if (coverUrl) {
+  page = mustReplace(
+    page,
+    '    <meta property="og:url" content="{{OG_URL}}">\n',
+    '    <meta property="og:url" content="{{OG_URL}}">\n' +
+      `    <meta property="og:image" content="${escapeAttr(coverUrl)}">\n` +
+      `    <meta name="twitter:image" content="${escapeAttr(coverUrl)}">\n`,
+    'og:url'
+  );
+  page = mustReplace(
+    page,
+    '<meta name="twitter:card" content="summary">',
+    '<meta name="twitter:card" content="summary_large_image">',
+    'twitter:card'
+  );
+}
+// 封面样式：仅有 cover 的文章会用到 figure，样式统一注入一次
+page = mustReplace(page, '\n</style>', coverCss + '\n</style>', 'style 闭合');
+// 头图插到正文容器之前（位于 .article-header 与 .article-full-content 之间）
+if (coverHtml) {
+  page = mustReplace(page, '            <div class="article-full-content">', coverHtml + '            <div class="article-full-content">', 'article-full-content');
+}
+
 page = tplReplace(page, 'ARTICLE_TITLE', data.title);
 page = tplReplace(page, 'ARTICLE_DATE', data.date);
 page = tplReplace(page, 'ARTICLE_LATEST', data.latest ? data.latest : '');

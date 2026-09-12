@@ -23,6 +23,11 @@ content:
         options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1, default: '' }
         required: false
       - { name: excerpt, label: 摘要, type: text }
+      - name: cover
+        label: 封面图片
+        type: string
+        required: false
+        description: 文章封面图地址（完整 URL 或以 / 开头的站内路径），留空则文章页不显示封面
       - { name: tags, label: 标签, type: string, list: true }
       - { name: body, label: 正文, type: rich-text }
       - name: license

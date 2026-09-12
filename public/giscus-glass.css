@@ -88,9 +88,11 @@ main {
   --color-canvas-inset: transparent;
   --color-canvas-subtle: rgb(255 255 255 / 10%);
 
-  /* 边框：核心修改——玻璃白半透明，替代原主题的近黑边框 */
-  --color-border-default: rgb(255 255 255 / 38%);
-  --color-border-muted: rgb(255 255 255 / 18%);
+  /* 边框：改为很淡的玻璃白。
+     原主题的近黑边框在玻璃卡上突兀；但纯白 38% 又会让评论输入框在玻璃卡上
+     浮出一圈抢眼的白色描边，因此压到 20% 以下，只留可感知的分隔。 */
+  --color-border-default: rgb(255 255 255 / 20%);
+  --color-border-muted: rgb(255 255 255 / 12%);
 
   --color-neutral-muted: rgb(255 255 255 / 12%);
   --color-neutral-subtle: rgb(255 255 255 / 8%);
@@ -145,4 +147,41 @@ main .pagination-loader-container {
 
 main .gsc-loading-image {
   background-image: url("https://github.githubassets.com/images/mona-loading-dark.gif");
+}
+
+/* ===== 评论区输入框：改用"淡玻璃底 + 极淡虚线提示"，不再用白色描边 =====
+ * giscus 的输入区由三层边框叠出来（均为 --color-border-default 白）：
+ *   1. .gsc-comment-box            整块外框
+ *   2. .gsc-comment-box-textarea   文本域自身边框 + 一条 border-bottom-style: dashed
+ *   3. .gsc-comment-box-textarea-extras  底部工具条
+ * 底色本来是透明的，这些描边在玻璃卡上就是几道悬空的白线（截图里最突兀的那圈白框）。
+ * 这里统一去掉描边，改成一层极淡的玻璃底色来表达输入区边界；
+ * giscus 原本用来提示"可输入区域"的虚线下边线保留，但压暗到不抢眼。 */
+
+/* 整块输入区：外框透明 + 淡淡底色 */
+main .gsc-comment-box:not(.gsc-comment-box-is-reply),
+main .gsc-comment .gsc-comment-box {
+  border-color: transparent;
+  background-color: rgb(255 255 255 / 7%);
+}
+
+/* 文本域：去掉四周实线，只留 giscus 自带的虚线下边线（压淡） */
+main .gsc-comment-box-textarea {
+  border-color: transparent;
+  border-bottom-color: rgb(255 255 255 / 22%);
+}
+
+/* 文本域下方工具条：与文本域连成一块，不单独描边 */
+main .gsc-comment-box-textarea-extras {
+  border-color: transparent;
+}
+
+/* 输入/预览 分段行与文本域之间的分隔线：降到 muted，只作为很轻的分隔 */
+main .gsc-comment-box-tabs {
+  border-bottom-color: var(--color-border-muted);
+}
+
+/* 回复框：同理，去掉外框与顶边白线 */
+main .gsc-reply-box {
+  border-top-color: var(--color-border-muted);
 }

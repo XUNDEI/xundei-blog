@@ -6,6 +6,10 @@
 //
 // 懒加载：评论区进入视口（IntersectionObserver，rootMargin 0）后才注入 giscus script，
 // 页面初始加载不产生任何 giscus.app 请求。
+import fs from 'node:fs';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+
 interface Props {
   repo?: string;
   repoId?: string;
@@ -22,6 +26,15 @@ const {
   lang = 'zh-CN',
 } = Astro.props;
 
+// [v8] 主题 CSS 版本号：giscus.app 的 iframe 用固定 URL 加载 giscus-glass.css，
+// 浏览器会按 URL 缓存它——改了主题样式但版本号不变时，访客可能长时间看不到更新。
+// 这里在构建期对 CSS 文件内容取短哈希拼到 URL 上，内容一变地址就变，缓存自然失效。
+const giscusCssPath = path.resolve(process.cwd(), 'public/giscus-glass.css');
+const giscusCssVersion = createHash('sha256')
+  .update(fs.readFileSync(giscusCssPath))
+  .digest('hex')
+  .slice(0, 8);
+
 const cfg = {
   repo,
   repoId,
@@ -35,8 +48,8 @@ const cfg = {
   lang,
   // 站点不跟随系统明暗偏好。giscus 内置 transparent_dark 的近黑边框（#30363d）
   // 在玻璃卡上会形成突兀"黑框"，因此使用自定义主题 CSS：
-  // public/giscus-glass.css —— 透明画布（透出玻璃卡与极光背景）+ 玻璃白半透明
-  // 边框 + 原主题浅色文字（与全站玻璃卡白字一致）+ 站点主色蓝按钮。
+  // public/giscus-glass.css —— 透明画布（透出玻璃卡与极光背景）+ 极淡白描边
+  // （输入区改为淡玻璃底，不用白线框）+ 原主题浅色文字 + 站点主色蓝按钮。
   // giscus 的 data-theme 传 URL 时要求完整地址，运行时按当前 origin 拼接（见 loaderScript）。
   // 注意：该 CSS 需带 Access-Control-Allow-Origin 响应头（dev 见 astro.config.mjs，
   // 生产见 public/_headers），否则会被浏览器静默拦截、回退成无主题样式。
@@ -49,10 +62,12 @@ const cfgJson = JSON.stringify(cfg).replace(/</g, '\\u003c');
 // [v6] 评论区观感优化：加载占位（呼吸圆点）、加载失败提示、iframe 加载完成后收起占位。
 // [v7] 主题切换为自定义玻璃主题（public/giscus-glass.css），
 //      data-theme 在注入 script 前按 location.origin 补全为完整 URL。
+// [v8] data-theme 追加 CSS 内容哈希（?v=...）避免浏览器缓存旧主题。
 const loaderScript = [
   '(function () {',
   '  var CFG = ' + cfgJson + ';',
-  '  CFG.theme = window.location.origin + "/giscus-glass.css";',
+  '  var CSS_VERSION = ' + JSON.stringify(giscusCssVersion) + ';',
+  '  CFG.theme = window.location.origin + "/giscus-glass.css?v=" + CSS_VERSION;',
   "  var section = document.getElementById('giscus-section');",
   "  var body = document.getElementById('giscus-body');",
   "  var loadingEl = document.getElementById('giscus-loading');",
@@ -187,6 +202,8 @@ const loaderScript = [
     color: rgba(255, 255, 255, 0.7);
   }
   /* ===== [v6] 加载占位与失败提示 ===== */
+  /* [v8] 去掉占位块的虚线描边：它正好围着整块评论区域，在玻璃卡上会被看成
+     "突兀的白线"（giscus.app 加载慢/被墙时尤其明显）。改用极淡底色表达边界。 */
   .giscus-loading {
     display: flex;
     flex-direction: column;
@@ -195,15 +212,14 @@ const loaderScript = [
     gap: 14px;
     min-height: 180px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    border: 0;
   }
   .giscus-loading.giscus-hidden {
     display: none;
   }
   .giscus-loading.giscus-failed {
-    border-color: rgba(244, 67, 54, 0.35);
-    background: rgba(244, 67, 54, 0.06);
+    background: rgba(244, 67, 54, 0.08);
     min-height: 90px;
   }
   .giscus-loading-dots {

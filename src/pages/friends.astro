@@ -13,17 +13,23 @@ interface Friend {
 const { title, intro } = friendsData;
 const friends = friendsData.friends as Friend[];
 
-// favicon 来源优先级：手动 icon 字段 > 对方站点根目录 /favicon.ico > favicon.im 代理 > 回退链接图标
+// favicon 来源优先级（逐级回退，全部失败才显示链接图标）：
+//   本地缓存图标（由 scripts/fetch-friend-icons.mjs 抓取，见 public/friends/）
+//   > 对方站点根目录 /favicon.ico > favicon.im 代理
+// 说明：很多站点并不在根目录放 favicon.ico，而是在 <link rel="icon"> 里声明
+// （如 SVG）。那类图标由抓取脚本取回本地，因此这里不再请求根目录就能拿到正确图标；
+// 同时保留远端回退，本地文件缺失或被删时也不会白板。
 function faviconSources(f: Friend): string[] {
   const sources: string[] = [];
-  if (f.icon) {
-    sources.push(f.icon);
-  } else {
+  if (f.icon) sources.push(f.icon);
+  try {
     const u = new URL(f.url);
     sources.push(u.origin + '/favicon.ico');
     sources.push('https://favicon.im/' + u.hostname + '?larger=true');
+  } catch {
+    // url 非法时只用手动指定的 icon
   }
-  return sources;
+  return [...new Set(sources)];
 }
 ---
 
@@ -347,15 +353,17 @@ function faviconSources(f: Friend): string[] {
             return (
               <a class="friend-card glass" href={f.url} target="_blank" rel="noopener noreferrer" title={f.name}>
                 <div class="friend-icon">
-                  <img
-                    class="friend-favicon"
-                    src={sources[0]}
-                    alt=""
-                    loading="lazy"
-                    referrerpolicy="no-referrer"
-                    onerror={onerror}
-                  />
-                  <i class="fas fa-link" style="display:none;" />
+                  {sources.length > 0 && (
+                    <img
+                      class="friend-favicon"
+                      src={sources[0]}
+                      alt=""
+                      loading="lazy"
+                      referrerpolicy="no-referrer"
+                      onerror={onerror}
+                    />
+                  )}
+                  <i class="fas fa-link" style={sources.length > 0 ? 'display:none;' : 'display:inline-block;'} />
                 </div>
                 <div class="friend-name">{f.name}</div>
                 <p class="friend-desc">{f.description}</p>

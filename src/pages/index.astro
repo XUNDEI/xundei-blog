@@ -334,16 +334,126 @@ const layoutCss = `
       padding: 0;
       min-width: 0;
     }
-    .article-foot-row .read-more {
-      margin-left: auto;
-      flex-shrink: 0;
-      align-self: center;
-      padding: 6px 18px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-    }
     @media (max-width: 768px) {
       .article-card { padding: 20px; }
+    }
+
+    /* ===== [v3.0.3] 文章卡片：取消弹窗，整卡跳转 + 悬浮右侧渐变遮罩 ===== */
+    /* 覆盖层链接铺满整卡，卡片任意处（标签除外）点击即进入文章 */
+    .article-card .card-link {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+      /* 覆盖全局 a 的渐变文字与下划线伪元素 */
+      background: none !important;
+      background-image: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+    }
+    .article-card .card-link::before,
+    .article-card .card-link::after { content: none !important; }
+    /* 卡片内标签浮在链接层之上，仍可单独点击筛选 */
+    .article-card .article-tags {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== [cover] 带封面的卡片：文字流在左，封面缩略图在右 ===== */
+    .article-main {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .article-card.has-cover {
+      flex-direction: row;
+      align-items: stretch;
+      gap: 18px;
+    }
+    .article-cover {
+      flex: 0 0 168px;
+      width: 168px;
+      min-height: 104px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .article-cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .article-card.has-cover:hover .article-cover img { transform: scale(1.05); }
+    @media (max-width: 640px) {
+      /* 窄屏改为封面上、文字下；封面压扁避免占掉半屏 */
+      .article-card.has-cover { flex-direction: column-reverse; gap: 14px; }
+      .article-cover { flex: 0 0 auto; width: 100%; height: 150px; min-height: 0; }
+    }
+
+    /* 右侧遮罩：默认收在右侧不可见，悬浮时滑入并铺一层渐变 */
+    .read-mask {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: 58%;
+      max-width: 230px;
+      padding-right: 26px;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(26px);
+      background: linear-gradient(270deg,
+        rgba(66, 133, 244, 0.92) 0%,
+        rgba(66, 133, 244, 0.62) 30%,
+        rgba(130, 180, 250, 0.22) 62%,
+        rgba(130, 180, 250, 0.06) 84%,
+        rgba(255, 255, 255, 0) 100%);
+      /* 不用 backdrop-filter：整块矩形模糊会在遮罩左缘留下一条硬边，
+         纯渐变拖尾能与玻璃卡片自然融合 */
+      transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .article-card:hover .read-mask,
+    .article-card:focus-within .read-mask {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .read-mask-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transform: translateX(12px);
+      transition: opacity 0.35s ease 0.06s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+    }
+    .article-card:hover .read-mask-label,
+    .article-card:focus-within .read-mask-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .read-mask-label i {
+      font-size: 0.8rem;
+      transition: transform 0.35s ease;
+    }
+    .article-card:hover .read-mask-label i { transform: translateX(4px); }
+    /* 触屏没有悬浮态，遮罩常隐，避免遮挡内容；点击仍可整卡跳转 */
+    @media (hover: none) {
+      .read-mask { display: none; }
     }
 `;
 
@@ -419,15 +529,139 @@ const sidebarScript = [
   '})();',
 ].join('\n');
 
-const frame = INDEX_FRAME.frame.replace(
+// ===== [v3.0.3] 首页卡片改版：移除详情弹窗、整卡跳转、悬浮遮罩 =====
+// index.frame/index.script 是旧版 index.html 的原文资源（scripts/migrate-from-old.mjs 提取），
+// 这里以锚点切片的方式做增量改造：锚点缺失即构建失败，避免静默失效。
+function cutBlock(text: string, startAnchor: string, endAnchor: string, label: string): string {
+  const a = text.indexOf(startAnchor);
+  if (a < 0) throw new Error(`[v3.0.3] 未找到起始锚点：${label}`);
+  const b = text.indexOf(endAnchor, a + startAnchor.length);
+  if (b < 0) throw new Error(`[v3.0.3] 未找到结束锚点：${label}`);
+  return text.slice(0, a) + text.slice(b);
+}
+
+function replaceBlock(
+  text: string,
+  startAnchor: string,
+  endAnchor: string,
+  replacement: string,
+  label: string
+): string {
+  const a = text.indexOf(startAnchor);
+  if (a < 0) throw new Error(`[v3.0.3] 未找到起始锚点：${label}`);
+  const b = text.indexOf(endAnchor, a + startAnchor.length);
+  if (b < 0) throw new Error(`[v3.0.3] 未找到结束锚点：${label}`);
+  return text.slice(0, a) + replacement + text.slice(b);
+}
+
+function dropExact(text: string, target: string, label: string): string {
+  if (!text.includes(target)) throw new Error(`[v3.0.3] 未找到待删除片段：${label}`);
+  return text.replace(target, '');
+}
+
+// 卡片模板：卡片本身保持 div（标签仍是可点击的 <a>，不能嵌套在 <a> 里），
+// 由一层铺满整卡的 .card-link 覆盖层链接承担跳转；右侧 .read-mask 悬浮时滑入。
+const cardBlock = `        pageArticles.forEach(function(article) {
+          var slug = getSlug(article.filename);
+          var card = document.createElement('div');
+          card.className = 'article-card glass' + (article.cover ? ' has-cover' : '');
+          var cardLink = document.createElement('a');
+          cardLink.className = 'card-link';
+          cardLink.href = '/articles/' + slug;
+          cardLink.setAttribute('aria-label', article.title + ' - 阅读全文');
+          card.appendChild(cardLink);
+          var tagsHtml = renderTagsHtml(article.tags);
+          var displayDate = formatMonthDay(article.latest || article.date);
+          card.insertAdjacentHTML('beforeend',
+            '<div class="article-main">' +
+              '<div class="article-head-row"><h3 class="article-title">' + escapeHtml(article.title) +
+              '</h3><div class="article-meta"><span>' + escapeHtml(displayDate) + '</span><span>' + getCategoryName(article.category) +
+              '</span></div></div>' +
+              '<div class="article-content">' + escapeHtml(article.excerpt) + '</div>' +
+              '<div class="article-foot-row">' + (tagsHtml ? '<div class="article-tags">' + tagsHtml + '</div>' : '') + '</div>' +
+            '</div>' +
+            '<span class="read-mask" aria-hidden="true"><span class="read-mask-label">阅读全文<i class="fas fa-arrow-right"></i></span></span>');
+          // [cover] 有封面时在右侧插一张缩略图；加载失败就整块移除，卡片退回纯文字
+          if (article.cover) {
+            var coverEl = document.createElement('div');
+            coverEl.className = 'article-cover';
+            var coverImg = document.createElement('img');
+            coverImg.src = article.cover;
+            coverImg.alt = '';
+            coverImg.loading = 'lazy';
+            coverImg.decoding = 'async';
+            coverImg.addEventListener('error', function () {
+              if (coverEl.parentNode) coverEl.parentNode.removeChild(coverEl);
+            });
+            coverEl.appendChild(coverImg);
+            card.insertBefore(coverEl, card.querySelector('.read-mask'));
+          }
+          grid.appendChild(card);
+        });
+
+`;
+
+let frame = INDEX_FRAME.frame.replace(
   '<header class="glass">',
   seoNavHtml + '\n        <header class="glass">'
 )
   // [v4] 友链改为独立页面 /friends（footer 唯一改动点）
   .replace('href="/articles/friend_link"', 'href="/friends"')
   .replace('<main>', '<div class="home-layout">\n        <main>')
-  .replace('</main>', '</main>\n\n' + sidebarLeftHtml + '\n      ' + sidebarRightHtml + '\n      </div>')
-  .replace('</style>', layoutCss + '  </style>');
+  .replace('</main>', '</main>\n\n' + sidebarLeftHtml + '\n      ' + sidebarRightHtml + '\n      </div>');
+
+// 1) 移除详情弹窗 DOM（保留其后的 about-btn 悬浮球）
+frame = cutBlock(
+  frame,
+  '  <div class="modal-overlay" id="article-modal">',
+  '  <div class="about-btn" id="about-btn">',
+  '弹窗 DOM'
+);
+// 2) 移除弹窗与旧「阅读全文」按钮的样式（含两处响应式规则）
+frame = cutBlock(frame, '    .read-more {', '    :root {', 'read-more/modal-read-full 覆盖样式');
+frame = cutBlock(frame, '    .read-more {\n      display: block;', '    .article-tags {', '卡片 read-more 基础样式');
+frame = cutBlock(frame, '    .modal-tags {', '    .search-info {', 'modal-tags 样式');
+frame = cutBlock(frame, '    .modal-overlay {', '    .about-btn {', '弹窗主样式');
+frame = dropExact(
+  frame,
+  '      .modal-content { padding: 28px 20px 22px; }\n' +
+    '      .modal-content::before { left: 20px; right: 20px; }\n' +
+    '      .modal-title { font-size: 1.5rem; }\n',
+  '768px 弹窗响应式'
+);
+frame = dropExact(
+  frame,
+  '      .modal-content { padding: 24px 16px 18px; border-radius: 16px; }\n' +
+    '      .modal-content::before { left: 16px; right: 16px; }\n' +
+    '      .modal-title { font-size: 1.35rem; }\n' +
+    '      .modal-meta .meta-item { font-size: 0.78rem; padding: 4px 10px; }\n',
+  '480px 弹窗响应式'
+);
+// 3) 追加卡片新样式
+frame = frame.replace('</style>', layoutCss + '  </style>');
+
+// ===== 主脚本改造：删除弹窗函数/事件，替换卡片模板 =====
+let script = INDEX_SCRIPT as string;
+script = cutBlock(
+  script,
+  '      function openArticleModal(article) {',
+  '      function getLatestSortKey(article) {',
+  '弹窗打开/关闭/相对时间函数'
+);
+script = cutBlock(
+  script,
+  "        document.getElementById('article-modal').addEventListener('click', function(e) {",
+  "        document.addEventListener('click', function(e) {\n          var about = document.getElementById('about-card');",
+  '弹窗事件绑定（点击遮罩/关闭按钮/Escape）'
+);
+script = replaceBlock(
+  script,
+  '        pageArticles.forEach(function(article) {',
+  "        var tagLinks = grid.querySelectorAll('.article-tag');",
+  cardBlock,
+  '卡片渲染模板'
+);
+
 // 侧栏脚本必须位于主脚本 IIFE 闭合（tail 含 "})();" 与 </script>）之后、</body> 之前
 const tailWithSidebar = INDEX_FRAME.tail.replace(
   '</body>',
@@ -437,5 +671,5 @@ const tailWithSidebar = INDEX_FRAME.tail.replace(
 
 <Fragment set:html={frame} />
 <Fragment set:html={INDEX_FRAME.pre} />
-<Fragment set:html={INDEX_SCRIPT} />
+<Fragment set:html={script} />
 <Fragment set:html={tailWithSidebar} />
