@@ -4,7 +4,7 @@ content:
     path: src/content/posts
     type: collection
     filename: "{fields.slug}.md"
-    view: { fields: [title, date, latest, category], primary: title, sortby: date, sort: desc }
+    view: { fields: [title, date, latest, category, draft], primary: title, sortby: date, sort: desc }
     fields:
       - { name: slug, label: URL文件名, type: string, required: true }
       - { name: title, label: 标题, type: string, required: true }
@@ -12,6 +12,11 @@ content:
         label: 发布时间
         type: date
         options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1 }
+      - name: draft
+        label: 草稿
+        type: boolean
+        default: false
+        description: 开启后保存为草稿，正式构建时不会发布；关闭后才会出现在线上。
       - name: category
         label: 分类
         type: select
