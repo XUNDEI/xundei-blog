@@ -10,13 +10,13 @@
 // [v5] 文章卡片由网格卡改为单列信息流：全宽横向卡片（标题+日期/分类同行、摘要两行截断、
 //   标签行+阅读全文），取消固定 320px 高度；整卡点击弹窗、标签筛选、分页等交互不变，
 //   .card-hint 浮标移除。
-import { getCollection } from 'astro:content';
 import path from 'node:path';
 import INDEX_FRAME from '../lib/index.frame.json';
 import INDEX_SCRIPT from '../lib/index.script.json';
 import { sortByArticlesOrder, buildLegacyIndexItem } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 
-const posts = await getCollection('posts');
+const posts = await getPublishedPosts();
 const postsSrcDir = path.resolve(process.cwd(), 'src/content/posts');
 const articlesIndex = sortByArticlesOrder(
   posts.map((p) => buildLegacyIndexItem(p, postsSrcDir))

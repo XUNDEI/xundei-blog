@@ -19,11 +19,29 @@ const dateString = z.preprocess((v) => {
   return v;
 }, z.string());
 
+/**
+ * 草稿开关（Pages CMS 的「草稿」布尔字段）。
+ * 注意：schema 里必须显式声明，否则 z.object 会把未声明的 draft 键直接剥掉，
+ * 导致过滤逻辑永远拿不到草稿标记 —— 这正是此前草稿功能失效的原因。
+ * 兼容 YAML 的 true/false 与字符串 "true"/"false"；空值视为未设置。
+ */
+const draftFlag = z.preprocess((v) => {
+  if (typeof v === 'string') {
+    const s = v.trim().toLowerCase();
+    if (s === 'true') return true;
+    if (s === 'false') return false;
+    if (s === '') return undefined;
+  }
+  return v;
+}, z.boolean().optional());
+
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
   schema: z.object({
     title: z.string(),
     date: dateString,
+    // [draft] 草稿标记：true 时生产构建完全跳过该文章（见 src/lib/posts.ts）
+    draft: draftFlag,
     latest: dateString.optional(),
     category: z.enum(['technology', 'diary', 'something', 'friend_link']),
     // 可选字段不设默认值：undefined 表示源文件中未书写该字段，

@@ -1,12 +1,12 @@
 // search-index.json：全文搜索索引（不含友链文章），字段与缩进复刻 build.js 产物。
-import { getCollection } from 'astro:content';
 import path from 'node:path';
 import { sortByArticlesOrder, buildLegacyIndexItem, stripMarkdown } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 
 type Item = Record<string, unknown> & { category?: string };
 
 export async function GET() {
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   const postsSrcDir = path.resolve(process.cwd(), 'src/content/posts');
   const bodyById = new Map(posts.map((p) => [p.id, p.body ?? '']));
 

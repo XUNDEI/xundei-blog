@@ -1,7 +1,8 @@
 ---
 // 文章页 /articles/{id}：以旧版 templates/article.html 为基准的 1:1 移植。
 // 生成逻辑（阅读时长、SEO 标签、协议、标签 HTML、占位符替换顺序）复刻自 build.js。
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedPosts } from '../../lib/posts';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import PostBody from '../../components/PostBody.astro';
 import Giscus from '../../components/Giscus.astro';
@@ -19,7 +20,7 @@ import {
 } from '../../lib/site';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 

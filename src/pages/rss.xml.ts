@@ -4,8 +4,9 @@
 //   正文以 content:encoded 全文内嵌，若把全部文章都写进 feed，rss.xml 会随文章总量
 //   线性膨胀（实测每篇约 7KB），订阅器每次轮询都要整份重下。RSS 的用途是"最近更新"，
 //   因此按排序（latest 优先）截断，其余文章由站内归档 / sitemap 覆盖。
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import { getPublishedPosts } from '../lib/posts';
 import PostBody from '../components/PostBody.astro';
 import {
   SITE_URL,
@@ -25,7 +26,7 @@ const RSS_ITEM_LIMIT = 20;
 export async function GET() {
   const now = new Date().toUTCString();
 
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   const container = await AstroContainer.create();
   const postById = new Map(posts.map((p) => [p.id, p]));
 

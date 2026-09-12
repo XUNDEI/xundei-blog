@@ -1,11 +1,11 @@
 // sitemap.xml：复刻 build.js generateSitemap()（跳过友链，lastmod = latest || date || 今天）。
-import { getCollection } from 'astro:content';
 import { SITE_URL, sortByArticlesOrder } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 
 export async function GET() {
   const now = new Date().toISOString().split('T')[0];
 
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   const articles = sortByArticlesOrder(
     posts.map((p) => ({ id: p.id, ...p.data }))
   );
