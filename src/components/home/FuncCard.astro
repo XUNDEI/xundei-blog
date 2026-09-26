@@ -1,0 +1,32 @@
+---
+// 功能悬浮球 + 功能小窗：博客运行时间 / 今日运气 / 历史上的今天（均由 home.js 驱动）
+---
+<div class="func-btn" id="func-btn">
+  <i class="fas fa-star"></i>
+</div>
+<div class="func-card glass" id="func-card">
+  <div class="func-card-header">
+    <div class="func-card-title">功能小窗</div>
+    <div class="close-btn" id="close-func-card">
+      <i class="fas fa-times"></i>
+    </div>
+  </div>
+  <div class="func-section">
+    <h4><i class="fas fa-clock"></i> 博客运行时间</h4>
+    <div class="counter-value" id="runtime-display">0天0时0分0秒</div>
+  </div>
+  <div class="func-section">
+    <h4><i class="fas fa-dice"></i> 今日运气</h4>
+    <button class="luck-btn" id="luck-btn">试试手气</button>
+    <div class="luck-result" id="luck-result">?</div>
+    <div class="luck-message" id="luck-message">结果仅供参考，切勿迷信</div>
+  </div>
+  <div class="func-section">
+    <h4><i class="fas fa-history"></i> 历史上的今天</h4>
+    <div class="history-content" id="history-content">
+      <div class="history-loading">
+        <i class="fas fa-spinner fa-spin"></i> 加载中...
+      </div>
+    </div>
+  </div>
+</div>

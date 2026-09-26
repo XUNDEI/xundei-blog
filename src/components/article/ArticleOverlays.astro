@@ -1,0 +1,63 @@
+---
+// 文章页悬浮层与挂件：返回按钮、TOC 开关、外链确认、toast、图片灯箱、
+// 目录面板、回到顶部（带进度环）、诗词卡片。行为由 article.js 驱动。
+---
+
+<a href="/" class="back-btn glass">
+  <i class="fas fa-arrow-left"></i>
+</a>
+
+<div class="toc-toggle glass mobile-only" id="toc-toggle">
+  <i class="fas fa-list"></i>
+</div>
+
+<div class="link-confirm glass" id="link-confirm">
+  <p>您即将离开本站，是否继续？</p>
+  <a id="link-url" href="#" target="_blank"></a>
+  <div class="link-confirm-buttons">
+    <button class="link-confirm-btn cancel" id="link-cancel">取消</button>
+    <button class="link-confirm-btn confirm" id="link-confirm-btn">继续</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" id="lightbox-close">&times;</span>
+  <button class="lightbox-rotate-cw" id="lightbox-rotate-cw" title="顺时针旋转">
+    <i class="fas fa-redo"></i>
+  </button>
+  <button class="lightbox-rotate-ccw" id="lightbox-rotate-ccw" title="逆时针旋转">
+    <i class="fas fa-undo"></i>
+  </button>
+  <img id="lightbox-img" alt="Lightbox" />
+</div>
+
+<div class="toc-container glass" id="toc-container">
+  <div class="toc-title">目录</div>
+  <ul class="toc-list" id="toc-list"></ul>
+</div>
+
+<div class="back-to-top" id="back-to-top">
+  <svg class="progress-ring" viewBox="0 0 50 50">
+    <defs>
+      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#a1c4fd"/>
+        <stop offset="100%" stop-color="#c2e9fb"/>
+      </linearGradient>
+    </defs>
+    <circle class="progress-ring-track" cx="25" cy="25" r="20"/>
+    <circle class="progress-ring-progress" cx="25" cy="25" r="20" id="progress-circle"/>
+  </svg>
+  <i class="fas fa-arrow-up back-to-top-icon"></i>
+</div>
+
+<div class="poetry-card glass" id="poetry-card">
+  <div class="poetry-content" id="poetry-content">加载中...</div>
+  <div class="poetry-meta">
+    <button class="poetry-refresh-btn" id="poetry-refresh-btn" title="换一句">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+    <div class="poetry-author" id="poetry-author"></div>
+  </div>
+</div>

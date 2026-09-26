@@ -1,0 +1,11 @@
+---
+// 隐藏的爬虫导航：硬编码全部文章链接（逻辑复刻旧 build.js 的 injectArticleLinks()）
+interface Props {
+  links: Array<{ url: string; title: string }>;
+}
+const { links } = Astro.props;
+---
+
+<nav class="seo-article-list" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;" aria-hidden="true">
+  {links.map((l) => <a href={l.url} title={l.title}>{l.title}</a>)}
+</nav>

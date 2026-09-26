@@ -1,0 +1,36 @@
+---
+// 首页右侧栏：按年月分组的归档时间线（倒序），条目为 日期 + 标题
+interface ArchiveItem {
+  href: string;
+  date: string;
+  title: string;
+}
+interface ArchiveMonth {
+  label: string;
+  items: ArchiveItem[];
+}
+interface Props {
+  months: ArchiveMonth[];
+}
+const { months } = Astro.props;
+---
+
+<aside class="sidebar" id="sidebar-right" aria-label="博客右侧栏">
+  <div class="glass sidebar-card">
+    <h3 class="sidebar-card-title"><i class="fas fa-history"></i> 归档</h3>
+    <div class="archive-list">
+      {months.map((m) => (
+        <>
+          <div class="archive-month">{m.label}</div>
+          {m.items.map((it) => (
+            <a class="archive-item" href={it.href} title={it.title}>
+              <span class="archive-dot"></span>
+              <span class="archive-date">{it.date}</span>
+              <span class="archive-title">{it.title}</span>
+            </a>
+          ))}
+        </>
+      ))}
+    </div>
+  </div>
+</aside>

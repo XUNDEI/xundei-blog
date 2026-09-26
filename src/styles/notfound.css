@@ -1,0 +1,248 @@
+
+        /* ===== 极光背景样式（已提亮） ===== */
+        :root {
+            --aurora-gradient: linear-gradient(135deg, #c8e8f3 0%, #e4d5e9 50%, #f0e0db 100%);
+            --aurora-primary: #7BA7BC;
+            --aurora-secondary: #C4A6C2;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --primary-color: #4285F4;
+            --light-text: #fff;
+            --transition: all 0.3s ease;
+            --blur-amount: 12px;
+            --glow-color: rgba(66, 133, 244, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 1.5s ease-in-out;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 极光背景容器 - 移除黑色叠加层 */
+        .aurora-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: var(--aurora-gradient); /* 直接使用渐变，不加暗色遮罩 */
+            transition: opacity 0.8s ease;
+            opacity: 1;
+            will-change: opacity;
+        }
+        .aurora-background.fade-out {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .aurora-background.hidden {
+            display: none;
+        }
+
+        .aurora-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .aurora-orb-1 {
+            width: min(600px, 80vw);
+            height: min(600px, 80vw);
+            background: var(--aurora-primary);
+            opacity: 0.25;
+            filter: blur(120px);
+            left: 10%;
+            top: 5%;
+            animation: orb1-drift 22s ease-in-out infinite;
+        }
+        .aurora-orb-2 {
+            width: min(500px, 65vw);
+            height: min(500px, 65vw);
+            background: var(--aurora-secondary);
+            opacity: 0.20;
+            filter: blur(100px);
+            right: 5%;
+            bottom: 10%;
+            animation: orb2-drift 26s ease-in-out infinite;
+        }
+        .aurora-orb-3 {
+            width: min(450px, 55vw);
+            height: min(450px, 55vw);
+            background: var(--aurora-primary);
+            opacity: 0.15;
+            filter: blur(130px);
+            left: 40%;
+            top: 40%;
+            animation: orb3-drift 30s ease-in-out infinite;
+        }
+        .aurora-orb-4 {
+            width: min(300px, 40vw);
+            height: min(300px, 40vw);
+            background: var(--aurora-secondary);
+            opacity: 0.18;
+            filter: blur(80px);
+            left: 55%;
+            top: 15%;
+            animation: orb4-drift 18s ease-in-out infinite;
+        }
+
+        @keyframes orb1-drift {
+          0% { transform: translate(-5%, 0%) scale(1); }
+          33.3% { transform: translate(15%, 12%) scale(1.15); }
+          66.7% { transform: translate(5%, 20%) scale(0.9); }
+          100% { transform: translate(-8%, 3%) scale(1.08); }
+        }
+        @keyframes orb2-drift {
+          0% { transform: translate(8%, -5%) scale(0.9); }
+          33.3% { transform: translate(-10%, 10%) scale(1.12); }
+          66.7% { transform: translate(5%, -8%) scale(1); }
+          100% { transform: translate(12%, 5%) scale(1.08); }
+        }
+        @keyframes orb3-drift {
+          0% { transform: translate(-10%, -8%) scale(1.05); }
+          33.3% { transform: translate(20%, 5%) scale(0.88); }
+          66.7% { transform: translate(-5%, 15%) scale(1.1); }
+          100% { transform: translate(10%, -3%) scale(0.95); }
+        }
+        @keyframes orb4-drift {
+          0% { transform: translate(15%, 10%) scale(0.85); }
+          33.3% { transform: translate(-8%, -5%) scale(1.1); }
+          66.7% { transform: translate(10%, 8%) scale(0.95); }
+          100% { transform: translate(-12%, 15%) scale(1.05); }
+        }
+
+        /* ===== 404 页面样式 ===== */
+        .error-container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 50px 40px;
+            transition: var(--transition);
+            color: var(--w-100);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .glass-card:hover {
+            box-shadow: 0 0 22px var(--glow-color), 0 0 45px rgba(66, 133, 244, 0.3);
+            border-color: rgba(255, 255, 255, 0.50);
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #a1c4fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .home-btn:hover {
+            background: #2b6de0;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--glow-color);
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .glass-card { padding: 35px 25px; }
+            .error-code { font-size: 4rem; }
+            .error-title { font-size: 1.5rem; }
+            .error-message { font-size: 1rem; }
+        }
+    
+    /* ===== 亮/深色主题文字变量（默认深色值，html.theme-light 覆盖为深字浅底） ===== */
+    :root {
+      --w-100: #fff;
+      --w-50: rgba(255, 255, 255, 0.50);
+    }
+    html.theme-light {
+      --w-100: #2d3a4b;
+      --w-50: rgba(45, 58, 75, 0.50);
+      --text-color: #2d3a4b;
+      --glass-bg: rgba(255, 255, 255, 0.42);
+      --glass-border: rgba(255, 255, 255, 0.55);
+      --glass-shadow: 0 8px 32px rgba(70, 90, 120, 0.14);
+    }
+    
+    html.theme-light .error-code {
+        background: linear-gradient(90deg, #2d3a4b, #4285F4);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+                                html.theme-dark {
+      --w-100: #F5EDE4;
+      --w-50: rgba(245, 237, 228, 0.50);
+      --text-color: #F5EDE4;
+      --aurora-gradient: linear-gradient(135deg, #F4C4A8 0%, #C9A0B6 50%, #5B6D8A 100%);
+      --aurora-primary: #E8A87C;
+      --aurora-secondary: #6B4E71;
+      --glass-bg: rgba(40, 30, 50, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+
+/* 壁纸加载完成后：玻璃与文字恢复博客最初样式（与明暗主题无关） */
+    html.wallpaper-active {
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.35);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --w-100: #fff;
+      --w-50: rgba(255, 255, 255, 0.50);
+      --text-color: #fff;
+    }
+
