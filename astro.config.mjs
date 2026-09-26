@@ -69,6 +69,11 @@ export default defineConfig({
     server: {
       cors: false,
     },
+    build: {
+      // CSS 不压缩：旧版样式为 1:1 迁移原文，压缩器会重排声明、把
+      // -webkit-background-clip:text 等厂商前缀合并进简写（渐变文字裁剪的敏感路径）
+      cssMinify: false,
+    },
   },
   build: {
     // 与旧版输出一致：dist/articles/<slug>.html（而不是 directory 格式的 index.html）

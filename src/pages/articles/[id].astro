@@ -1,13 +1,16 @@
 ---
-// 文章页 /articles/{id}：以旧版 templates/article.html 为基准的 1:1 移植。
-// 生成逻辑（阅读时长、SEO 标签、协议、标签 HTML、占位符替换顺序）复刻自 build.js。
-import { render } from 'astro:content';
+// 文章页 /articles/{id}：结构与样式已从旧版 article 模板移植为 Layout + 组件 + article.css / article.js。
+// 生成逻辑（阅读时长、SEO 标签、协议、标签 HTML）复刻自 build.js；
+// 正文由 Astro 内置 Markdown 渲染并后处理成与旧版 marked 输出一致的形状。
 import { getPublishedPosts } from '../../lib/posts';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import PostBody from '../../components/PostBody.astro';
 import Giscus from '../../components/Giscus.astro';
-import ARTICLE_FRAME from '../../lib/article.frame.json';
-import ARTICLE_SCRIPT from '../../lib/article.script.json';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LoadingOverlay from '../../components/LoadingOverlay.astro';
+import ArticleOverlays from '../../components/article/ArticleOverlays.astro';
+import articleJs from '../../scripts/article.js?raw';
+import '../../styles/article.css';
 import {
   getCategoryName,
   normalizeTags,
@@ -46,129 +49,93 @@ const tagsHtml = tagsStr
 
 // ===== [cover] 可选封面：正文前的头图 + og:image / twitter:image =====
 const coverUrl = data.cover ? toAbsoluteUrl(data.cover) : '';
-const escapeAttr = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-const coverHtml = data.cover
-  ? `            <figure class="article-cover">\n` +
-    `                <img src="${escapeAttr(data.cover)}" alt="${escapeAttr(data.title)}" loading="eager" decoding="async">\n` +
-    `            </figure>\n`
-  : '';
-
-const coverCss = `
-        /* ===== [cover] 文章封面头图（仅有 cover 的文章会渲染 figure） ===== */
-        .article-cover {
-            margin: 0 0 30px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            background: rgba(255, 255, 255, 0.06);
-            line-height: 0;
-        }
-        .article-cover img {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 420px;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .article-cover:hover img {
-            transform: scale(1.03);
-        }
-        @media (max-width: 768px) {
-            .article-cover { margin-bottom: 22px; border-radius: 12px; }
-            .article-cover img { max-height: 240px; }
-        }
-`;
 
 // 正文 HTML：Astro 内置 Markdown 渲染（替代 marked.parse），
 // 再做文本转义后处理使产物与旧版 marked 输出一致。
-// marked 的块级输出以单个换行结尾且无前导空白，此处对齐该形状（模板插入后形成 </p>\n\n</div>）。
+// marked 的块级输出以单个换行结尾且无前导空白，此处对齐该形状。
 const container = await AstroContainer.create();
 let htmlContent = await container.renderToString(PostBody, { props: { post } });
 htmlContent = removeHeadingIdAttrs(markedizeAstroHtml(htmlContent));
 htmlContent = htmlContent.replace(/^\s+/, '');
 if (htmlContent && !htmlContent.endsWith('\n')) htmlContent += '\n';
 
-// ===== 占位符替换（字符串替换语义与 build.js 完全一致，含 $ 模式行为） =====
-function tplReplace(page: string, key: string, value: string): string {
-  return page.replace(new RegExp('{{' + key + '}}', 'g'), value);
-}
+// Giscus 评论区（懒加载，见 Giscus.astro）
+const giscusHtml = (await container.renderToString(Giscus)).replace(/^\s+|\s+$/g, '');
 
-let page = ARTICLE_FRAME.frame;
+// 主脚本：与旧版一致包裹在 IIFE 内、body 末尾内联执行
+const articleScriptTag = `\n    <script>\n        (function() {${articleJs}        })();\n    </script>`;
 
-// ===== [cover] 注入封面相关的 head 标签、样式与正文头图 =====
-function mustReplace(text: string, find: string, repl: string, label: string): string {
-  if (!text.includes(find)) throw new Error(`未找到锚点：${label}`);
-  return text.replace(find, () => repl);
-}
-
-// og:image / twitter:image（在占位符替换前注入，锚点为模板原文）
-if (coverUrl) {
-  page = mustReplace(
-    page,
-    '    <meta property="og:url" content="{{OG_URL}}">\n',
-    '    <meta property="og:url" content="{{OG_URL}}">\n' +
-      `    <meta property="og:image" content="${escapeAttr(coverUrl)}">\n` +
-      `    <meta name="twitter:image" content="${escapeAttr(coverUrl)}">\n`,
-    'og:url'
-  );
-  page = mustReplace(
-    page,
-    '<meta name="twitter:card" content="summary">',
-    '<meta name="twitter:card" content="summary_large_image">',
-    'twitter:card'
-  );
-}
-// 封面样式：仅有 cover 的文章会用到 figure，样式统一注入一次
-page = mustReplace(page, '\n</style>', coverCss + '\n</style>', 'style 闭合');
-// 头图插到正文容器之前（位于 .article-header 与 .article-full-content 之间）
-if (coverHtml) {
-  page = mustReplace(page, '            <div class="article-full-content">', coverHtml + '            <div class="article-full-content">', 'article-full-content');
-}
-
-page = tplReplace(page, 'ARTICLE_TITLE', data.title);
-page = tplReplace(page, 'ARTICLE_DATE', data.date);
-page = tplReplace(page, 'ARTICLE_LATEST', data.latest ? data.latest : '');
-page = tplReplace(page, 'ARTICLE_CATEGORY', getCategoryName(data.category));
-page = tplReplace(page, 'ARTICLE_TAGS_HTML', tagsHtml);
-page = tplReplace(page, 'ARTICLE_TAGS_STR', tagsStr);
-page = tplReplace(page, 'READING_TIME', readingTime + ' 分钟');
-page = tplReplace(page, 'META_DESCRIPTION', seo.metaDescription);
-page = tplReplace(page, 'CANONICAL_URL', seo.canonicalUrl);
-page = tplReplace(page, 'OG_TITLE', seo.ogTitle);
-page = tplReplace(page, 'OG_DESCRIPTION', seo.ogDescription);
-page = tplReplace(page, 'OG_URL', seo.ogUrl);
-page = tplReplace(page, 'JSON_LD', seo.jsonLD);
-// 与 build.js 相同：以下三项仅替换首次出现
-page = page.replace('{{ARTICLE_CONTENT}}', '\u0000CONTENT\u0000');
-page = page.replace('{{LICENSE_DISPLAY}}', license.display);
-page = page.replace('{{LICENSE_HTML}}', license.html);
-
-// 正文 HTML 占位符单独拆分处理（由 Astro 内置 Markdown 渲染注入）
-const contentPh = '\u0000CONTENT\u0000';
-const cIdx = page.indexOf(contentPh);
-if (cIdx < 0) throw new Error('未找到 ARTICLE_CONTENT 占位符');
-const pageBefore = page.slice(0, cIdx);
-const pageAfter = page.slice(cIdx + contentPh.length);
-
-// Giscus 评论区：插入在文章容器内、协议 footer 之后（仅文章页有此区块）
-const giscusContainer = container;
-const giscusHtml = (await giscusContainer.renderToString(Giscus)).replace(/^\s+|\s+$/g, '');
-const footerClose = '</footer>';
-const fIdx = pageAfter.indexOf(footerClose);
-if (fIdx < 0) throw new Error('未找到 footer 闭合标签，无法挂载评论区');
-const pageMid = pageAfter.slice(0, fIdx + footerClose.length);
-const pageTail = pageAfter.slice(fIdx + footerClose.length);
+// highlight.js 运行时兜底染色（构建期 Shiki 已预渲染代码块高亮）
+const hljsScripts = [
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js'
+]
+  .map((src) => `    <script src="${src}"></script>`)
+  .join('\n');
 ---
 
-<Fragment set:html={pageBefore} />
-<Fragment set:html={htmlContent} />
-<Fragment set:html={pageMid} />
-<Fragment set:html={giscusHtml} />
-<Fragment set:html={pageTail} />
-<Fragment set:html={ARTICLE_FRAME.pre} />
-<Fragment set:html={ARTICLE_SCRIPT} />
-<Fragment set:html={ARTICLE_FRAME.tail} />
+<BaseLayout
+  title={`${data.title} - xundei's blog`}
+  description={seo.metaDescription}
+  keywords={tagsStr}
+  canonical={seo.canonicalUrl}
+  ogType="article"
+  ogTitle={seo.ogTitle}
+  ogDescription={seo.ogDescription}
+  ogUrl={seo.ogUrl}
+  ogImage={coverUrl || undefined}
+  twitterCard={coverUrl ? 'summary_large_image' : 'summary'}
+  jsonLd={seo.jsonLD}
+>
+  <Fragment slot="head">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" /></noscript>
+  </Fragment>
+
+  <LoadingOverlay />
+  <ArticleOverlays />
+
+  <div class="container">
+    <div class="article-container glass" id="article-container">
+      <div class="article-header">
+        <h1 class="article-title">{data.title}</h1>
+        <div class="article-meta">
+          <div>
+            <span id="article-date">{data.date}</span>
+            <span id="article-latest" data-latest={data.latest ?? ''} style="display:none;">
+              <span> | </span>
+              <span class="latest-label">更新于 <span id="article-latest-time"></span></span>
+            </span>
+            <span> | </span>
+            <span id="article-category">{getCategoryName(data.category)}</span>
+            <!-- 不蒜子页面 PV -->
+            <span> | </span>
+            <span>阅读量: <span id="busuanzi_page_pv">加载中...</span> 次</span>
+          </div>
+          <div class="reading-time">预计阅读时间: {readingTime} 分钟</div>
+        </div>
+        <div class="article-tags-bar" set:html={tagsHtml} />
+      </div>
+      {data.cover && (
+        <figure class="article-cover">
+          <img src={data.cover} alt={data.title} loading="eager" decoding="async" />
+        </figure>
+      )}
+      <div class="article-full-content" set:html={htmlContent} />
+    </div>
+
+    <footer class="article-footer" id="article-footer" style={license.display ? 'display: none;' : undefined}>
+      <div class="footer-content" set:html={license.html} />
+    </footer>
+
+    {giscusHtml && <Fragment set:html={giscusHtml} />}
+  </div>
+
+  <Fragment set:html={hljsScripts} />
+  <Fragment set:html={articleScriptTag} />
+</BaseLayout>

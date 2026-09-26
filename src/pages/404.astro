@@ -1,6 +1,24 @@
 ---
-// 404 页面：旧版 404.html 整页原样迁移（scripts/migrate-from-old.mjs 提取）。
-import NOTFOUND_FRAME from '../lib/notfound.frame.json';
+// 404 页：由旧版 notfound.frame.json 移植为 notfound.css + notfound.js。
+// 该页无 footer/搜索/统计，仅极光背景 + 壁纸加载，故不引入 BaseLayout 的多余部分。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import notfoundJs from '../scripts/notfound.js?raw';
+import '../styles/notfound.css';
+
+const wallpaperScriptTag = `\n    <script>\n${notfoundJs}    </script>`;
 ---
 
-<Fragment set:html={NOTFOUND_FRAME} />
+<BaseLayout title="页面未找到 - xundei's blog" busuanzi={false}>
+  <div class="error-container">
+    <div class="glass-card">
+      <div class="error-code">404</div>
+      <h1 class="error-title">你来到了一片未知的领域</h1>
+      <p class="error-message">保持好奇心是好事<br />但不是用在这里啊喂</p>
+      <a href="/" class="home-btn">
+        <i class="fas fa-home"></i> 返回首页
+      </a>
+    </div>
+  </div>
+
+  <Fragment set:html={wallpaperScriptTag} />
+</BaseLayout>
