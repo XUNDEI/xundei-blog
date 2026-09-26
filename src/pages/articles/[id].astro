@@ -65,18 +65,6 @@ const giscusHtml = (await container.renderToString(Giscus)).replace(/^\s+|\s+$/g
 // 主脚本：与旧版一致包裹在 IIFE 内、body 末尾内联执行
 const articleScriptTag = `\n    <script>\n        (function() {${articleJs}        })();\n    </script>`;
 
-// highlight.js 运行时兜底染色（构建期 Shiki 已预渲染代码块高亮）
-const hljsScripts = [
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js'
-]
-  .map((src) => `    <script src="${src}"></script>`)
-  .join('\n');
 ---
 
 <BaseLayout
@@ -92,11 +80,6 @@ const hljsScripts = [
   twitterCard={coverUrl ? 'summary_large_image' : 'summary'}
   jsonLd={seo.jsonLD}
 >
-  <Fragment slot="head">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" /></noscript>
-  </Fragment>
-
   <LoadingOverlay />
   <ArticleOverlays />
 
@@ -136,6 +119,5 @@ const hljsScripts = [
     {giscusHtml && <Fragment set:html={giscusHtml} />}
   </div>
 
-  <Fragment set:html={hljsScripts} />
   <Fragment set:html={articleScriptTag} />
 </BaseLayout>

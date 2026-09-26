@@ -408,7 +408,17 @@ function loadImage(imgUrl) {
               dateStr = randomItem;
               eventStr = '';
             }
-            el.innerHTML = '<div class="history-date">' + dateStr + '</div><div class="history-event">' + eventStr + '</div>';
+            // API 内容不可信任：一律 textContent 写入，防止注入 HTML
+            var resultEl = document.createDocumentFragment();
+            var dateEl = document.createElement('div');
+            dateEl.className = 'history-date';
+            dateEl.textContent = dateStr;
+            var eventEl = document.createElement('div');
+            eventEl.className = 'history-event';
+            eventEl.textContent = eventStr;
+            resultEl.appendChild(dateEl);
+            resultEl.appendChild(eventEl);
+            el.replaceChildren(resultEl);
           } else if (data && data.msg) {
             throw new Error(data.msg);
           } else {
@@ -416,7 +426,11 @@ function loadImage(imgUrl) {
           }
           window.historyLoaded = true;
         } catch (e) {
-          el.innerHTML = '<div class="history-error">加载失败: ' + e.message + '</div>';
+          // e.message 可能来自第三方 API 的 data.msg，同样按纯文本处理
+          var errEl = document.createElement('div');
+          errEl.className = 'history-error';
+          errEl.textContent = '加载失败: ' + e.message;
+          el.replaceChildren(errEl);
         }
       }
 

@@ -86,8 +86,7 @@ export default defineConfig({
       smartypants: false,
       rehypePlugins: [removeHeadingIds],
     }),
-    // [v2] 构建期 Shiki 预渲染高亮（one-dark-pro 主题）：代码块 HTML 内联主题配色，
-    // 不依赖运行时 JS；客户端旧 highlight.js 染色调用已同步移除（见 migrate-from-old.mjs）
+    // [v2] 构建期 Shiki 预渲染高亮（one-dark-pro 主题）：代码块 HTML 内联主题配色，不依赖运行时 JS
     syntaxHighlight: 'shiki',
     shikiConfig: {
       theme: 'one-dark-pro',

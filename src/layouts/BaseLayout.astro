@@ -66,8 +66,8 @@ const busuanziScript =
   {ogImage && <meta property="og:image" content={ogImage} />}
   {ogImage && <meta name="twitter:image" content={ogImage} />}
   {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd}></script>}
-  <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
+  <link rel="preload" href="/fontawesome/css/fontawesome-subset.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="/fontawesome/css/fontawesome-subset.css" /></noscript>
   {busuanzi && <Fragment set:html={busuanziScript} />}
   <slot name="head" />
   <Fragment set:html={themeInitScript} />
