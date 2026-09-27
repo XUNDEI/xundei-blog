@@ -170,6 +170,38 @@ const loaderScript = [
     box-shadow: var(--glass-shadow);
     transition: var(--transition);
   }
+  /* ===== 壁纸态 · 灰雾玻璃（仅 html.wallpaper-active 生效，与 article.css 同款） =====
+     不写 position: relative / isolation：backdrop-filter 本身会让元素成为
+     绝对定位后代的包含块，::before 呼吸层据此铺满卡片自身；
+     不支持 backdrop-filter 的浏览器整段由 @supports 门控。 */
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    html.wallpaper-active .giscus-section {
+      backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+      -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+    }
+    /* ===== 壁纸态 · 呼吸动效（删掉本段即回到静态玻璃）===== */
+    html.wallpaper-active .giscus-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      pointer-events: none;
+      background-image: radial-gradient(120% 90% at 50% 0%,
+        rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%);
+      background-clip: border-box;
+      -webkit-background-clip: border-box;
+      opacity: 0.25;
+      animation: glass-breathe 6s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.wallpaper-active .giscus-section::before { animation: none; opacity: 0.25; }
+    }
+  }
+  @keyframes glass-breathe {
+    0%, 100% { opacity: 0.08; }
+    50%      { opacity: 0.50; }
+  }
   /* 容器侧适配：跨域限制无法注入 giscus iframe 内部样式，
      仅对 iframe 元素本身做适配——透明背景、去边框、暗色 color-scheme
      （配合自定义主题 giscus-glass.css：透明背景透出玻璃容器与极光背景、

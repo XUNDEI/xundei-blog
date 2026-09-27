@@ -2,6 +2,7 @@
 dist/
 # generated types
 .astro/
+glass-lab
 
 # dependencies
 node_modules/

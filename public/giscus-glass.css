@@ -46,15 +46,15 @@ main {
 
   /* 普通按钮：玻璃白描边 */
   --color-btn-text: #e6e9ef;
-  --color-btn-bg: rgb(255 255 255 / 14%);
-  --color-btn-border: rgb(255 255 255 / 40%);
+  --color-btn-bg: rgb(232 238 246 / 14%);
+  --color-btn-border: rgb(232 238 246 / 40%);
   --color-btn-shadow: 0 0 transparent;
   --color-btn-inset-shadow: 0 0 transparent;
-  --color-btn-hover-bg: rgb(255 255 255 / 24%);
-  --color-btn-hover-border: rgb(255 255 255 / 60%);
-  --color-btn-active-bg: rgb(255 255 255 / 18%);
-  --color-btn-active-border: rgb(255 255 255 / 60%);
-  --color-btn-selected-bg: rgb(255 255 255 / 18%);
+  --color-btn-hover-bg: rgb(232 238 246 / 24%);
+  --color-btn-hover-border: rgb(232 238 246 / 60%);
+  --color-btn-active-bg: rgb(232 238 246 / 18%);
+  --color-btn-active-border: rgb(232 238 246 / 60%);
+  --color-btn-selected-bg: rgb(232 238 246 / 18%);
 
   /* 主按钮（登录等）：站点主色蓝 */
   --color-btn-primary-text: #fff;
@@ -70,12 +70,12 @@ main {
   --color-btn-primary-disabled-bg: rgb(66 133 244 / 60%);
   --color-btn-primary-disabled-border: rgb(255 255 255 / 30%);
 
-  --color-action-list-item-default-hover-bg: rgb(255 255 255 / 12%);
+  --color-action-list-item-default-hover-bg: rgb(232 238 246 / 12%);
 
   /* 输入/预览 分段控件（选项卡） */
-  --color-segmented-control-bg: rgb(255 255 255 / 12%);
+  --color-segmented-control-bg: rgb(232 238 246 / 12%);
   --color-segmented-control-button-bg: transparent;
-  --color-segmented-control-button-selected-border: rgb(255 255 255 / 65%);
+  --color-segmented-control-button-selected-border: rgb(232 238 246 / 65%);
 
   /* 文字：浅色系，与全站玻璃卡白字一致 */
   --color-fg-default: #e6e9ef;
@@ -86,16 +86,16 @@ main {
   --color-canvas-default: transparent;
   --color-canvas-overlay: rgb(22 27 34 / 92%);
   --color-canvas-inset: transparent;
-  --color-canvas-subtle: rgb(255 255 255 / 10%);
+  --color-canvas-subtle: rgb(232 238 246 / 10%);
 
   /* 边框：改为很淡的玻璃白。
      原主题的近黑边框在玻璃卡上突兀；但纯白 38% 又会让评论输入框在玻璃卡上
      浮出一圈抢眼的白色描边，因此压到 20% 以下，只留可感知的分隔。 */
-  --color-border-default: rgb(255 255 255 / 20%);
-  --color-border-muted: rgb(255 255 255 / 12%);
+  --color-border-default: rgb(232 238 246 / 20%);
+  --color-border-muted: rgb(232 238 246 / 12%);
 
-  --color-neutral-muted: rgb(255 255 255 / 12%);
-  --color-neutral-subtle: rgb(255 255 255 / 8%);
+  --color-neutral-muted: rgb(232 238 246 / 12%);
+  --color-neutral-subtle: rgb(232 238 246 / 8%);
 
   /* 强调色：站点主色蓝 */
   --color-accent-fg: #8ab4f8;
@@ -162,13 +162,13 @@ main .gsc-loading-image {
 main .gsc-comment-box:not(.gsc-comment-box-is-reply),
 main .gsc-comment .gsc-comment-box {
   border-color: transparent;
-  background-color: rgb(255 255 255 / 7%);
+  background-color: rgb(232 238 246 / 7%);
 }
 
 /* 文本域：去掉四周实线，只留 giscus 自带的虚线下边线（压淡） */
 main .gsc-comment-box-textarea {
   border-color: transparent;
-  border-bottom-color: rgb(255 255 255 / 22%);
+  border-bottom-color: rgb(232 238 246 / 22%);
 }
 
 /* 文本域下方工具条：与文本域连成一块，不单独描边 */

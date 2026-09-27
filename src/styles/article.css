@@ -845,9 +845,11 @@
 
 /* 壁纸加载完成后：玻璃与文字恢复博客最初样式（与明暗主题无关） */
     html.wallpaper-active {
-      --glass-bg: rgba(255, 255, 255, 0.25);
-      --glass-border: rgba(255, 255, 255, 0.35);
-      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --glass-bg: rgba(232, 238, 246, 0.16);
+      --glass-border: rgba(255, 255, 255, 0.26);
+      --glass-shadow: 0 8px 30px rgba(30, 40, 60, 0.12);
+      --blur-amount: 18px;
+      --glass-saturate: 108%;
       --w-100: #fff;
       --w-93: rgba(255, 255, 255, 0.93);
       --w-90: rgba(255, 255, 255, 0.90);
@@ -860,6 +862,66 @@
       --w-60: rgba(255, 255, 255, 0.60);
       --link-color: #a1c4fd;
       --text-color: #fff;
+      /* 浅青字叠在浅玻璃上看不清，壁纸态提亮一点 */
+      --code-inline-color: #eaf3ff;
+    }
+
+    /* 壁纸态下行内代码 `code`：保持原本的蓝色淡底样式，
+       只把底色和描边的浓度拉高，保证玻璃卡上看得清；代码块内的 code 由下一条恢复原样 */
+    html.wallpaper-active .article-full-content code {
+      background: rgba(66, 133, 244, 0.38);
+      border-color: rgba(66, 133, 244, 0.55);
+    }
+    html.wallpaper-active .article-full-content pre code {
+      background: none;
+      border-color: transparent;
+    }
+
+    /* ===== 壁纸态 · 灰雾玻璃（仅 html.wallpaper-active 生效，极光态不受影响） ===== */
+    /* 不写 position: relative / isolation：backdrop-filter 本身会让元素成为
+       绝对定位后代的包含块，::before 呼吸层据此铺满卡片自身（.back-btn / .toc-toggle /
+       .toc-container / .link-confirm / .poetry-card 本身是 fixed，同样是自己的包含块，
+       位置不受影响）；不支持 backdrop-filter 的浏览器整段由 @supports 门控。 */
+    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+      html.wallpaper-active .glass,
+      html.wallpaper-active .article-footer {
+        backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+        -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+      }
+      /* ===== 壁纸态 · 呼吸动效（删掉本段即回到静态玻璃）===== */
+      html.wallpaper-active .glass::before,
+      html.wallpaper-active .article-footer::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background-image: radial-gradient(120% 90% at 50% 0%,
+          rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%);
+        /* 必须重置：站内全局有一条 `a::before { -webkit-background-clip: text; }`，
+           而站点里确实存在 <a class="back-btn glass"> 与 <a class="friend-card glass">。
+           不重置的话，这两个元素上的呼吸光会被裁成「文字形状」而完全看不见。 */
+        background-clip: border-box;
+        -webkit-background-clip: border-box;
+        opacity: 0.25;
+        animation: glass-breathe 6s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html.wallpaper-active .glass::before,
+        html.wallpaper-active .article-footer::before { animation: none; opacity: 0.25; }
+      }
+    }
+    @keyframes glass-breathe {
+      0%, 100% { opacity: 0.08; }
+      50%      { opacity: 0.50; }
+    }
+
+    /* html.wallpaper-active (0,1,1) 高于 :root (0,1,0)：壁纸态写了 18px 之后，
+       原有的 @media (max-width:768px){ :root{ --blur-amount: 8px } } 会被压住；
+       且本块必须在壁纸态变量块之后声明才能按源顺序胜出，保持手机上更轻的现状。 */
+    @media (max-width: 768px) {
+      html.wallpaper-active { --blur-amount: 8px; }
     }
 
 

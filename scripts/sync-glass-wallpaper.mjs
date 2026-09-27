@@ -2,7 +2,7 @@
 // - 壁纸加载成功、替换背景的那一刻：脚本给 <html> 加 wallpaper-active 类
 //   （加载成功路径 hideAuroraBackground / loadImage 中），
 //   经 CSS 变量覆盖恢复博客最初样式（与明暗主题无关）：
-//   玻璃 bg rgba(255,255,255,0.25) / 边框 rgba(255,255,255,0.35) / 阴影 0 8px 32px rgba(0,0,0,0.08)；
+//   玻璃 bg rgba(232,238,246,0.16) / 边框 rgba(255,255,255,0.26) / 阴影 0 8px 30px rgba(30,40,60,0.12)；
 //   文字恢复最初白色系（--w-* 全量、--text-color、--link-color）。
 // - 壁纸未加载完成或加载失败：不加类，保持按时间段定制的明暗主题玻璃与文字样式。
 // 同时清理早前引入的 wallpaper-loaded 冗余机制（CSS 块与加类语句）。
@@ -33,9 +33,9 @@ function buildActiveCss(src) {
   return [
     '/* 壁纸加载完成后：玻璃与文字恢复博客最初样式（与明暗主题无关） */',
     '    html.wallpaper-active {',
-    '      --glass-bg: rgba(255, 255, 255, 0.25);',
-    '      --glass-border: rgba(255, 255, 255, 0.35);',
-    '      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);',
+    '      --glass-bg: rgba(232, 238, 246, 0.16);',
+    '      --glass-border: rgba(255, 255, 255, 0.26);',
+    '      --glass-shadow: 0 8px 30px rgba(30, 40, 60, 0.12);',
     ...lines,
     '      --text-color: #fff;',
     '    }',

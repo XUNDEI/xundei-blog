@@ -107,15 +107,53 @@ function faviconSources(f: Friend): string[] {
 
 /* 壁纸加载完成后：玻璃与文字恢复博客最初样式（与明暗主题无关） */
     html.wallpaper-active {
-      --glass-bg: rgba(255, 255, 255, 0.25);
-      --glass-border: rgba(255, 255, 255, 0.35);
-      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --glass-bg: rgba(232, 238, 246, 0.16);
+      --glass-border: rgba(255, 255, 255, 0.26);
+      --glass-shadow: 0 8px 30px rgba(30, 40, 60, 0.12);
+      --blur-amount: 18px;
+      --glass-saturate: 108%;
       --w-100: #fff;
       --w-90: rgba(255, 255, 255, 0.90);
       --w-85: rgba(255, 255, 255, 0.85);
       --w-70: rgba(255, 255, 255, 0.70);
       --w-60: rgba(255, 255, 255, 0.60);
       --text-color: #fff;
+    }
+
+    /* ===== 壁纸态 · 灰雾玻璃（仅 html.wallpaper-active 生效，极光态不受影响） ===== */
+    /* 不写 position: relative / isolation：backdrop-filter 本身会让元素成为
+       绝对定位后代的包含块，::before 呼吸层据此铺满卡片自身；
+       不支持 backdrop-filter 的浏览器整段由 @supports 门控，避免 ::before 糊到外层祖先上。 */
+    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+      html.wallpaper-active .glass {
+        backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+        -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(var(--glass-saturate, 108%));
+      }
+      /* ===== 壁纸态 · 呼吸动效（删掉本段即回到静态玻璃）===== */
+      html.wallpaper-active .glass::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background-image: radial-gradient(120% 90% at 50% 0%,
+          rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%);
+        /* 必须重置：站内全局有一条 `a::before { -webkit-background-clip: text; }`，
+           而站点里确实存在 <a class="back-btn glass"> 与 <a class="friend-card glass">。
+           不重置的话，这两个元素上的呼吸光会被裁成「文字形状」而完全看不见。 */
+        background-clip: border-box;
+        -webkit-background-clip: border-box;
+        opacity: 0.25;
+        animation: glass-breathe 6s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html.wallpaper-active .glass::before { animation: none; opacity: 0.25; }
+      }
+    }
+    @keyframes glass-breathe {
+      0%, 100% { opacity: 0.08; }
+      50%      { opacity: 0.50; }
     }
 
 
