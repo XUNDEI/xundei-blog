@@ -2178,4 +2178,134 @@
     @media (hover: none) {
       .read-mask { display: none; }
     }
+
+    /* ===== [collection] 文章合集卡片与合集视图返回栏 ===== */
+    /* 合集卡片沿用 .article-card 的全部结构与动效，只补「合集」角标、
+       悬浮时替换简介的提示语，以及触屏常驻的篇数标签。
+       颜色一律走现有变量（--glass-* / --w-* / --primary-color），
+       明暗主题与壁纸态自动适配，不新增 :root 变量以免被 sync-*.mjs 批量重写覆盖。 */
+    .collection-card .collection-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(66, 133, 244, 0.45);
+      background: rgba(66, 133, 244, 0.16);
+      color: var(--w-100);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    /* 触屏无悬浮：把篇数换成常驻标签，保证合集属性与规模始终可见 */
+    .collection-count-tag {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      cursor: default;
+      /* 只是信息展示，不参与标签筛选；让点击穿透到整卡链接 */
+      pointer-events: none;
+    }
+    .collection-count-tag i { font-size: 0.72rem; }
+    @media (hover: none) {
+      .collection-count-tag { display: inline-flex; }
+      .collection-card .article-meta .collection-badge { display: none; }
+    }
+    /* 悬浮时用提示语原地替换简介：两层文案叠在同一位置交叉淡入淡出，
+       卡片占位与简介行数都不变，鼠标移开后简介自然回来 */
+    .collection-card .article-content {
+      position: relative;
+    }
+    .collection-card .article-content-intro,
+    .collection-card .article-content-hover {
+      transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .collection-card .article-content-hover {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      color: var(--primary-color);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+    }
+    .collection-card:hover .article-content-intro,
+    .collection-card:focus-within .article-content-intro {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    .collection-card:hover .article-content-hover,
+    .collection-card:focus-within .article-content-hover {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* 触屏没有悬浮态：提示语常驻显示在简介下方 */
+    @media (hover: none) {
+      .collection-card .article-content-hover {
+        position: static;
+        opacity: 1;
+        transform: none;
+        margin-top: 6px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* 合集视图的返回栏：贴在文章网格首行，与卡片同为玻璃材质 */
+    .collection-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      padding: 14px 20px;
+      margin-bottom: 4px;
+    }
+    .collection-bar-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: var(--w-100);
+    }
+    .collection-bar-text i { color: var(--primary-color); }
+    .collection-bar-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .collection-bar-count {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      color: var(--w-65);
+    }
+    .collection-back {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 15px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--w-100);
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .collection-back:hover {
+      background: var(--primary-color);
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 18px var(--glow-color);
+    }
+    @media (max-width: 640px) {
+      .collection-bar { padding: 12px 16px; }
+      .collection-back { padding: 6px 12px; }
+    }
   

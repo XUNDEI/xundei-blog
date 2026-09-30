@@ -33,6 +33,11 @@ content:
         type: string
         required: false
         description: 文章封面图地址（完整 URL 或以 / 开头的站内路径），留空则文章页不显示封面
+      - name: collection
+        label: 所属合集
+        type: string
+        required: false
+        description: 填文章合集的 URL 文件名（即「文章合集」里那条合集的 slug，不含 .md）。填写后该文章不再单独出现在首页，由合集卡片代替；留空表示不属于任何合集。
       - { name: tags, label: 标签, type: string, list: true }
       - { name: body, label: 正文, type: rich-text }
       - name: license
@@ -44,3 +49,30 @@ content:
         type: select
         options: { values: [MIT, Apache 2.0, GPL, BSD] }
         required: false
+
+  - name: collections
+    label: 文章合集
+    path: src/content/collections
+    type: collection
+    filename: "{fields.slug}.md"
+    view: { fields: [title, slug, date], primary: title, sortby: date, sort: desc }
+    description: 合集把若干篇文章归成一组，首页只显示一张合集卡片。成员由文章里的「所属合集」字段指定。
+    fields:
+      - { name: slug, label: URL文件名, type: string, required: true }
+      - { name: title, label: 合集标题, type: string, required: true }
+      - name: intro
+        label: 合集简介
+        type: text
+        description: 首页合集卡片正面展示的简介；鼠标悬浮时会被「这是一个文章合集，点击查看详细」覆盖。
+      - name: date
+        label: 创建时间
+        type: date
+        options: { time: true, format: "yyyy-MM-dd'T'HH:mm:ss", step: 1, default: '' }
+        required: false
+      - name: cover
+        label: 封面图片
+        type: string
+        required: false
+        description: 合集卡片右侧缩略图（完整 URL 或以 / 开头的站内路径），留空则只显示文字。
+      - { name: tags, label: 标签, type: string, list: true }
+      - { name: body, label: 正文, type: rich-text }

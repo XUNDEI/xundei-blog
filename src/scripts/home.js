@@ -40,6 +40,12 @@
       let wallpaperResolved = false;
       let lastBrightness = null;
 
+      // [collection] 文章合集：homepage feed = 合集卡片 + 未归属合集的文章，
+      // 成员文章默认被合集卡片收编（见 buildFeedItems），点开合集才列出。
+      let collectionsData = [];
+      let activeCollection = '';
+      let suppressHistory = false;
+
       let searchFilters = {
         query: '',
         fields: { title: true, body: true, tags: true, excerpt: true },
@@ -486,18 +492,6 @@ function loadImage(imgUrl) {
         return dateStr.substring(0, 10);
       }
 
-      function getLatestSortKey(article) {
-        return article.latest ? article.latest : article.date;
-      }
-
-      function getArticleTimestamp(article) {
-        var dateStr = article.date;
-        if (dateStr && dateStr.indexOf('T') === -1) {
-          dateStr += 'T00:00:00';
-        }
-        return Date.parse(dateStr);
-      }
-
       function extractDatePart(dateStr) {
         if (!dateStr) return null;
         var match = dateStr.match(/^\d{4}-\d{2}-\d{2}/);
@@ -582,6 +576,250 @@ function loadImage(imgUrl) {
         return html;
       }
 
+      // ===== [collection] 文章合集：条目流 / 卡片 / 视图切换 =====
+      var COLLECTION_LABEL = '这是一个文章合集，点击查看详细';
+
+      function getCollectionBySlug(slug) {
+        if (!slug || !collectionsData) return null;
+        for (var i = 0; i < collectionsData.length; i++) {
+          if (collectionsData[i].slug === slug) return collectionsData[i];
+        }
+        return null;
+      }
+
+      function getFeedSortKey(item) {
+        if (item.latest) return String(item.latest);
+        return item.date ? String(item.date) : '';
+      }
+
+      // 合集条目与文章条目共用的时间线：合集取成员文章的最新时间
+      function sortFeedItems(items) {
+        items.sort(function(a, b) {
+          var ka = getFeedSortKey(a);
+          var kb = getFeedSortKey(b);
+          if (ka && kb) return kb.localeCompare(ka);
+          return 0;
+        });
+        return items;
+      }
+
+      function getCollectionPosts(collection) {
+        var posts = (collection && collection.posts) ? collection.posts : [];
+        return posts.slice().sort(function(a, b) {
+          var ka = getFeedSortKey(a);
+          var kb = getFeedSortKey(b);
+          if (ka && kb) return kb.localeCompare(ka);
+          return 0;
+        });
+      }
+
+      // 当前是否有分类 / 搜索 / 标签 / 日期筛选（有筛选时合集展开，成员文章可被检索）
+      function hasGlobalFilter() {
+        return !!searchFilters.query || !!currentTag ||
+          !!(searchFilters.dateFrom || searchFilters.dateTo) ||
+          !!(currentCategory && currentCategory !== 'all');
+      }
+
+      // 把 articles / collections 收拢成同一套条目：合集作为 kind='collection' 的一项参与排序，
+      // 其成员文章仅在「进入合集视图」或「有全局筛选」时才展开，
+      // 否则由合集卡片代替、不再单独出现。
+      function buildFeedItems() {
+        var items = [];
+        var collectionsBySlug = {};
+        var i;
+
+        for (i = 0; i < collectionsData.length; i++) {
+          var c = collectionsData[i];
+          collectionsBySlug[c.slug] = c;
+          items.push({
+            kind: 'collection',
+            slug: c.slug,
+            title: c.title,
+            intro: c.intro || '',
+            cover: c.cover || '',
+            tags: c.tags || [],
+            count: c.count || 0,
+            latest: c.latest || '',
+            date: c.latest || '',
+            posts: c.posts || []
+          });
+        }
+
+        // 全局筛选 / 合集视图下把成员文章一并放出，保证它们可被检索、可被列出
+        var expandAll = hasGlobalFilter() || !!activeCollection;
+
+        for (i = 0; i < articlesData.length; i++) {
+          var a = articlesData[i];
+          if (a.category === 'friend_link') continue;
+          var slug = a.collection ? String(a.collection) : '';
+          if (slug && !collectionsBySlug[slug]) slug = '';
+          if (slug && !expandAll) continue;
+          a._collection = slug;
+          items.push(a);
+        }
+
+        return sortFeedItems(items);
+      }
+
+      function setCollectionView(slug) {
+        activeCollection = slug || '';
+        currentPage = 1;
+        currentTag = '';
+        currentCategory = 'all';
+        currentSearchQuery = '';
+        searchFilters.query = '';
+        searchFilters.dateFrom = '';
+        searchFilters.dateTo = '';
+        if (typeof syncSearchFiltersToUI === 'function') syncSearchFiltersToUI();
+        renderArticles('all');
+      }
+
+      // 合集视图对应的地址：只维护 URL 上的 collection 参数，保留 tag 等其它参数
+      function collectionUrl(slug) {
+        var params = new URLSearchParams(window.location.search);
+        if (slug) params.set('collection', slug);
+        else params.delete('collection');
+        var qs = params.toString();
+        return window.location.pathname + (qs ? '?' + qs : '');
+      }
+
+      function openCollection(slug) {
+        if (!getCollectionBySlug(slug)) return;
+        setCollectionView(slug);
+        if (!suppressHistory && window.history && window.history.pushState) {
+          window.history.pushState({ collection: slug }, '', collectionUrl(slug));
+        }
+      }
+
+      function closeCollection(pushHistory) {
+        setCollectionView('');
+        if (pushHistory !== false && !suppressHistory && window.history && window.history.pushState) {
+          window.history.pushState({ collection: '' }, '', collectionUrl(''));
+        }
+      }
+
+      // 深链 / 浏览器前进后退：/?collection=<slug> 直接进入该合集视图
+      function applyCollectionFromLocation() {
+        var slug = '';
+        try {
+          slug = new URLSearchParams(window.location.search).get('collection') || '';
+        } catch (e) {
+          slug = '';
+        }
+        if (slug && !getCollectionBySlug(slug)) slug = '';
+        suppressHistory = true;
+        setCollectionView(slug);
+        suppressHistory = false;
+      }
+
+      function renderCollectionBar() {
+        var grid = document.getElementById('articles-grid');
+        if (!grid) return;
+        var old = grid.querySelector('.collection-bar');
+        if (old) old.parentNode.removeChild(old);
+
+        var collection = getCollectionBySlug(activeCollection);
+        if (!collection) return;
+
+        var bar = document.createElement('div');
+        bar.className = 'collection-bar glass';
+        bar.innerHTML =
+          '<div class="collection-bar-text"><i class="fas fa-layer-group"></i>' +
+          '<strong class="collection-bar-title">' + escapeHtml(collection.title) + '</strong>' +
+          '<span class="collection-bar-count">' + (collection.count || 0) + ' 篇文章</span></div>' +
+          '<button type="button" class="collection-back"><i class="fas fa-arrow-left"></i> 返回全部文章</button>';
+        bar.querySelector('.collection-back').addEventListener('click', function() { closeCollection(true); });
+        grid.insertBefore(bar, grid.firstChild);
+      }
+
+      function renderCollectionCard(collection) {
+        var card = document.createElement('div');
+        card.className = 'article-card collection-card glass' + (collection.cover ? ' has-cover' : '');
+        var slug = collection.slug;
+
+        var cardLink = document.createElement('a');
+        cardLink.className = 'card-link';
+        cardLink.href = '/?collection=' + encodeURIComponent(slug);
+        cardLink.setAttribute('aria-label', collection.title + ' - 查看合集');
+        cardLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          openCollection(slug);
+        });
+        card.appendChild(cardLink);
+
+        var countLabel = (collection.count || 0) + ' 篇文章';
+        var dateLabel = collection.latest ? formatMonthDay(collection.latest) : '';
+        card.insertAdjacentHTML('beforeend',
+          '<div class="article-main">' +
+            '<div class="article-head-row"><h3 class="article-title">' + escapeHtml(collection.title) +
+            '</h3><div class="article-meta"><span>' + escapeHtml(dateLabel) + '</span><span class="collection-badge">合集 · ' + escapeHtml(countLabel) +
+            '</span></div></div>' +
+            // 悬浮提示语原地覆盖简介；无简介时留一个 &nbsp; 撑住行高，避免悬浮瞬间卡片跳动
+            '<div class="article-content"><span class="article-content-intro">' +
+            (collection.intro ? escapeHtml(collection.intro) : '&nbsp;') +
+            '</span><span class="article-content-hover">' + escapeHtml(COLLECTION_LABEL) + '</span></div>' +
+            '<div class="article-foot-row"><div class="article-tags"><span class="article-tag collection-count-tag"><i class="fas fa-layer-group"></i>' +
+            escapeHtml(countLabel) + '</span></div></div>' +
+          '</div>' +
+          // 右侧遮罩只留短口令，长提示语由上面的简介替换承担，避免遮罩放不下被裁切
+          '<span class="read-mask" aria-hidden="true"><span class="read-mask-label">查看合集 <i class="fas fa-arrow-right"></i></span></span>');
+
+        if (collection.cover) {
+          var coverEl = document.createElement('div');
+          coverEl.className = 'article-cover';
+          var coverImg = document.createElement('img');
+          coverImg.src = collection.cover;
+          coverImg.alt = '';
+          coverImg.loading = 'lazy';
+          coverImg.decoding = 'async';
+          coverImg.addEventListener('error', function () {
+            if (coverEl.parentNode) coverEl.parentNode.removeChild(coverEl);
+          });
+          coverEl.appendChild(coverImg);
+          card.insertBefore(coverEl, card.querySelector('.read-mask'));
+        }
+
+        return card;
+      }
+
+      function renderArticleCard(article) {
+        var slug = getSlug(article.filename);
+        var card = document.createElement('div');
+        card.className = 'article-card glass' + (article.cover ? ' has-cover' : '');
+        var cardLink = document.createElement('a');
+        cardLink.className = 'card-link';
+        cardLink.href = '/articles/' + slug;
+        cardLink.setAttribute('aria-label', article.title + ' - 阅读全文');
+        card.appendChild(cardLink);
+        var tagsHtml = renderTagsHtml(article.tags);
+        var displayDate = formatMonthDay(article.latest || article.date);
+        card.insertAdjacentHTML('beforeend',
+          '<div class="article-main">' +
+            '<div class="article-head-row"><h3 class="article-title">' + escapeHtml(article.title) +
+            '</h3><div class="article-meta"><span>' + escapeHtml(displayDate) + '</span><span>' + getCategoryName(article.category) +
+            '</span></div></div>' +
+            '<div class="article-content">' + escapeHtml(article.excerpt) + '</div>' +
+            '<div class="article-foot-row">' + (tagsHtml ? '<div class="article-tags">' + tagsHtml + '</div>' : '') + '</div>' +
+          '</div>' +
+          '<span class="read-mask" aria-hidden="true"><span class="read-mask-label">阅读全文<i class="fas fa-arrow-right"></i></span></span>');
+        // [cover] 有封面时在右侧插一张缩略图；加载失败就整块移除，卡片退回纯文字
+        if (article.cover) {
+          var coverEl = document.createElement('div');
+          coverEl.className = 'article-cover';
+          var coverImg = document.createElement('img');
+          coverImg.src = article.cover;
+          coverImg.alt = '';
+          coverImg.loading = 'lazy';
+          coverImg.decoding = 'async';
+          coverImg.addEventListener('error', function () {
+            if (coverEl.parentNode) coverEl.parentNode.removeChild(coverEl);
+          });
+          coverEl.appendChild(coverImg);
+          card.insertBefore(coverEl, card.querySelector('.read-mask'));
+        }
+        return card;
+      }
+
       function renderArticles(category, searchQuery) {
         if (!articlesData) return;
         if (category !== undefined) {
@@ -592,11 +830,23 @@ function loadImage(imgUrl) {
         var grid = document.getElementById('articles-grid');
         grid.innerHTML = '';
 
-        var filtered = articlesData.slice();
-        filtered = filtered.filter(function(a) { return a.category !== 'friend_link'; });
+        // [collection] 合集视图：只列该合集的成员文章；否则列出「合集卡片 + 未归属文章」
+        var filtered;
+        if (activeCollection) {
+          var activeCollectionObj = getCollectionBySlug(activeCollection);
+          if (activeCollectionObj) {
+            filtered = getCollectionPosts(activeCollectionObj);
+          } else {
+            // 合集已被删除 / slug 失效：退回默认视图
+            activeCollection = '';
+            filtered = buildFeedItems();
+          }
+        } else {
+          filtered = buildFeedItems();
+        }
 
         if (currentCategory !== 'all') {
-          filtered = filtered.filter(function(a) { return a.category === currentCategory; });
+          filtered = filtered.filter(function(a) { return a.kind !== 'collection' && a.category === currentCategory; });
         }
 
         var query = (searchQuery !== undefined ? searchQuery : searchFilters.query);
@@ -604,12 +854,13 @@ function loadImage(imgUrl) {
           var localResults = searchLocally(query);
           if (localResults !== null && localResults !== undefined) {
             filtered = filtered.filter(function(a) {
-              return localResults.indexOf(a.filename) !== -1;
+              return a.kind !== 'collection' && localResults.indexOf(a.filename) !== -1;
             });
           } else {
             var fields = searchFilters.fields;
             var q = query.toLowerCase().trim();
             filtered = filtered.filter(function(a) {
+              if (a.kind === 'collection') return false;
               if (fields.title && (a.title || '').toLowerCase().indexOf(q) !== -1) return true;
               if (fields.tags && (a.tags || '').toLowerCase().indexOf(q) !== -1) return true;
               if (fields.excerpt && (a.excerpt || '').toLowerCase().indexOf(q) !== -1) return true;
@@ -620,6 +871,11 @@ function loadImage(imgUrl) {
 
         if (currentTag) {
           filtered = filtered.filter(function(a) {
+            if (a.kind === 'collection') {
+              // 合集卡片本身没有标签，只有在自身标签命中时才保留
+              var cTags = (getCollectionBySlug(a.slug) || {}).tags || [];
+              return cTags.indexOf(currentTag) !== -1;
+            }
             var tags = (a.tags || '').split(', ').map(function(t) { return t.trim(); });
             return tags.indexOf(currentTag) !== -1;
           });
@@ -627,6 +883,7 @@ function loadImage(imgUrl) {
 
         if (searchFilters.dateFrom || searchFilters.dateTo) {
           filtered = filtered.filter(function(a) {
+            if (a.kind === 'collection') return false;
             var articleDate = extractDatePart(a.date);
             if (!articleDate) return true;
             if (searchFilters.dateFrom && articleDate < searchFilters.dateFrom) return false;
@@ -635,17 +892,13 @@ function loadImage(imgUrl) {
           });
         }
 
-        filtered.sort(function(a, b) {
-          var keyA = getLatestSortKey(a);
-          var keyB = getLatestSortKey(b);
-          if (keyA && keyB) return keyB.localeCompare(keyA);
-          return getArticleTimestamp(b) - getArticleTimestamp(a);
-        });
-
-        var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+        // 合集卡片不置顶，跟随 buildFeedItems() 的时间线自然落位
+        var itemCount = filtered.length;
+        var totalPages = Math.ceil(itemCount / ARTICLES_PER_PAGE);
+        if (totalPages < 1) totalPages = 1;
         if (currentPage > totalPages) currentPage = totalPages;
         var start = (currentPage - 1) * ARTICLES_PER_PAGE;
-        var pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+        var pageItems = filtered.slice(start, start + ARTICLES_PER_PAGE);
 
         var searchInfo = document.getElementById('search-info');
         var hasQuery = !!searchFilters.query;
@@ -665,59 +918,31 @@ function loadImage(imgUrl) {
             }
             msgParts.push('时间 ' + dateLabel);
           }
-          searchInfo.textContent = msgParts.join(' · ') + ' 共 ' + filtered.length + ' 篇';
+          searchInfo.textContent = msgParts.join(' · ') + ' 共 ' + itemCount + ' 篇';
           searchInfo.classList.add('visible');
         } else {
           searchInfo.classList.remove('visible');
         }
 
-        if (!pageArticles.length) {
-          var emptyMsg = (hasQuery || currentTag || hasDate) ? '没有找到匹配的文章' : '该分类下还没有文章';
+        if (!pageItems.length) {
+          var emptyMsg = (hasQuery || currentTag || hasDate)
+            ? '没有找到匹配的文章'
+            : (activeCollection ? '这个合集下还没有文章' : '该分类下还没有文章');
           grid.innerHTML = '<div class="glass" style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.8);"><i class="far fa-frown" style="font-size:3rem;margin-bottom:20px;"></i><h3>暂无结果</h3><p>' + emptyMsg + '</p></div>';
+          if (activeCollection) renderCollectionBar();
           renderPagination(totalPages, currentPage);
           updateCategoryButtons();
           return;
         }
 
-        pageArticles.forEach(function(article) {
-          var slug = getSlug(article.filename);
-          var card = document.createElement('div');
-          card.className = 'article-card glass' + (article.cover ? ' has-cover' : '');
-          var cardLink = document.createElement('a');
-          cardLink.className = 'card-link';
-          cardLink.href = '/articles/' + slug;
-          cardLink.setAttribute('aria-label', article.title + ' - 阅读全文');
-          card.appendChild(cardLink);
-          var tagsHtml = renderTagsHtml(article.tags);
-          var displayDate = formatMonthDay(article.latest || article.date);
-          card.insertAdjacentHTML('beforeend',
-            '<div class="article-main">' +
-              '<div class="article-head-row"><h3 class="article-title">' + escapeHtml(article.title) +
-              '</h3><div class="article-meta"><span>' + escapeHtml(displayDate) + '</span><span>' + getCategoryName(article.category) +
-              '</span></div></div>' +
-              '<div class="article-content">' + escapeHtml(article.excerpt) + '</div>' +
-              '<div class="article-foot-row">' + (tagsHtml ? '<div class="article-tags">' + tagsHtml + '</div>' : '') + '</div>' +
-            '</div>' +
-            '<span class="read-mask" aria-hidden="true"><span class="read-mask-label">阅读全文<i class="fas fa-arrow-right"></i></span></span>');
-          // [cover] 有封面时在右侧插一张缩略图；加载失败就整块移除，卡片退回纯文字
-          if (article.cover) {
-            var coverEl = document.createElement('div');
-            coverEl.className = 'article-cover';
-            var coverImg = document.createElement('img');
-            coverImg.src = article.cover;
-            coverImg.alt = '';
-            coverImg.loading = 'lazy';
-            coverImg.decoding = 'async';
-            coverImg.addEventListener('error', function () {
-              if (coverEl.parentNode) coverEl.parentNode.removeChild(coverEl);
-            });
-            coverEl.appendChild(coverImg);
-            card.insertBefore(coverEl, card.querySelector('.read-mask'));
-          }
-          grid.appendChild(card);
-        });
+        for (var pi = 0; pi < pageItems.length; pi++) {
+          var item = pageItems[pi];
+          grid.appendChild(item.kind === 'collection' ? renderCollectionCard(item) : renderArticleCard(item));
+        }
 
-        var tagLinks = grid.querySelectorAll('.article-tag');
+        if (activeCollection) renderCollectionBar();
+
+        var tagLinks = grid.querySelectorAll('.article-tag[data-tag]');
         for (var j = 0; j < tagLinks.length; j++) {
           tagLinks[j].addEventListener('click', function(e) {
             e.preventDefault();
@@ -1116,6 +1341,8 @@ function loadImage(imgUrl) {
         var catBtns = document.querySelectorAll('.category-btn');
         for (var i = 0; i < catBtns.length; i++) {
           catBtns[i].addEventListener('click', function() {
+            // [collection] 点分类等同于离开合集视图，回到全站文章流
+            activeCollection = '';
             resetAllFilters();
             currentTag = '';
             renderArticles(this.dataset.category);
@@ -1265,16 +1492,23 @@ function loadImage(imgUrl) {
       async function initializePage() {
         try {
           updateLoadingProgress(8, '正在初始化...');
-          try {
-            var resp = await fetch('/articles.json');
-            articlesData = await resp.json();
-          } catch(e) {
-            console.warn('articles.json 加载失败:', e);
-            articlesData = [];
-          }
+          var loaded = await Promise.all([
+            fetch('/articles.json').then(function(r) { return r.json(); }).catch(function(e) {
+              console.warn('articles.json 加载失败:', e);
+              return null;
+            }),
+            fetch('/collections.json').then(function(r) { return r.json(); }).catch(function(e) {
+              console.warn('collections.json 加载失败，本次不显示合集卡片:', e);
+              return null;
+            })
+          ]);
+          articlesData = loaded[0] || [];
+          collectionsData = loaded[1] || [];
           updateLoadingProgress(20, articlesData.length ? '文章数据已就绪' : '无文章数据');
 
           updateLoadingProgress(30, '正在渲染文章...');
+          // [collection] 深链 /?collection=<slug> 先切到合集视图，再叠加 ?tag= 筛选
+          applyCollectionFromLocation();
           var urlParams = new URLSearchParams(window.location.search);
           var urlTag = urlParams.get('tag');
           if (urlTag) {
@@ -1302,6 +1536,8 @@ function loadImage(imgUrl) {
 
           updateLoadingProgress(92, '即将完成...');
           bindEvents();
+          // [collection] 浏览器前进/后退跟随 URL 上的 ?collection=<slug>
+          window.addEventListener('popstate', function() { applyCollectionFromLocation(); });
           initLuckResult();
           updateRuntime();
           setInterval(updateRuntime, 1000);

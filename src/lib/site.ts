@@ -395,6 +395,8 @@ export interface PostLike {
     'code-license'?: string;
     /** [cover] 可选封面图；仅新增字段，未书写的文章产物与旧版一致 */
     cover?: string;
+    /** [collection] 所属合集 slug；未书写的文章不产生该键 */
+    collection?: string;
   };
 }
 
@@ -428,6 +430,9 @@ export function buildLegacyIndexItem(post: PostLike, srcDir: string): Record<str
     ...(d.excerpt !== undefined ? { excerpt: d.excerpt } : {}),
     // [cover] 供首页卡片渲染封面；未写 cover 的文章不产生该键，产物与旧版逐字节一致
     ...(d.cover !== undefined ? { cover: d.cover } : {}),
+    // [collection] 供首页识别合集成员（成员收编进合集卡片，不再单独成卡片）；
+    // 未写 collection 的文章不产生该键，产物与旧版逐字节一致
+    ...(d.collection !== undefined ? { collection: d.collection } : {}),
     ...(d.license !== undefined ? { license: d.license } : {}),
     ...(d['code-license'] !== undefined ? { 'code-license': d['code-license'] } : {}),
     ...(d.tags !== undefined ? { tags: normalizeTags(d.tags) } : {})

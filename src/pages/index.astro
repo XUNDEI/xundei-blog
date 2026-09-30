@@ -4,6 +4,11 @@
 //   元数据（与 articles.json 同源同排序）；<1280px 侧栏整体隐藏退回单栏。
 // [v5] ≥1280px 三栏杂志式 grid（左右侧栏 sticky），DOM 顺序文章流在前（SEO）。
 // [v3.0.3] 文章卡片：整卡跳转 + 封面缩略图 + 悬浮右侧渐变遮罩，无详情弹窗。
+// [collection] 文章合集：合集在文章流里占一张卡片（kind='collection'），与未归属文章按
+//   latest||date 混排在同一条时间线上（合集不置顶，见 home.js 的 buildFeedItems）；
+//   悬浮时用「这是一个文章合集，点击查看详细」覆盖简介；点击原地把列表切换成该合集的成员文章
+//   （URL 记为 /?collection=<slug>，支持深链与浏览器前进后退）。成员文章默认不再单独出现，
+//   但分类/搜索/标签/日期筛选时会展开，保证仍可被检索到。合集数据来自 /collections.json。
 import path from 'node:path';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SeoArticleNav from '../components/home/SeoArticleNav.astro';

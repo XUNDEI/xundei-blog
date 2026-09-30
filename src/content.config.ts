@@ -52,7 +52,26 @@ const posts = defineCollection({
     'code-license': z.string().optional(),
     // [cover] 可选封面图：完整 URL 或以 / 开头的站内路径；缺省时文章页不渲染封面
     cover: z.string().optional(),
+    // [collection] 所属合集的 slug（对应 src/content/collections/<slug>.md 的文件名）；
+    // 留空表示不属于任何合集。指向不存在的合集时构建期只告警、按无归属处理（见 src/lib/collections.ts）
+    collection: z.string().optional(),
   }),
 });
 
-export const collections = { posts };
+/**
+ * 文章合集：把若干篇文章归拢成一组，首页只展示一张合集卡片（见 src/lib/collections.ts）。
+ * 与 posts 一样用 dateString 保持日期为纯字符串，不做 Date 转换。
+ */
+const collectionEntries = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/collections' }),
+  schema: z.object({
+    title: z.string(),
+    date: dateString.optional(),
+    // 合集简介：首页合集卡片正面展示，悬浮时被「这是一个文章合集，点击查看详细」遮罩覆盖
+    intro: z.string().optional(),
+    cover: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { posts, collections: collectionEntries };
