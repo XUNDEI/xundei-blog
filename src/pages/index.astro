@@ -10,7 +10,6 @@
 //   （URL 记为 /?collection=<slug>，支持深链与浏览器前进后退）。成员文章默认不再单独出现，
 //   但分类/搜索/标签/日期筛选时会展开，保证仍可被检索到。合集数据来自 /collections.json。
 import path from 'node:path';
-import { SITE_URL } from '../lib/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SeoArticleNav from '../components/home/SeoArticleNav.astro';
 import SearchPanel from '../components/home/SearchPanel.astro';
@@ -91,13 +90,13 @@ const sidebarDataJson = JSON.stringify(postsByDate).replace(/</g, '\\u003c');
 <BaseLayout
   title="xundei's blog——仰望星空，脚踏实地"
   description="xundei的个人博客——仰望星空，脚踏实地"
-  canonical={`${SITE_URL}/`}
+  canonical="https://xundei.qzz.io/"
   ogType="website"
   ogTitle="xundei's blog"
   ogDescription="xundei的个人博客——仰望星空，脚踏实地"
-  ogUrl={`${SITE_URL}/`}
+  ogUrl="https://xundei.qzz.io/"
   ogSiteName="xundei's blog——仰望星空，脚踏实地"
-  jsonLd={`{ "@context": "https://schema.org", "@type": "WebSite", "name": "xundei's blog", "url": "${SITE_URL}/" }`}
+  jsonLd={`{ "@context": "https://schema.org", "@type": "WebSite", "name": "xundei's blog", "url": "https://xundei.qzz.io/" }`}
 >
   <div class="container">
     <SeoArticleNav links={seoLinks} />

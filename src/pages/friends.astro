@@ -2,7 +2,6 @@
 // 友链独立页 /friends（数据来自 src/data/friends.json，原 friend_link.md 的内容完整保留）。
 // 布局：桌面 3 列 / 平板 2 列 / 手机 1 列；样式沿用全站 glass/极光体系，配色取现有变量与色值。
 import friendsData from '../data/friends.json';
-import { SITE_URL } from '../lib/site';
 
 interface Friend {
   name: string;
@@ -41,7 +40,7 @@ function faviconSources(f: Friend): string[] {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} - xundei's blog</title>
     <meta name="description" content={intro} />
-    <link rel="canonical" href={`${SITE_URL}/friends`} />
+    <link rel="canonical" href="https://xundei.qzz.io/friends" />
     <link rel="icon" href="/favicon.ico" />
     <script is:inline>
       // 按时间段自动定主题：18:00–6:00 夜间（黄昏），其余为白天（清晨）
