@@ -2,6 +2,8 @@
 // 全站基础布局：由旧版 index.html / article.html 模板的公共外壳 1:1 移植。
 // 页面差异（SEO meta、JSON-LD、不蒜子统计、head 附加标签）通过 Props 与 head slot 注入；
 // 脚本一律用 Fragment set:html 原文输出，避免 Astro 改写执行时机。
+import ImageGuard from '../components/ImageGuard.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -43,7 +45,6 @@ const themeInitScript = `  <script>
       document.documentElement.classList.add(h >= 18 || h < 6 ? 'theme-dark' : 'theme-light');
     })();
   </script>`;
-
 const busuanziScript =
   '  <script defer src="//cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>';
 ---
@@ -84,5 +85,9 @@ const busuanziScript =
   <div class="brightness-overlay" id="brightness-overlay"></div>
 
   <slot />
+
+  <!-- [cf-guard] 图床被 Cloudflare 拦截时的手动过盾提示窗：全站共用，
+       仅在确认被拦截时弹出（图片不存在 / 网络不佳不弹），判定见 src/scripts/cf-image-guard.js -->
+  <ImageGuard />
 </body>
 </html>

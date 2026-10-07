@@ -1,0 +1,48 @@
+---
+// 图床被 Cloudflare 拦截时的提示窗（首页 / 文章页共用）。
+// 只在「确认被拦截」时弹出，判定逻辑见 src/scripts/cf-image-guard.js；
+// 图片不存在或单纯网络不佳一律不弹，保持原样。
+// 样式（src/styles/cf-guard.css）自带全部所需变量兜底，不依赖首页/文章页的页面 CSS，
+// 因此 404 等任何套了 BaseLayout 的页面都能直接复用。
+import cfImageGuardJs from '../scripts/cf-image-guard.js?raw';
+import '../styles/cf-guard.css';
+
+const cfGuardScript = `\n  <script>\n${cfImageGuardJs}  </script>`;
+---
+
+<div class="cf-guard" id="cf-guard" role="dialog" aria-modal="true" aria-labelledby="cf-guard-title" aria-hidden="true">
+  <div class="cf-guard-card glass">
+    <button class="cf-guard-close" id="cf-guard-close" type="button" aria-label="关闭提示">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="cf-guard-head">
+      <span class="cf-guard-badge" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></span>
+      <h2 class="cf-guard-title" id="cf-guard-title">图片加载疑似被拦截</h2>
+    </div>
+
+    <div class="cf-guard-body">
+      <p>很抱歉，当前图片加载疑似被 cloudflare 拦截。这并非我刻意而为，而是你所在的网络环境异常被 cloudflare 拦截，或是我的图床正在遭受严重的攻击。此拦截由 cloudflare CDN 做出，我无能为力。</p>
+      <p>因此，若你不介意的话，请点击下方按钮跳转至图片链接手动过盾，当图片加载完成后返回此博客，刷新页面即可恢复正常。当然，不过盾也是可以的，只是图片无法记载。</p>
+
+      <p class="cf-guard-tip">
+        <i class="fas fa-star" aria-hidden="true"></i>
+        <span><strong>友情提醒：</strong>节点梯子挂香港过盾会更丝滑。或者干脆关闭代理。</span>
+      </p>
+    </div>
+
+    <div class="cf-guard-actions">
+      <a class="cf-guard-btn primary" id="cf-guard-jump" href="#" target="_blank" rel="noopener noreferrer">
+        <i class="fas fa-link" aria-hidden="true"></i>
+        <span>跳转图片链接手动过盾</span>
+      </a>
+      <button class="cf-guard-btn" id="cf-guard-refresh" type="button">
+        <i class="fas fa-sync-alt" aria-hidden="true"></i>
+        <span>我已过盾，刷新页面</span>
+      </button>
+      <button class="cf-guard-btn ghost" id="cf-guard-later" type="button">暂不处理</button>
+    </div>
+  </div>
+</div>
+
+<Fragment set:html={cfGuardScript} />
